@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { LandingPage } from '@/components/landing/LandingPage';
 import { PasswordGate } from '@/components/gate/PasswordGate';
 import { LoginScreen } from '@/components/login/LoginScreen';
@@ -31,10 +31,8 @@ function LogoutHandler() {
   return <Navigate to="/gate" replace />;
 }
 
-// Component that handles password success
 function PasswordGateWrapper() {
-  const { unlock } = useAppStore();
-  const { isUnlocked } = useAppStore();
+  const { unlock, isUnlocked } = useAppStore();
 
   if (isUnlocked) {
     return <Navigate to="/app/login" replace />;
@@ -43,118 +41,60 @@ function PasswordGateWrapper() {
   return <PasswordGate onSuccess={unlock} />;
 }
 
-function App() {
+// Protected route wrapper
+function ProtectedRoute() {
   const { isUnlocked } = useAppStore();
   const { isLoggedIn } = useUser();
+
+  if (!isUnlocked) {
+    return <Navigate to="/gate" replace />;
+  }
+
+  if (!isLoggedIn) {
+    return <Navigate to="/app/login" replace />;
+  }
+
+  return <Outlet />;
+}
+
+// App wrapper (unlocked but not necessarily logged in)
+function AppWrapper() {
+  const { isUnlocked } = useAppStore();
+
+  if (!isUnlocked) {
+    return <Navigate to="/gate" replace />;
+  }
+
+  return <Outlet />;
+}
+
+function App() {
+  const { isUnlocked } = useAppStore();
 
   return (
     <HashRouter>
       <Routes>
+        {/* Public */}
         <Route path="/" element={<LandingPage />} />
-
         <Route path="/gate" element={<PasswordGateWrapper />} />
 
-        <Route
-          path="/app/*"
-          element={
-            isUnlocked ? (
-              <div />
-            ) : (
-              <Navigate to="/gate" replace />
-            )
-          }
-        >
-          <Route
-            path="login"
-            element={
-              isLoggedIn ? (
-                <Navigate to="/app/home" replace />
-              ) : (
-                <LoginScreen />
-              )
-            }
-          />
+        {/* App - requires unlock */}
+        <Route element={<AppWrapper />}>
+          <Route path="/app/login" element={<LoginScreen />} />
+          <Route path="/app/logout" element={<LogoutHandler />} />
 
-          <Route
-            path="home"
-            element={
-              isLoggedIn ? (
-                <DialRotator />
-              ) : (
-                <Navigate to="/app/login" replace />
-              )
-            }
-          />
+          {/* Protected - requires unlock + login */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/app/home" element={<DialRotator />} />
+            <Route path="/app/spawns" element={<SpawnsPage />} />
+            <Route path="/app/raids" element={<RaidsPage />} />
+            <Route path="/app/dex" element={<DexPage />} />
+            <Route path="/app/events" element={<EventsPage />} />
+            <Route path="/app/orders" element={<OrdersPage />} />
+            <Route path="/app/history" element={<HistoryPage />} />
+          </Route>
 
-          <Route path="logout" element={<LogoutHandler />} />
-
-          <Route
-            path="spawns"
-            element={
-              isLoggedIn ? (
-                <SpawnsPage />
-              ) : (
-                <Navigate to="/app/login" replace />
-              )
-            }
-          />
-
-          <Route
-            path="raids"
-            element={
-              isLoggedIn ? (
-                <RaidsPage />
-              ) : (
-                <Navigate to="/app/login" replace />
-              )
-            }
-          />
-
-          <Route
-            path="dex"
-            element={
-              isLoggedIn ? (
-                <DexPage />
-              ) : (
-                <Navigate to="/app/login" replace />
-              )
-            }
-          />
-
-          <Route
-            path="events"
-            element={
-              isLoggedIn ? (
-                <EventsPage />
-              ) : (
-                <Navigate to="/app/login" replace />
-              )
-            }
-          />
-
-          <Route
-            path="orders"
-            element={
-              isLoggedIn ? (
-                <OrdersPage />
-              ) : (
-                <Navigate to="/app/login" replace />
-              )
-            }
-          />
-
-          <Route
-            path="history"
-            element={
-              isLoggedIn ? (
-                <HistoryPage />
-              ) : (
-                <Navigate to="/app/login" replace />
-              )
-            }
-          />
-
-          <Route path="*" element={<Navigate to="/app/home" replace />} />
+          <Route path="/app/*" element={<Navigate to="/app/home" replace />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
