@@ -2,11 +2,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PasswordGateProps } from '@/types';
 
-// SHA-256 hash of your password
-// To generate: run this in browser console:
-//   crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourPassword'))
-//   .then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join(''))
-const CORRECT_PASSWORD_HASH = 'e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4c8b3a8e8a7f1c4d8b9a1c3e5';
+// SHA-256 hash of: @n3R1ng#01031&92
+const CORRECT_PASSWORD_HASH = 'dc236f8e98ccdfa602aaacd6e83396c46eb18a35002b0c19536160772ac5872a';
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
