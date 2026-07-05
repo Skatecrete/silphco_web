@@ -31,6 +31,18 @@ function LogoutHandler() {
   return <Navigate to="/gate" replace />;
 }
 
+// Component that handles password success
+function PasswordGateWrapper() {
+  const { unlock } = useAppStore();
+  const { isUnlocked } = useAppStore();
+
+  if (isUnlocked) {
+    return <Navigate to="/app/login" replace />;
+  }
+
+  return <PasswordGate onSuccess={unlock} />;
+}
+
 function App() {
   const { isUnlocked } = useAppStore();
   const { isLoggedIn } = useUser();
@@ -40,16 +52,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
 
-        <Route
-          path="/gate"
-          element={
-            isUnlocked ? (
-              <Navigate to="/app/login" replace />
-            ) : (
-              <PasswordGate onSuccess={() => {}} />
-            )
-          }
-        />
+        <Route path="/gate" element={<PasswordGateWrapper />} />
 
         <Route
           path="/app/*"
