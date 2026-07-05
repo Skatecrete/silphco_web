@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { PasswordGateProps } from '@/types';
 
 // SHA-256 hash of: @n3R1ng#01031&92
-const CORRECT_PASSWORD_HASH = 'dc236f8e98ccdfa602aaacd6e83396c46eb18a35002b0c19536160772ac5872a';
+const CORRECT_PASSWORD_HASH = '6a720fb28b30c5874a326ea34e675ff79be4b6b8df0d1c1bf304f62704e5daf1';
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
