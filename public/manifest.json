@@ -1,0 +1,88 @@
+{
+  "name": "PokeSpawn",
+  "short_name": "PokeSpawn",
+  "description": "View or order current spawns, raids, events, and more!",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#7627C5",
+  "background_color": "#1a1a2e",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Spawns",
+      "url": "/#/app/spawns",
+      "icons": [{ "src": "/icons/shortcut-spawns.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Raids",
+      "url": "/#/app/raids",
+      "icons": [{ "src": "/icons/shortcut-raids.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Cart",
+      "url": "/#/app/orders",
+      "icons": [{ "src": "/icons/shortcut-cart.png", "sizes": "96x96" }]
+    }
+  ],
+  "apple-mobile-web-app-capable": "yes",
+  "apple-mobile-web-app-status-bar-style": "black-translucent",
+  "apple-mobile-web-app-title": "PokeSpawn"
+}

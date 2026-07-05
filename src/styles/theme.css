@@ -1,0 +1,17 @@
+:root {
+  /* Dark theme variables (matches Android app) */
+  --color-bg: #1a1a2e;
+  --color-bg-darker: #0d0d1a;
+  --color-bg-card: #2a2a3e;
+  --color-purple: #7627C5;
+  --color-purple-dark: #5A1E9E;
+  --color-orange: #FFA500;
+  --color-green: #4CAF50;
+  --color-red: #F44336;
+  --color-text: #ffffff;
+  --color-text-muted: #888888;
+  --color-text-dim: #666666;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
