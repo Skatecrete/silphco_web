@@ -23,12 +23,10 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
   if (!pokemon) return null;
 
   const imageUrl = getUltimateGalleryUrl(pokemon.name) || getPokeApiUrl(pokemon.id);
-  const isNope = pokemon.spawnRate === 0.0;
   const shundoAvailable = pokemon.spawnRate >= 0.45 && pokemon.isShiny;
   const showShundoDisclaimer = pokemon.spawnRate >= 0.45 && pokemon.spawnRate < 0.65 && pokemon.isShiny;
   const isRegional = pokemon.isRegional;
 
-  // Pricing (will come from API later)
   const PRICES = {
     shundo: 5.0,
     hundo: isRegional ? 8.0 : 3.0,
@@ -58,7 +56,7 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
 
     if (quantities.shundo > 0) {
       addItem({
-        id: `${pokemon.id}-shundo`,
+        id: `${pokemon.id}-shundo-${Date.now()}`,
         type: 'shundo',
         pokemonName: pokemon.name,
         quantity: quantities.shundo,
@@ -68,7 +66,7 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
     }
     if (quantities.hundo > 0) {
       addItem({
-        id: `${pokemon.id}-hundo`,
+        id: `${pokemon.id}-hundo-${Date.now()}`,
         type: 'hundo',
         pokemonName: pokemon.name,
         quantity: quantities.hundo,
@@ -78,7 +76,7 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
     }
     if (quantities.shiny > 0) {
       addItem({
-        id: `${pokemon.id}-shiny`,
+        id: `${pokemon.id}-shiny-${Date.now()}`,
         type: 'shiny',
         pokemonName: pokemon.name,
         quantity: quantities.shiny,
@@ -88,7 +86,7 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
     }
     if (quantities.normal > 0) {
       addItem({
-        id: `${pokemon.id}-normal`,
+        id: `${pokemon.id}-normal-${Date.now()}`,
         type: 'normal',
         pokemonName: pokemon.name,
         quantity: quantities.normal,
@@ -112,7 +110,6 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
             exit={{ y: 50, opacity: 0 }}
             className="relative bg-dark-card rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto p-6"
           >
-            {/* Pokemon Info */}
             <div className="text-center mb-4">
               <img
                 src={imageUrl}
@@ -125,7 +122,6 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
               </p>
             </div>
 
-            {/* Shundo Disclaimer */}
             {showShundoDisclaimer && (
               <div className="bg-orange-500/20 border border-orange-500 rounded-lg p-3 mb-4">
                 <p className="text-orange-500 text-sm text-center">
@@ -134,7 +130,6 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
               </div>
             )}
 
-            {/* Shundo Section */}
             {shundoAvailable && (
               <QuantityRow
                 label="✨ SHUNDO (100% IV + SHINY)"
@@ -144,7 +139,6 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
               />
             )}
 
-            {/* Hundo Section */}
             <QuantityRow
               label={`💯 HUNDO (100% IV)${isRegional ? ' - REGIONAL' : ''}`}
               price={PRICES.hundo}
@@ -152,7 +146,6 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
               onUpdate={(delta) => updateQuantity('hundo', delta)}
             />
 
-            {/* Shiny Section */}
             <QuantityRow
               label={`✨ SHINY (Random IVs)${isRegional ? ' - REGIONAL' : ''}`}
               price={PRICES.shiny}
@@ -160,7 +153,6 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
               onUpdate={(delta) => updateQuantity('shiny', delta)}
             />
 
-            {/* Normal (Any IV) - Always available */}
             <QuantityRow
               label="🎲 NORMAL (Any IV)"
               price={PRICES.normal}
@@ -168,7 +160,6 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
               onUpdate={(delta) => updateQuantity('normal', delta)}
             />
 
-            {/* Total and Actions */}
             <div className="mt-4 pt-4 border-t border-gray-700">
               <div className="flex justify-between text-white text-lg font-bold">
                 <span>Total:</span>

@@ -34,7 +34,7 @@ export const useCartStore = create<CartStore>()(
       addItem: (item) => {
         const items = get().items;
         const existingIndex = items.findIndex(
-          (i) => i.pokemonName === item.pokemonName && i.type === item.type
+          (i) => i.pokemonName === item.pokemonName && i.type === item.type && i.raidTier === item.raidTier
         );
 
         let newItems;

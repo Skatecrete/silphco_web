@@ -1,4 +1,29 @@
-// Add this function to the existing file
+const EVENTS_URL = 'https://leekduck.com/feeds/events.json';
+const DEBUTS_URL = 'https://raw.githubusercontent.com/Skatecrete/pogo-raid-data/main/debuts.json';
+
+export interface LeekDuckEvent {
+  name: string;
+  eventType: string;
+  heading: string;
+  link: string;
+  image: string;
+  start: string;
+  end: string;
+}
+
+export interface DebutData {
+  event_name: string;
+  event_date: string;
+  new_pokemon: string[];
+  new_shiny: string[];
+  pokemon_images: Record<string, string>;
+  event_type: string;
+}
+
+export interface DebutsResponse {
+  last_updated: string;
+  debuts: DebutData[];
+}
 
 export interface PromoCode {
   code: string;
@@ -8,19 +33,38 @@ export interface PromoCode {
   expiry: string;
 }
 
+export async function fetchEvents(): Promise<LeekDuckEvent[]> {
+  try {
+    const response = await fetch('https://corsproxy.io/?' + encodeURIComponent(EVENTS_URL));
+    if (!response.ok) throw new Error('Failed to fetch events');
+    return await response.json();
+  } catch (e) {
+    console.error('Error fetching events:', e);
+    return [];
+  }
+}
+
+export async function fetchDebuts(): Promise<DebutsResponse | null> {
+  try {
+    const response = await fetch(DEBUTS_URL);
+    if (!response.ok) throw new Error('Failed to fetch debuts');
+    return await response.json();
+  } catch (e) {
+    console.error('Error fetching debuts:', e);
+    return null;
+  }
+}
+
 export async function fetchPromoCodes(): Promise<PromoCode[]> {
   try {
-    // Use a CORS proxy to fetch the page
     const response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://leekduck.com/promo-codes/'));
     const html = await response.text();
 
-    // Parse HTML using DOMParser
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
     const promoCodes: PromoCode[] = [];
 
-    // Select promo cards that are NOT expired
     const cards = doc.querySelectorAll('.promo-card:not(.expired)');
 
     cards.forEach((card) => {
@@ -54,10 +98,19 @@ export async function fetchPromoCodes(): Promise<PromoCode[]> {
       }
     });
 
+    if (promoCodes.length === 0) {
+      return [{
+        code: 'FENDIxFRGMTxPOKEMON',
+        title: 'FENDI x FRGMT x POKEMON Hoodie',
+        rewards: ['FENDI x FRGMT x POKEMON hoodie'],
+        imageUrl: 'https://cdn.leekduck.com/assets/img/avatar_items/n_shirt_partneritemsjan2024hoodie_0_icon.png',
+        expiry: '???',
+      }];
+    }
+
     return promoCodes;
   } catch (e) {
     console.error('Error fetching promo codes:', e);
-    // Return fallback promo code
     return [{
       code: 'FENDIxFRGMTxPOKEMON',
       title: 'FENDI x FRGMT x POKEMON Hoodie',

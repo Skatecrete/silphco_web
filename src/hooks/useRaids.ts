@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchCurrentRaids, fetchScrapedDuckRaids, RaidData } from '@/services/rotationApi';
+import { fetchCurrentRaids } from '@/services/rotationApi';
 import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
-import { isUltraBeast } from '@/utils/constants';
 
 export interface Raid {
   id: number;
@@ -13,28 +12,12 @@ export interface Raid {
 
 const INVALID_NAMES = ['Search...', 'bug', 'dark', 'dragon', 'electric', 'fairy', 'fighting', 'fire', 'flying', 'ghost', 'grass', 'ground', 'ice', 'normal', 'poison', 'psychic', 'rock', 'steel', 'water'];
 
-// Simple map for ID lookup (will be expanded)
 const POKEMON_ID_MAP: Record<string, number> = {
-  'pikachu': 25,
-  'eevee': 133,
-  'vulpix': 37,
-  'alolan vulpix': 37,
-  'gastly': 92,
-  'swablu': 333,
-  'rufflet': 627,
-  'starly': 396,
-  'gligar': 207,
-  'moltres': 146,
-  'pidgeot': 18,
-  'lucario': 448,
-  'machop': 66,
-  'shuckle': 213,
-  'rookidee': 821,
-  'vullaby': 629,
-  'staraptor': 398,
-  'corvisquire': 822,
-  'bombirdier': 962,
-  'noctowl': 164,
+  'pikachu': 25, 'eevee': 133, 'vulpix': 37, 'alolan vulpix': 37,
+  'gastly': 92, 'swablu': 333, 'rufflet': 627, 'starly': 396,
+  'gligar': 207, 'moltres': 146, 'pidgeot': 18, 'lucario': 448,
+  'machop': 66, 'shuckle': 213, 'rookidee': 821, 'vullaby': 629,
+  'staraptor': 398, 'corvisquire': 822, 'bombirdier': 962, 'noctowl': 164,
 };
 
 async function getPokemonId(name: string): Promise<number> {
@@ -54,7 +37,7 @@ async function getPokemonId(name: string): Promise<number> {
     }
   } catch (e) {}
 
-  return 25; // Pikachu fallback
+  return 25;
 }
 
 export function useRaids() {
@@ -70,7 +53,6 @@ export function useRaids() {
 
       try {
         const snackNap = await fetchCurrentRaids();
-        const scrapedDuck = await fetchScrapedDuckRaids();
 
         if (!snackNap) {
           setError('Failed to load raids');
@@ -79,27 +61,13 @@ export function useRaids() {
         }
 
         const regular: Record<string, Raid[]> = {
-          tier1: [],
-          tier3: [],
-          tier5: [],
-          mega: [],
-          primal: [],
-          ultraBeasts: [],
-          superMega: [],
-          shadow5: [],
-          shadow3: [],
-          shadow1: [],
+          tier1: [], tier3: [], tier5: [], mega: [], primal: [],
+          ultraBeasts: [], superMega: [], shadow5: [], shadow3: [], shadow1: [],
         };
 
-        // Process SnackNap data
-        const tiers = {
-          tier1: '1-Star',
-          tier3: '3-Star',
-          tier5: '5-Star',
-          mega: 'Mega',
-          primal: 'Primal',
-          ultra_beasts: 'Ultra Beast',
-          super_mega: 'Super Mega',
+        const tiers: Record<string, string> = {
+          tier1: '1-Star', tier3: '3-Star', tier5: '5-Star',
+          mega: 'Mega', primal: 'Primal', ultra_beasts: 'Ultra Beast', super_mega: 'Super Mega',
         };
 
         for (const [key, tierName] of Object.entries(tiers)) {
@@ -118,7 +86,6 @@ export function useRaids() {
           }
         }
 
-        // Process Dynamax
         const dynaKeys = ['dynamax_tier1', 'dynamax_tier2', 'dynamax_tier3', 'dynamax_tier5', 'gigantamax'];
         const dynaTiers: Record<string, string> = {
           dynamax_tier1: '⚡ Dynamax Tier 1',

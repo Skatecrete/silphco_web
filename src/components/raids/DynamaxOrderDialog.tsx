@@ -18,7 +18,6 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
   const isGigantamax = raid.tier.includes('Gigantamax');
   const imageUrl = getUltimateGalleryUrl(raid.name, true, false, isGigantamax) || getPokeApiUrl(raid.id);
 
-  // Pricing (will come from API later)
   const DYNAMAX_PRICE_PER_4 = 10.0;
   const DYNAMAX_PRICE_SINGLE = 2.5;
 
@@ -53,7 +52,6 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
             exit={{ y: 50, opacity: 0 }}
             className="relative bg-dark-card rounded-2xl w-full max-w-sm p-6"
           >
-            {/* Pokemon Info */}
             <div className="text-center mb-4">
               <img
                 src={imageUrl}
@@ -64,7 +62,6 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
               <p className="text-gray-400 text-sm">{raid.tier}</p>
             </div>
 
-            {/* Quantity Selector */}
             <p className="text-white text-sm font-bold mb-3">
               SELECT QUANTITY (4 for ${DYNAMAX_PRICE_PER_4} or ${DYNAMAX_PRICE_SINGLE} each)
             </p>
@@ -91,12 +88,10 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
               </p>
             )}
 
-            {/* Disclaimer */}
             <p className="text-orange-500 text-xs text-center mb-4">
               ⚠️ Raids may be limited due to spawning distance, personal mon not strong enough, or limited max particle use.
             </p>
 
-            {/* Actions */}
             <div className="flex gap-3 mt-4">
               <button
                 onClick={onClose}

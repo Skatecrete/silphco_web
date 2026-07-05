@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useCart } from '@/hooks/useCart';
 import { usePricing } from '@/hooks/usePricing';
 import { CartList } from './CartList';
@@ -9,37 +7,27 @@ import { CheckoutDialog } from './CheckoutDialog';
 import { Header } from '@/components/common/Header';
 
 export function OrdersPage() {
-  const navigate = useNavigate();
-  const { items, totalItems, totalPrice, clearCart, recalculate } = useCart();
+  const { items, totalItems, totalPrice, clearCart } = useCart();
   const { prices } = usePricing();
   const [showCheckout, setShowCheckout] = useState(false);
 
   const handleAddCoin = (coinAmount: number) => {
-    // Add coin to cart
     const price = coinAmount === 5600 ? prices.coins5600 :
                   coinAmount === 15500 ? prices.coins15500 :
                   prices.coins31000;
 
-    // Find if coin item already exists
+    // Find existing coin item
     const existingIndex = items.findIndex(
       (item) => item.type === 'coins' && item.coinAmount === coinAmount
     );
 
     if (existingIndex >= 0) {
-      // Update quantity
-      const item = items[existingIndex];
-      // Recalculate by removing and re-adding (simplified)
-    } else {
-      // Add new
-      // This would use the cart store's addItem method
+      // Update quantity (simplified: remove and re-add)
     }
   };
 
   const handleCheckout = () => {
-    if (items.length === 0) {
-      // Show toast: "Add items to your cart first"
-      return;
-    }
+    if (items.length === 0) return;
     setShowCheckout(true);
   };
 
@@ -139,7 +127,6 @@ export function OrdersPage() {
         </div>
       </div>
 
-      {/* Checkout Dialog */}
       <CheckoutDialog
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}

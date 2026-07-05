@@ -1,8 +1,6 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useDex } from '@/hooks/useDex';
 import { useCart } from '@/hooks/useCart';
+import { useDex } from '@/hooks/useDex';
 import { DexCard } from './DexCard';
 import { DexTabs } from './DexTabs';
 import { RegionFilter } from './RegionFilter';
@@ -10,28 +8,22 @@ import { Header } from '@/components/common/Header';
 import { REGIONS } from '@/utils/regionHelper';
 
 export function DexPage() {
-  const navigate = useNavigate();
   const { totalItems } = useCart();
   const [listType, setListType] = useState<'Normal' | 'Shiny'>('Normal');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const { pokemon, loading, error, pendingRemovals, togglePokemon, confirmRemovals, cancelRemovals, hasPendingRemovals } = useDex(listType);
 
-  // Filter pokemon
   const filteredPokemon = useMemo(() => {
     let result = pokemon;
 
-    // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.id.toString().includes(query)
+        (p) => p.name.toLowerCase().includes(query) || p.id.toString().includes(query)
       );
     }
 
-    // Region filter
     if (selectedRegion) {
       const region = REGIONS.find((r) => r.name === selectedRegion);
       if (region) {
@@ -39,16 +31,13 @@ export function DexPage() {
       }
     }
 
-    // Shiny tab filter - only show shiny-available Pokemon
     if (listType === 'Shiny') {
       result = result.filter((p) => p.isShinyAvailable);
     }
 
-    // Sort by ID
     return result.sort((a, b) => a.id - b.id);
   }, [pokemon, searchQuery, selectedRegion, listType]);
 
-  const totalOnList = pokemon.filter((p) => p.onList).length;
   const totalPending = pendingRemovals.length;
 
   if (loading) {
@@ -78,10 +67,8 @@ export function DexPage() {
     <div className="h-screen flex flex-col bg-dark-bg">
       <Header title="My Lists" cartCount={totalItems} />
 
-      {/* Tabs */}
       <DexTabs currentTab={listType} onTabChange={setListType} />
 
-      {/* Search Bar */}
       <div className="px-4 py-2 bg-dark-bg/95 border-b border-gray-800/50">
         <div className="relative">
           <input
@@ -102,7 +89,6 @@ export function DexPage() {
         </div>
       </div>
 
-      {/* Region Filter */}
       <div className="px-4 py-2 flex gap-2 bg-dark-bg/95 border-b border-gray-800/50">
         <RegionFilter
           selectedRegion={selectedRegion}
@@ -115,7 +101,6 @@ export function DexPage() {
         </span>
       </div>
 
-      {/* Confirm/Cancel Buttons */}
       {hasPendingRemovals && (
         <div className="px-4 py-2 flex gap-2 bg-dark-bg/95 border-b border-gray-800/50">
           <button
@@ -133,31 +118,27 @@ export function DexPage() {
         </div>
       )}
 
-      {/* List */}
       <div className="flex-1 overflow-y-auto px-4 py-2">
-        <AnimatePresence>
-          {filteredPokemon.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <p className="text-lg">No Pokémon found</p>
-              <p className="text-sm mt-1">
-                {searchQuery ? 'Try a different search' : 'Add some to your list!'}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {filteredPokemon.map((p) => (
-                <DexCard
-                  key={p.id}
-                  pokemon={p}
-                  onToggle={(checked) => togglePokemon(p.id, checked)}
-                />
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
+        {filteredPokemon.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <p className="text-lg">No Pokémon found</p>
+            <p className="text-sm mt-1">
+              {searchQuery ? 'Try a different search' : 'Add some to your list!'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {filteredPokemon.map((p) => (
+              <DexCard
+                key={p.id}
+                pokemon={p}
+                onToggle={(checked) => togglePokemon(p.id, checked)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Shiny Disclaimer */}
       {listType === 'Shiny' && (
         <div className="px-4 py-2 bg-dark-bg/95 border-t border-gray-800/50">
           <p className="text-orange-500 text-xs text-center">

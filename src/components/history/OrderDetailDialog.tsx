@@ -44,7 +44,6 @@ export function OrderDetailDialog({ isOpen, order, onClose }: OrderDetailDialogP
               </button>
             </div>
 
-            {/* Order Info */}
             <div className="bg-dark-bg rounded-xl p-3 mb-4">
               <p className="text-orange-400 font-bold text-sm">{order.orderId}</p>
               <p className="text-white text-sm">Customer: {order.customer}</p>
@@ -56,7 +55,6 @@ export function OrderDetailDialog({ isOpen, order, onClose }: OrderDetailDialogP
               )}
             </div>
 
-            {/* Items */}
             <div className="bg-dark-bg rounded-xl p-3 mb-4">
               <p className="text-white font-bold text-sm mb-2">📋 Items</p>
               {order.items.length === 0 ? (
@@ -78,13 +76,11 @@ export function OrderDetailDialog({ isOpen, order, onClose }: OrderDetailDialogP
               )}
             </div>
 
-            {/* Total */}
             <div className="flex justify-between items-center border-t border-gray-700 pt-3 mb-4">
               <span className="text-white font-bold">Total:</span>
               <span className="text-green-400 font-bold text-lg">${order.total.toFixed(2)}</span>
             </div>
 
-            {/* Other Requests */}
             {order.otherRequests && (
               <div className="bg-dark-bg rounded-xl p-3 mb-4">
                 <p className="text-orange-400 text-sm font-bold">📝 Notes</p>

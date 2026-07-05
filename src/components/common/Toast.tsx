@@ -19,7 +19,7 @@ export function Toast({ message, isVisible, type = 'info', onHide }: ToastProps)
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className={`fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 ${bgColor} text-white font-bold rounded-xl shadow-xl max-w-sm text-center`}
+          className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-dark-card text-white font-bold rounded-xl shadow-xl max-w-sm text-center border border-gray-700"
         >
           {message}
         </motion.div>

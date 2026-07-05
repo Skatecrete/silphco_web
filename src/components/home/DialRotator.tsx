@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { DialTile } from './DialTile';
 import { WelcomeText } from './WelcomeText';
 import { LogoutButton } from '@/components/common/LogoutButton';
@@ -11,7 +10,6 @@ const DIAL_TILES: DialTileData[] = [
   { id: 'raids', label: 'RAIDS', icon: '⚔️', route: '/app/raids' },
   { id: 'dex', label: 'DEX', icon: '📖', route: '/app/dex' },
   { id: 'events', label: 'EVENTS', icon: '📅', route: '/app/events' },
-  { id: 'services', label: 'SERVICES', icon: '🎉', route: '/app/services' },
   { id: 'cart', label: 'CART', icon: '🛒', route: '/app/orders' },
   { id: 'history', label: 'HISTORY', icon: '📜', route: '/app/history' },
   { id: 'logout', label: 'LOGOUT', icon: '🚪', route: '/app/logout' },
@@ -22,7 +20,6 @@ export function DialRotator() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Infinite loop: duplicate tiles for seamless scrolling
   const tiles = [...DIAL_TILES, ...DIAL_TILES, ...DIAL_TILES];
   const startIndex = DIAL_TILES.length;
 
@@ -35,7 +32,6 @@ export function DialRotator() {
       const tileHeight = container.clientHeight;
       const centerIndex = Math.round(scrollTop / tileHeight);
 
-      // Wrap around when reaching boundaries
       if (centerIndex >= tiles.length - DIAL_TILES.length) {
         container.scrollTop = startIndex * tileHeight;
       } else if (centerIndex < DIAL_TILES.length) {
@@ -47,7 +43,6 @@ export function DialRotator() {
     };
 
     container.addEventListener('scroll', handleScroll);
-    // Initial position
     container.scrollTop = startIndex * container.clientHeight;
 
     return () => container.removeEventListener('scroll', handleScroll);
@@ -55,24 +50,20 @@ export function DialRotator() {
 
   const handleTileClick = (tile: DialTileData) => {
     if (tile.id === 'logout') {
-      // Navigate to logout route which triggers logout
       navigate('/app/logout');
       return;
     }
-    // Zoom animation handled by DialTile, then navigate
     navigate(tile.route);
   };
 
   return (
     <div className="h-screen flex flex-col bg-dark-bg">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-dark-bg/95 backdrop-blur-sm border-b border-gray-800/50 z-10">
-        <div className="w-20" /> {/* Spacer for centering */}
+        <div className="w-20" />
         <WelcomeText />
         <LogoutButton variant="icon" />
       </div>
 
-      {/* Dial Container */}
       <div
         ref={containerRef}
         className="flex-1 overflow-y-scroll snap-y snap-mandatory scroll-smooth"

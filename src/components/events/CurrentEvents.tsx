@@ -28,7 +28,6 @@ export function CurrentEvents({ events }: CurrentEventsProps) {
     );
   }
 
-  // Group by starting today vs ongoing
   const today = new Date();
   const startingToday = currentEvents.filter((e) => {
     const start = new Date(e.start);

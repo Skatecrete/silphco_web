@@ -1,22 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import { fetchEvents, fetchDebuts, LeekDuckEvent, DebutData } from '@/services/leekDuckApi';
 import { CurrentEvents } from './CurrentEvents';
 import { UpcomingEvents } from './UpcomingEvents';
 import { DebutBanner } from './DebutBanner';
 import { Header } from '@/components/common/Header';
-import { getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
 
 export function EventsPage() {
-  const navigate = useNavigate();
   const { totalItems } = useCart();
   const [currentTab, setCurrentTab] = useState<'current' | 'upcoming'>('current');
   const [events, setEvents] = useState<LeekDuckEvent[]>([]);
-  const [debuts, setDebuts] = useState<DebutData[]>([]);
+  const [activeDebut, setActiveDebut] = useState<DebutData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeDebut, setActiveDebut] = useState<DebutData | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -32,8 +28,6 @@ export function EventsPage() {
         setEvents(eventsData);
 
         if (debutsData && debutsData.debuts.length > 0) {
-          setDebuts(debutsData.debuts);
-          // Find the most recent/current debut
           setActiveDebut(debutsData.debuts[0]);
         }
       } catch (err) {
@@ -75,18 +69,12 @@ export function EventsPage() {
       <Header title="Events" cartCount={totalItems} />
 
       <div className="flex-1 overflow-y-auto px-4 py-3">
-        {/* Debut Banner */}
         <DebutBanner
           debut={activeDebut}
-          onViewDebuts={() => {
-            // Show debut details in modal
-          }}
-          onViewEvent={() => {
-            // Open event link
-          }}
+          onViewDebuts={() => {}}
+          onViewEvent={() => {}}
         />
 
-        {/* Tabs */}
         <div className="flex rounded-xl overflow-hidden bg-dark-card p-1 mb-4">
           <button
             onClick={() => setCurrentTab('current')}
@@ -110,16 +98,12 @@ export function EventsPage() {
           </button>
         </div>
 
-        {/* Content */}
         {currentTab === 'current' ? (
           <CurrentEvents events={events} />
         ) : (
-          <UpcomingEvents events={events} onRSVPClick={(event) => {
-            // Open RSVP dialog
-          }} />
+          <UpcomingEvents events={events} onRSVPClick={() => {}} />
         )}
 
-        {/* Attribution */}
         <p className="text-gray-600 text-xs text-center mt-4">
           Event data provided by LeekDuck.com
         </p>

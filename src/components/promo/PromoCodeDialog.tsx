@@ -51,7 +51,6 @@ export function PromoCodeDialog({ isOpen, onClose }: PromoCodeDialogProps) {
             exit={{ scale: 0.9, opacity: 0 }}
             className="relative bg-dark-card rounded-2xl w-full max-w-md p-6 max-h-[85vh] flex flex-col"
           >
-            {/* Header */}
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-white text-xl font-bold">Active Promo Codes</h2>
               <button
@@ -62,7 +61,6 @@ export function PromoCodeDialog({ isOpen, onClose }: PromoCodeDialogProps) {
               </button>
             </div>
 
-            {/* Content */}
             <div className="flex-1 overflow-y-auto">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-8">
@@ -88,7 +86,6 @@ export function PromoCodeDialog({ isOpen, onClose }: PromoCodeDialogProps) {
                   {promoCodes.map((promo, index) => (
                     <div key={index} className="bg-dark-bg rounded-xl p-3">
                       <div className="flex items-start gap-3">
-                        {/* Image */}
                         {promo.imageUrl && (
                           <img
                             src={promo.imageUrl}

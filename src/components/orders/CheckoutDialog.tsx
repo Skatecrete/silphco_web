@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '@/hooks/useUser';
 import { CartItem } from '@/stores/cartStore';
@@ -20,6 +20,16 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
   const [showAdminSelection, setShowAdminSelection] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (isOpen && isLoggedIn && userDisplay) {
+      const parts = userDisplay.split(' (');
+      if (parts.length === 2) {
+        setName(parts[0]);
+        setIgn(parts[1].replace(')', ''));
+      }
+    }
+  }, [isOpen, isLoggedIn, userDisplay]);
+
   const handleContinue = () => {
     const trimmedName = name.trim();
     const trimmedIgn = ign.trim();
@@ -31,19 +41,6 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
 
     setError(null);
     setShowAdminSelection(true);
-  };
-
-  // Pre-fill with user data if logged in
-  const handleOpen = () => {
-    if (isLoggedIn && userDisplay) {
-      const parts = userDisplay.split(' (');
-      if (parts.length === 2) {
-        setName(parts[0]);
-        setIgn(parts[1].replace(')', ''));
-      }
-    }
-    setError(null);
-    setShowAdminSelection(false);
   };
 
   if (!isOpen) return null;
@@ -125,7 +122,6 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
         </div>
       )}
 
-      {/* Admin Selection Dialog */}
       <AdminSelectionDialog
         isOpen={showAdminSelection}
         onClose={() => {

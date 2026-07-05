@@ -1,15 +1,12 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSpawns } from '@/hooks/useSpawns';
 import { useCart } from '@/hooks/useCart';
+import { useSpawns } from '@/hooks/useSpawns';
 import { SpawnCard } from './SpawnCard';
 import { SpawnFilterDialog } from './SpawnFilterDialog';
 import { SpawnOrderDialog } from './SpawnOrderDialog';
 import { Header } from '@/components/common/Header';
 
 export function SpawnsPage() {
-  const navigate = useNavigate();
   const { allPokemon, loading, error } = useSpawns();
   const { totalItems } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
@@ -30,20 +27,16 @@ export function SpawnsPage() {
   const filteredPokemon = useMemo(() => {
     let result = allPokemon;
 
-    // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       result = result.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.id.toString().includes(query)
+        (p: any) => p.name.toLowerCase().includes(query) || p.id.toString().includes(query)
       );
     }
 
-    // Active filters (OR logic)
     const hasFilters = Object.values(filters).some((v) => v);
     if (hasFilters) {
-      result = result.filter((p) => {
+      result = result.filter((p: any) => {
         let matches = false;
         if (filters.regional) matches = matches || p.isRegional;
         if (filters.shundo) matches = matches || (p.spawnRate >= 0.45 && p.isShiny);
@@ -61,10 +54,7 @@ export function SpawnsPage() {
   }, [allPokemon, searchQuery, filters]);
 
   const handlePokemonClick = (pokemon: any) => {
-    if (pokemon.spawnRate === 0.0) {
-      // NOPE Pokémon - show toast
-      return;
-    }
+    if (pokemon.spawnRate === 0.0) return;
     setSelectedPokemon(pokemon);
     setShowOrderDialog(true);
   };
@@ -96,7 +86,6 @@ export function SpawnsPage() {
     <div className="h-screen flex flex-col bg-dark-bg">
       <Header title="Wild Spawns" cartCount={totalItems} />
 
-      {/* Search Bar */}
       <div className="px-4 py-3 bg-dark-bg/95 border-b border-gray-800/50">
         <div className="relative">
           <input
@@ -117,7 +106,6 @@ export function SpawnsPage() {
         </div>
       </div>
 
-      {/* Filter Bar */}
       <div className="px-4 py-2 flex gap-2 flex-wrap bg-dark-bg/95 border-b border-gray-800/50">
         <button
           onClick={() => setShowFilters(true)}
@@ -147,36 +135,31 @@ export function SpawnsPage() {
         </span>
       </div>
 
-      {/* Spawns List */}
       <div className="flex-1 overflow-y-auto px-4 py-2">
-        <AnimatePresence>
-          {filteredPokemon.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
-              <p className="text-lg">No spawns found</p>
-              <p className="text-sm mt-1">Try adjusting your filters</p>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {filteredPokemon.map((pokemon) => (
-                <SpawnCard
-                  key={pokemon.id}
-                  pokemon={pokemon}
-                  onClick={() => handlePokemonClick(pokemon)}
-                />
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
+        {filteredPokemon.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <p className="text-lg">No spawns found</p>
+            <p className="text-sm mt-1">Try adjusting your filters</p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {filteredPokemon.map((pokemon: any) => (
+              <SpawnCard
+                key={pokemon.id}
+                pokemon={pokemon}
+                onClick={() => handlePokemonClick(pokemon)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Disclaimer */}
       <div className="px-4 py-2 bg-dark-bg/95 border-t border-gray-800/50">
         <p className="text-orange-500 text-xs text-center">
           *Only Spawn Rates of 0.45% or Higher, with a Shiny Variant can be Shundo Hunted.
         </p>
       </div>
 
-      {/* Filter Dialog */}
       <SpawnFilterDialog
         isOpen={showFilters}
         onClose={() => setShowFilters(false)}
@@ -184,7 +167,6 @@ export function SpawnsPage() {
         onFilterChange={setFilters}
       />
 
-      {/* Order Dialog */}
       <SpawnOrderDialog
         isOpen={showOrderDialog}
         pokemon={selectedPokemon}

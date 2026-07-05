@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '@/hooks/useUser';
 import { useCart } from '@/hooks/useCart';
 import { getCustomerOrders, getCustomerRSVPs } from '@/services/sheetsApi';
@@ -39,7 +38,6 @@ export function HistoryPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [rsvps, setRSVPs] = useState<RSVP[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderDetail, setShowOrderDetail] = useState(false);
 
@@ -50,7 +48,6 @@ export function HistoryPage() {
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       const [ordersData, rsvpsData] = await Promise.all([
@@ -61,8 +58,7 @@ export function HistoryPage() {
       setOrders(ordersData || []);
       setRSVPs(rsvpsData || []);
     } catch (err) {
-      setError('Failed to load history');
-      console.error(err);
+      console.error('Error loading history:', err);
     } finally {
       setLoading(false);
     }
@@ -103,18 +99,14 @@ export function HistoryPage() {
           </div>
         ) : (
           <>
-            {/* Search / Instructions */}
             <div className="bg-dark-card rounded-xl p-4 mb-4">
               <p className="text-white font-bold">📦 My Orders & RSVPs</p>
-              <p className="text-gray-400 text-sm mt-1">
-                {userDisplay}
-              </p>
+              <p className="text-gray-400 text-sm mt-1">{userDisplay}</p>
               <p className="text-orange-500 text-xs mt-2">
                 ⚠️ Recent Orders/RSVPs may take up to 30 minutes to populate.
               </p>
             </div>
 
-            {/* Orders Section */}
             <div className="mb-4">
               <p className="text-white font-bold text-sm mb-2">📦 My Orders ({orders.length})</p>
               {orders.length === 0 ? (
@@ -132,7 +124,6 @@ export function HistoryPage() {
               )}
             </div>
 
-            {/* RSVPs Section */}
             <div>
               <p className="text-white font-bold text-sm mb-2">📅 My RSVPs ({rsvps.length})</p>
               {rsvps.length === 0 ? (
@@ -149,7 +140,6 @@ export function HistoryPage() {
         )}
       </div>
 
-      {/* Order Detail Dialog */}
       <OrderDetailDialog
         isOpen={showOrderDetail}
         order={selectedOrder}

@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 interface HeaderProps {
   title: string;
@@ -13,22 +12,19 @@ export function Header({ title, showBack = true, showCart = true, cartCount = 0 
 
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-dark-bg/95 backdrop-blur-sm border-b border-gray-800/50">
-      {/* Back Button */}
       <div className="w-12">
         {showBack && (
           <button
-            onClick={() => navigate(-1)}
-            className="text-white hover:text-purple-400 transition-colors"
+            onClick={() => navigate('/app/home')}
+            className="text-white hover:text-purple-400 transition-colors text-xl"
           >
             ◀
           </button>
         )}
       </div>
 
-      {/* Title */}
       <h1 className="text-white text-lg font-bold">{title}</h1>
 
-      {/* Cart Button */}
       <div className="w-12 flex justify-end">
         {showCart && (
           <button

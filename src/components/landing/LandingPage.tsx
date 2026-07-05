@@ -16,7 +16,6 @@ export function LandingPage() {
         transition={{ duration: 0.8 }}
         className="text-center max-w-md"
       >
-        {/* SilphCo Logo/Brand */}
         <h1 className="text-5xl md:text-6xl font-bold text-white tracking-wider mb-4">
           SILPHCO
         </h1>
@@ -35,7 +34,6 @@ export function LandingPage() {
         </motion.button>
       </motion.div>
 
-      {/* Footer */}
       <div className="absolute bottom-6 text-gray-600 text-sm">
         © SilphCo
       </div>

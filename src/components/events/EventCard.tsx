@@ -1,16 +1,9 @@
 import { LeekDuckEvent } from '@/services/leekDuckApi';
 import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
 
-// Simple Pokemon name mapping for event images
 const POKEMON_NAME_MAP: Record<string, number> = {
-  'pikachu': 25,
-  'eevee': 133,
-  'charmander': 4,
-  'squirtle': 7,
-  'bulbasaur': 1,
-  'mewtwo': 150,
-  'mew': 151,
-  // ... would be expanded
+  'pikachu': 25, 'eevee': 133, 'charmander': 4, 'squirtle': 7,
+  'bulbasaur': 1, 'mewtwo': 150, 'mew': 151,
 };
 
 interface EventCardProps {
@@ -20,7 +13,6 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
-  // Try to find a matching Pokemon for the event image
   const getEventImage = (): string => {
     const eventLower = event.name.toLowerCase();
     for (const [name, id] of Object.entries(POKEMON_NAME_MAP)) {
@@ -30,11 +22,11 @@ export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
         return getPokeApiUrl(id);
       }
     }
-    return '😎'; // Fallback emoji
+    return '😎';
   };
 
   const imageSrc = getEventImage();
-  const isEmoji = imageSrc.length <= 2; // Simple check for emoji
+  const isEmoji = imageSrc.length <= 2;
 
   const formatDate = (dateStr: string) => {
     try {
@@ -47,7 +39,6 @@ export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
 
   return (
     <div className="bg-dark-card rounded-xl p-3 flex items-center gap-3 mb-2">
-      {/* Image/Emoji */}
       {isEmoji ? (
         <div className="w-14 h-14 rounded-lg bg-purple-500/20 flex items-center justify-center text-3xl flex-shrink-0">
           {imageSrc}
@@ -59,7 +50,7 @@ export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
           className="w-14 h-14 rounded-lg object-contain bg-dark-bg flex-shrink-0"
           onError={(e) => {
             (e.target as HTMLImageElement).style.display = 'none';
-            const parent = e.target.parentElement;
+            const parent = (e.target as HTMLElement).parentElement;
             if (parent) {
               const emoji = document.createElement('div');
               emoji.className = 'w-14 h-14 rounded-lg bg-purple-500/20 flex items-center justify-center text-3xl flex-shrink-0';
@@ -70,7 +61,6 @@ export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
         />
       )}
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
         <p className="text-white font-bold text-sm truncate">{event.name}</p>
         <p className="text-orange-500 text-xs">{event.heading || 'Event'}</p>
@@ -78,7 +68,6 @@ export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
         <p className="text-red-400 text-[10px]">🔴 Ends: {formatDate(event.end)}</p>
       </div>
 
-      {/* Buttons */}
       <div className="flex flex-col gap-1 flex-shrink-0">
         <button
           onClick={() => window.open(event.link, '_blank')}

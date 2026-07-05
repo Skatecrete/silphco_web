@@ -1,38 +1,33 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useRaids } from '@/hooks/useRaids';
 import { useCart } from '@/hooks/useCart';
+import { useRaids } from '@/hooks/useRaids';
 import { RaidCard } from './RaidCard';
 import { RaidOrderDialog } from './RaidOrderDialog';
 import { DynamaxOrderDialog } from './DynamaxOrderDialog';
 import { Header } from '@/components/common/Header';
+import { useState } from 'react';
 
 export function RaidsPage() {
-  const navigate = useNavigate();
-  const { regularRaids, dynamaxRaids, loading, error } = useRaids();
   const { totalItems } = useCart();
+  const { regularRaids, dynamaxRaids, loading, error } = useRaids();
   const [selectedRaid, setSelectedRaid] = useState<any>(null);
   const [showRaidDialog, setShowRaidDialog] = useState(false);
   const [showDynamaxDialog, setShowDynamaxDialog] = useState(false);
 
-  // Category display order
   const categoryOrder = [
-    { key: 'ultraBeasts', title: '🌀 ULTRA BEASTS', emoji: '🌀' },
-    { key: 'tier5', title: '⭐⭐⭐⭐⭐ 5-STAR RAIDS', emoji: '⭐' },
-    { key: 'tier4', title: '⭐⭐⭐⭐ 4-STAR RAIDS', emoji: '⭐' },
-    { key: 'tier3', title: '⭐⭐⭐ 3-STAR RAIDS', emoji: '⭐' },
-    { key: 'tier2', title: '⭐⭐ 2-STAR RAIDS', emoji: '⭐' },
-    { key: 'tier1', title: '⭐ 1-STAR RAIDS', emoji: '⭐' },
-    { key: 'mega', title: '🔴 MEGA RAIDS', emoji: '🔴' },
-    { key: 'primal', title: '🌊 PRIMAL RAIDS', emoji: '🌊' },
-    { key: 'superMega', title: '💫 SUPER MEGA RAIDS', emoji: '💫' },
-    { key: 'shadow5', title: '🌑 SHADOW LEGENDARY (5-STAR)', emoji: '🌑' },
-    { key: 'shadow3', title: '🌑 SHADOW 3-STAR RAIDS', emoji: '🌑' },
-    { key: 'shadow1', title: '🌑 SHADOW 1-STAR RAIDS', emoji: '🌑' },
+    { key: 'ultraBeasts', title: '🌀 ULTRA BEASTS' },
+    { key: 'tier5', title: '⭐⭐⭐⭐⭐ 5-STAR RAIDS' },
+    { key: 'tier4', title: '⭐⭐⭐⭐ 4-STAR RAIDS' },
+    { key: 'tier3', title: '⭐⭐⭐ 3-STAR RAIDS' },
+    { key: 'tier2', title: '⭐⭐ 2-STAR RAIDS' },
+    { key: 'tier1', title: '⭐ 1-STAR RAIDS' },
+    { key: 'mega', title: '🔴 MEGA RAIDS' },
+    { key: 'primal', title: '🌊 PRIMAL RAIDS' },
+    { key: 'superMega', title: '💫 SUPER MEGA RAIDS' },
+    { key: 'shadow5', title: '🌑 SHADOW LEGENDARY (5-STAR)' },
+    { key: 'shadow3', title: '🌑 SHADOW 3-STAR RAIDS' },
+    { key: 'shadow1', title: '🌑 SHADOW 1-STAR RAIDS' },
   ];
 
-  // Filter out empty categories
   const visibleCategories = categoryOrder.filter(
     (cat) => regularRaids[cat.key] && regularRaids[cat.key].length > 0
   );
@@ -76,7 +71,6 @@ export function RaidsPage() {
       <Header title="Current Raids" cartCount={totalItems} />
 
       <div className="flex-1 overflow-y-auto px-4 py-3">
-        {/* Last Updated */}
         <p className="text-orange-500 text-xs text-center mb-3">
           Last updated: {new Date().toLocaleDateString()}
         </p>
@@ -88,7 +82,6 @@ export function RaidsPage() {
           </div>
         ) : (
           <>
-            {/* Regular Raids */}
             {visibleCategories.map((cat) => (
               <div key={cat.key} className="mb-4">
                 <div className={`text-white text-sm font-bold px-3 py-2 rounded-lg mb-2 ${
@@ -109,7 +102,6 @@ export function RaidsPage() {
               </div>
             ))}
 
-            {/* Dynamax Raids - group by tier */}
             {dynamaxRaids.length > 0 && (
               <>
                 {['💥 Gigantamax', '⚡⚡⚡⚡⚡ Dynamax Tier 5', '⚡⚡⚡⚡ Dynamax Tier 4', '⚡⚡⚡ Dynamax Tier 3', '⚡⚡ Dynamax Tier 2', '⚡ Dynamax Tier 1'].map((tier) => {
@@ -141,7 +133,6 @@ export function RaidsPage() {
         )}
       </div>
 
-      {/* Raid Order Dialog */}
       <RaidOrderDialog
         isOpen={showRaidDialog}
         raid={selectedRaid}
@@ -151,7 +142,6 @@ export function RaidsPage() {
         }}
       />
 
-      {/* Dynamax Order Dialog */}
       <DynamaxOrderDialog
         isOpen={showDynamaxDialog}
         raid={selectedRaid}

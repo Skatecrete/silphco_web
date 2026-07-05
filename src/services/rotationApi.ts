@@ -1,14 +1,6 @@
 const RAIDS_URL = 'https://raw.githubusercontent.com/Skatecrete/pogo-raid-data/main/current_raids.json';
 const SCRAPEDDUCK_URL = 'https://raw.githubusercontent.com/bigfoott/ScrapedDuck/data/raids.min.json';
 
-export interface RaidData {
-  id?: number;
-  name: string;
-  tier: string;
-  isShiny?: boolean;
-  image?: string;
-}
-
 export interface CurrentRaidsResponse {
   last_updated: string;
   tier1: string[];

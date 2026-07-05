@@ -17,7 +17,6 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
 
   const imageUrl = getUltimateGalleryUrl(raid.name, raid.isShiny) || getPokeApiUrl(raid.id);
 
-  // Pricing (will come from API later)
   const PACKS = [
     { quantity: 10, price: 7.0 },
     { quantity: 20, price: 12.0 },
@@ -50,7 +49,6 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
             exit={{ y: 50, opacity: 0 }}
             className="relative bg-dark-card rounded-2xl w-full max-w-sm p-6"
           >
-            {/* Pokemon Info */}
             <div className="text-center mb-4">
               <img
                 src={imageUrl}
@@ -64,7 +62,6 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
               </p>
             </div>
 
-            {/* Pack Selection */}
             <p className="text-white text-sm font-bold mb-3">SELECT QUANTITY</p>
             <div className="grid grid-cols-3 gap-2 mb-4">
               {PACKS.map((pack) => (
@@ -93,7 +90,6 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
               </p>
             )}
 
-            {/* Actions */}
             <div className="flex gap-3 mt-4">
               <button
                 onClick={onClose}

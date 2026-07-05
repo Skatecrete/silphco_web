@@ -23,7 +23,6 @@ export function CartList({ items, onUpdateQuantity, onRemove }: CartListProps) {
             className="bg-dark-bg rounded-lg p-3"
           >
             <div className="flex items-center gap-3">
-              {/* Image */}
               <div className="w-10 h-10 flex-shrink-0">
                 <img
                   src={item.imageUrl || getUltimateGalleryUrl(item.pokemonName) || 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'}
@@ -32,7 +31,6 @@ export function CartList({ items, onUpdateQuantity, onRemove }: CartListProps) {
                 />
               </div>
 
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-bold truncate">
                   {item.pokemonName}
@@ -43,7 +41,6 @@ export function CartList({ items, onUpdateQuantity, onRemove }: CartListProps) {
                 </p>
               </div>
 
-              {/* Controls */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => onUpdateQuantity(index, item.quantity - 1)}
