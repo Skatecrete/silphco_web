@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PasswordGateProps } from '@/types';
 
-// SHA-256 hash of: @n3R1ng#01031&92
-const CORRECT_PASSWORD_HASH = '6a720fb28b30c5874a326ea34e675ff79be4b6b8df0d1c1bf304f62704e5daf1';
+const CORRECT_PASSWORD_HASH = 'a3e7399bdb5a551a630cd420d803da3919ee0277c27667983d0137d3d7779c21';
 
 async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
