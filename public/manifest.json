@@ -1,0 +1,15 @@
+{
+  "name": "PokeSpawn",
+  "short_name": "PokeSpawn",
+  "description": "View or order current spawns, raids, events, and more!",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#7627C5",
+  "background_color": "#1a1a2e",
+  "categories": ["games", "entertainment"],
+  "icons": [],
+  "apple-mobile-web-app-capable": "yes",
+  "apple-mobile-web-app-status-bar-style": "black-translucent",
+  "apple-mobile-web-app-title": "PokeSpawn"
+}

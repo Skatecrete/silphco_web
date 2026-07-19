@@ -1,0 +1,606 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========== RESET ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #1a1a2e;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+}
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7627C5;
+  border-radius: 8px;
+}
+
+/* ========== APP BACKGROUND ========== */
+.app-bg {
+  background-image: url('https://raw.githubusercontent.com/Skatecrete/infographics/main/web/backgrounds/app_bg.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* ========== IMAGES ========== */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ========== CARD ========== */
+.card {
+  background: #2a2a3e;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ========== BUTTONS ========== */
+.btn-primary {
+  background: #7627C5;
+  color: white;
+  font-weight: bold;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-primary:hover {
+  background: #5A1E9E;
+}
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-success {
+  background: #4CAF50;
+  color: white;
+  font-weight: bold;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-success:hover {
+  background: #3d8b40;
+}
+.btn-success:active {
+  transform: scale(0.97);
+}
+
+.btn-danger {
+  background: #F44336;
+  color: white;
+  font-weight: bold;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-danger:hover {
+  background: #c62828;
+}
+.btn-danger:active {
+  transform: scale(0.97);
+}
+
+/* ========== INPUTS ========== */
+.input-dark {
+  background: #2a2a3e;
+  color: #ffffff;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 12px 16px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-dark:focus {
+  border-color: #7627C5;
+}
+.input-dark::placeholder {
+  color: #666666;
+}
+
+/* ========== UTILITY ========== */
+.text-purple { color: #7627C5; }
+.text-orange { color: #FFA500; }
+.text-green { color: #4CAF50; }
+.text-red { color: #F44336; }
+.text-muted { color: #888888; }
+.bg-purple { background: #7627C5; }
+.bg-card { background: #2a2a3e; }
+
+/* ============================================================ */
+/* ========== HEADER ========== */
+/* ============================================================ */
+
+.header-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  flex-shrink: 0 !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+  background: rgba(26, 26, 46, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.2) !important;
+}
+
+.header-left {
+  min-width: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+.header-left button {
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+}
+
+.header-center {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.header-center h1 {
+  color: white !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  max-width: 60% !important;
+}
+
+.header-right {
+  min-width: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.header-right button {
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.header-right .cart-label {
+  color: white !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+/* Hide label on very small screens */
+@media (max-width: 480px) {
+  .header-right .cart-label {
+    display: none !important;
+  }
+}
+
+/* ============================================================ */
+/* ========== RAID TIER BOX (SnackNap-style) ========== */
+/* ============================================================ */
+
+/* ---------- BASE TIER BOX ---------- */
+.tier-box {
+  border-radius: 14px;
+  padding: 14px 14px 10px;
+  border: 2px solid #2a3a2a;
+  margin-bottom: 16px;
+}
+
+.tier-box:last-child {
+  margin-bottom: 0;
+}
+
+.tier-box-header {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 12px 10px 12px;
+  margin: -14px -14px 12px -14px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px 14px 0 0;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+  letter-spacing: 0.3px;
+}
+
+/* ---------- STANDARD RAIDS (Deep Dark Green) ---------- */
+.tier-box-standard {
+  background: #1a2a1a;
+  border-color: #2a3a2a;
+}
+
+.tier-box-standard .tier-box-header {
+  background: rgba(76, 175, 80, 0.08);
+}
+
+/* ---------- SHADOW RAIDS (Deep Purple) ---------- */
+.tier-box-shadow {
+  background: #2a1a3e;
+  border-color: #3a2a4e;
+}
+
+.tier-box-shadow .tier-box-header {
+  background: rgba(118, 39, 197, 0.12);
+}
+
+/* ---------- DYNAMAX RAIDS (Deep Red) ---------- */
+.tier-box-dynamax {
+  background: #2a1a1a;
+  border-color: #3a2a2a;
+}
+
+.tier-box-dynamax .tier-box-header {
+  background: rgba(244, 67, 54, 0.08);
+}
+
+/* ---------- ULTRA BEAST RAIDS (Cyan Accent) ---------- */
+.tier-box-ultra {
+  background: #1a2a2a;
+  border-color: rgba(0, 188, 212, 0.4);
+}
+
+.tier-box-ultra .tier-box-header {
+  background: rgba(0, 188, 212, 0.08);
+}
+
+/* ========== RAID PAGE BACKGROUND ========== */
+.raids-page-bg {
+  background: #1a0a2e;
+}
+
+/* ========== RAID GRID - 3x larger images ========== */
+.tier-box-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+/* ========== RAID GRID CARD ========== */
+.raid-grid-card {
+  border-radius: 12px;
+  padding: 10px 6px 8px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  min-height: 140px;
+}
+
+.raid-grid-card:active {
+  transform: scale(0.95);
+}
+
+/* ---------- Standard Raid Card ---------- */
+.raid-grid-card-standard {
+  background: #1a2a1a;
+}
+.raid-grid-card-standard:hover {
+  background: #2a3a2a;
+}
+
+/* ---------- Shadow Raid Card ---------- */
+.raid-grid-card-shadow {
+  background: #2a1a3e;
+}
+.raid-grid-card-shadow:hover {
+  background: #3a2a4e;
+}
+
+/* ---------- Dynamax Raid Card ---------- */
+.raid-grid-card-dynamax {
+  background: #2a1a1a;
+}
+.raid-grid-card-dynamax:hover {
+  background: #3a2a2a;
+}
+
+/* ---------- Ultra Beast Raid Card ---------- */
+.raid-grid-card-ultra {
+  background: #1a2a2a;
+}
+.raid-grid-card-ultra:hover {
+  background: #2a3a3a;
+}
+
+/* ============================================================ */
+/* ========== UNDERLAYS (from GitHub effects folder) ========== */
+/* ============================================================ */
+
+/* ----- IMAGE CONTAINER ----- */
+.raid-grid-card-image {
+  position: relative;
+  width: 100%;
+  max-width: 140px;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.raid-grid-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ----- SHADOW UNDERLAY (from GitHub) ----- */
+.raid-grid-card-shadow-effect {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://raw.githubusercontent.com/Skatecrete/infographics/main/effects/shadow_effect.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 1;
+  opacity: 0.9;
+}
+
+/* ----- DYNAMAX UNDERLAY (solid/faded circle behind mon) ----- */
+.raid-grid-card-dynamax-effect {
+  position: absolute;
+  inset: 0;
+  /* Faded circle background (gradient) */
+  background: radial-gradient(circle at center, rgba(255, 50, 50, 0.25) 0%, rgba(255, 0, 0, 0.05) 70%, transparent 100%);
+  z-index: 1;
+}
+
+/* Dynamax PNG overlay (above the mon) */
+.raid-grid-card-dynamax-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://raw.githubusercontent.com/Skatecrete/infographics/main/effects/dynamax_effect.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 3;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* ----- ULTRA BEAST PORTAL (upper right corner) ----- */
+.raid-grid-card-ultrabeast-effect {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 32px;
+  height: 32px;
+  background-image: url('https://raw.githubusercontent.com/Skatecrete/infographics/main/effects/ultrabeastportal.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 3;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+/* ----- RED TINT for Dynamax (over mon) ----- */
+.raid-grid-card-tint {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 0, 0, 0.12);
+  z-index: 3;
+  pointer-events: none;
+  border-radius: 10px;
+}
+
+/* ============================================================ */
+
+/* Name - larger text */
+.raid-grid-card-name {
+  font-size: 12px;
+  color: #e0e0e0;
+  font-weight: 500;
+  margin-top: 6px;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  width: 100%;
+  padding: 0 2px;
+}
+
+/* ============================================================ */
+/* ========== LEGACY RAID GRID (keep for compatibility) ======== */
+/* ============================================================ */
+
+.raid-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+@media (min-width: 640px) {
+  .raid-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .raid-grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+}
+
+.raid-card {
+  background: #2a2a3e;
+  border-radius: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  width: 100% !important;
+}
+
+.raid-card:hover {
+  background: #33334a;
+  transform: scale(1.02);
+}
+
+.raid-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1/1;
+  object-fit: contain;
+}
+
+
+/* ============================================================ */
+/* ========== DEX GRID ========================================= */
+/* ============================================================ */
+
+.dex-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+@media (min-width: 640px) {
+  .dex-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .dex-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* ============================================================ */
+/* ========== VIEW ALL POKEMON GRID ============================ */
+/* ============================================================ */
+
+.pokemon-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+@media (min-width: 640px) {
+  .pokemon-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .pokemon-grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+}
+
+/* ============================================================ */
+/* ========== SPAWN CARD ======================================= */
+/* ============================================================ */
+
+.spawn-card {
+  background: #2a2a3e;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.spawn-card:hover {
+  background: #33334a;
+}
+
+.spawn-card img {
+  width: 48px !important;
+  height: 48px !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
+}
+
+.spawn-card .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.spawn-card .name {
+  font-weight: bold;
+  font-size: 14px;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spawn-card .details {
+  font-size: 12px;
+  color: #888888;
+}
+
+.spawn-card .order-btn {
+  background: #4CAF50;
+  color: white;
+  font-weight: bold;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  flex-shrink: 0;
+}
