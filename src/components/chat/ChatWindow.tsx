@@ -17,7 +17,6 @@ export function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [notificationPrompt, setNotificationPrompt] = useState(false);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -29,15 +28,14 @@ export function ChatWindow() {
   const loadMessages = async () => {
     if (!chatName) return;
     try {
+      console.log('Loading messages for:', chatName);
       const data = await getMessages(chatName);
+      console.log('Messages loaded:', data.messages?.length || 0);
       setMessages(data.messages || []);
       
       const hasNew = data.messages?.some((m: Message) => m.isNew);
       if (hasNew) {
         await markRead(chatName);
-        if (!localStorage.getItem('notification_shown')) {
-          setNotificationPrompt(true);
-        }
       }
       
       setTimeout(() => {
@@ -72,33 +70,10 @@ export function ChatWindow() {
     }
   };
 
-  // Notification prompt response
-  const handleNotificationResponse = (allow: boolean) => {
-    setNotificationPrompt(false);
-    localStorage.setItem('notification_shown', 'true');
-    if (allow) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-      script.async = true;
-      script.onload = () => {
-        if (window.OneSignal) {
-          window.OneSignal.showSlidedown({
-            text: {
-              message: `Allow PokeSpawn by SilphCo to send notifications when an admin responds?`,
-            },
-            buttons: {
-              accept: 'Allow',
-              cancel: "Don't Allow",
-            },
-          });
-        }
-      };
-      document.head.appendChild(script);
-    }
-  };
-
   // Load messages on mount AND start polling
   useEffect(() => {
+    console.log('ChatWindow mounted. chatName:', chatName, 'isLoggedIn:', isLoggedIn);
+    
     if (!isLoggedIn) {
       navigate('/app/login');
       return;
@@ -148,7 +123,15 @@ export function ChatWindow() {
 
   // Main chat view
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#1a1a2e', overflow: 'hidden' }}>
+    <div style={{ 
+      height: '100vh', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      backgroundColor: '#1a1a2e', 
+      overflow: 'hidden',
+      width: '100%',
+      position: 'relative',
+    }}>
       {/* Header */}
       <div style={{ 
         padding: '16px', 
@@ -158,6 +141,7 @@ export function ChatWindow() {
         alignItems: 'center',
         gap: '12px',
         flexShrink: 0,
+        minHeight: '60px',
       }}>
         <button
           onClick={() => navigate(-1)}
@@ -165,71 +149,26 @@ export function ChatWindow() {
             background: 'none',
             border: 'none',
             color: '#ffffff',
-            fontSize: '20px',
+            fontSize: '24px',
             cursor: 'pointer',
             padding: '4px 8px',
+            minWidth: '44px',
+            minHeight: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           ◀
         </button>
         <span style={{ color: '#ffffff', fontSize: '18px', fontWeight: 700 }}>Chat with Admin</span>
-        <span style={{ color: '#888888', fontSize: '12px', marginLeft: 'auto' }}>{chatName}</span>
+        <span style={{ color: '#888888', fontSize: '11px', marginLeft: 'auto', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {chatName}
+        </span>
       </div>
 
-      {/* Notification Prompt */}
-      {notificationPrompt && (
-        <div style={{ 
-          padding: '12px 16px', 
-          backgroundColor: '#2a1a3e', 
-          borderBottom: '1px solid #3a2a4e',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexShrink: 0,
-        }}>
-          <div>
-            <p style={{ color: '#ffffff', fontSize: '13px', margin: 0 }}>
-              🔔 Allow PokeSpawn by SilphCo to send notifications when an admin responds?
-            </p>
-            <p style={{ color: '#888888', fontSize: '11px', marginTop: '4px' }}>
-              A red ❗ will appear on your chat bubble when an admin responds.
-            </p>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-            <button
-              onClick={() => handleNotificationResponse(false)}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#444444',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '12px',
-                cursor: 'pointer',
-              }}
-            >
-              Don't Allow
-            </button>
-            <button
-              onClick={() => handleNotificationResponse(true)}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#4CAF50',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '12px',
-                cursor: 'pointer',
-              }}
-            >
-              Allow
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px', WebkitOverflowScrolling: 'touch' }}>
         {messages.length === 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888888' }}>
             <p style={{ fontSize: '18px' }}>No messages yet</p>
@@ -242,7 +181,7 @@ export function ChatWindow() {
               {msg.message && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <div style={{ maxWidth: '80%', backgroundColor: '#7627C5', padding: '10px 14px', borderRadius: '12px', borderBottomRightRadius: '4px' }}>
-                    <p style={{ color: '#ffffff', fontSize: '14px', margin: 0 }}>{msg.message}</p>
+                    <p style={{ color: '#ffffff', fontSize: '14px', margin: 0, wordBreak: 'break-word' }}>{msg.message}</p>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', marginTop: '4px', textAlign: 'right' }}>
                       {msg.timestamp}
                     </p>
@@ -254,7 +193,7 @@ export function ChatWindow() {
               {msg.adminReply && (
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '4px' }}>
                   <div style={{ maxWidth: '80%', backgroundColor: '#2a2a3e', padding: '10px 14px', borderRadius: '12px', borderBottomLeftRadius: '4px', border: '1px solid #3a3a4e' }}>
-                    <p style={{ color: '#ffffff', fontSize: '14px', margin: 0 }}>👤 {msg.adminReply}</p>
+                    <p style={{ color: '#ffffff', fontSize: '14px', margin: 0, wordBreak: 'break-word' }}>👤 {msg.adminReply}</p>
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginTop: '4px' }}>
                       {msg.timestamp}
                     </p>
@@ -284,11 +223,12 @@ export function ChatWindow() {
               borderRadius: '12px',
               border: '1px solid #3a3a4e',
               outline: 'none',
-              fontSize: '14px',
+              fontSize: '16px', // Larger for mobile
               fontFamily: 'inherit',
               resize: 'none',
               minHeight: '44px',
               maxHeight: '120px',
+              WebkitAppearance: 'none',
             }}
             onFocus={(e) => { e.target.style.borderColor = '#7627C5'; }}
             onBlur={(e) => { e.target.style.borderColor = '#3a3a4e'; }}
@@ -302,11 +242,13 @@ export function ChatWindow() {
               color: '#ffffff',
               border: 'none',
               borderRadius: '12px',
-              fontSize: '14px',
+              fontSize: '16px',
               fontWeight: 700,
               cursor: (loading || !input.trim()) ? 'not-allowed' : 'pointer',
               minHeight: '44px',
+              minWidth: '70px',
               transition: 'background-color 0.2s',
+              touchAction: 'manipulation',
             }}
           >
             {loading ? 'Sending...' : 'Send'}
