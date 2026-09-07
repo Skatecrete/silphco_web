@@ -16,8 +16,8 @@ const DIAL_TILES_DATA: DialTileData[] = [
   { id: 'services', label: 'SERVICES', image: DIAL_TILES.services, route: '/app/services' },
   { id: 'cart', label: 'CART', image: DIAL_TILES.orderCart, route: '/app/orders' },
   { id: 'history', label: 'HISTORY', image: DIAL_TILES.history, route: '/app/history' },
+  { id: 'chat', label: 'CHAT', image: DIAL_TILES.chat, route: '/app/chat' },
   { id: 'admin', label: 'ADMIN', image: DIAL_TILES.admin, route: '/app/admin' },
-  { id: 'chat', label: 'CHAT', image: DIAL_TILES.chat, route: '/app/chat' },  // <-- ADDED
   { id: 'logout', label: 'LOGOUT', image: DIAL_TILES.logout, route: '/app/logout' },
 ];
 
