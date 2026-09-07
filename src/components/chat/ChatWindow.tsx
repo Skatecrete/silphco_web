@@ -243,8 +243,14 @@ export function ChatWindow() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div style={{ padding: '12px 16px', backgroundColor: '#2a2a3e', borderTop: '1px solid #3a3a4e', flexShrink: 0 }}>
+      {/* Input Area - WITH BOTTOM PADDING FOR MOBILE */}
+      <div style={{ 
+        padding: '12px 16px', 
+        paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 20px))',  // ← FIXED
+        backgroundColor: '#2a2a3e', 
+        borderTop: '1px solid #3a3a4e', 
+        flexShrink: 0 
+      }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
           <textarea
             value={input}
