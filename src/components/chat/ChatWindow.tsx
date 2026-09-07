@@ -12,6 +12,28 @@ interface Message {
   isNew: boolean;
 }
 
+// ========== HELPER: Format Timestamp ==========
+const formatChatTimestamp = (timestamp: string): string => {
+  try {
+    // Handle ISO format: "2026-09-07T15:26:10.123Z" or "2026-09-07T15:26:10"
+    const parts = timestamp.split('T');
+    if (parts.length === 2) {
+      const datePart = parts[0].split('-');
+      if (datePart.length === 3) {
+        const month = datePart[1];
+        const day = datePart[2];
+        // Remove seconds (and anything after) - keep HH:mm
+        let timePart = parts[1].split('.')[0]; // Remove milliseconds
+        timePart = timePart.substring(0, 5); // Keep HH:mm only
+        return `${month}/${day} ${timePart}`;
+      }
+    }
+    return timestamp;
+  } catch (e) {
+    return timestamp;
+  }
+};
+
 export function ChatWindow() {
   const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -220,19 +242,21 @@ export function ChatWindow() {
                   <div style={{ maxWidth: '80%', backgroundColor: '#7627C5', padding: '10px 14px', borderRadius: '12px', borderBottomRightRadius: '4px' }}>
                     <p style={{ color: '#ffffff', fontSize: '14px', margin: 0, wordBreak: 'break-word' }}>{msg.message}</p>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', marginTop: '4px', textAlign: 'right' }}>
-                      {msg.timestamp}
+                      {formatChatTimestamp(msg.timestamp)}
                     </p>
                   </div>
                 </div>
               )}
               
-              {/* Admin reply */}
+              {/* Admin reply - NOW WITH USERNAME */}
               {msg.adminReply && (
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '4px' }}>
                   <div style={{ maxWidth: '80%', backgroundColor: '#2a2a3e', padding: '10px 14px', borderRadius: '12px', borderBottomLeftRadius: '4px', border: '1px solid #3a3a4e' }}>
-                    <p style={{ color: '#ffffff', fontSize: '14px', margin: 0, wordBreak: 'break-word' }}>👤 {msg.adminReply}</p>
+                    <p style={{ color: '#ffffff', fontSize: '14px', margin: 0, wordBreak: 'break-word' }}>
+                      👤 Admin: {msg.adminReply}
+                    </p>
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginTop: '4px' }}>
-                      {msg.timestamp}
+                      {formatChatTimestamp(msg.timestamp)}
                     </p>
                   </div>
                 </div>
@@ -243,10 +267,10 @@ export function ChatWindow() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area - WITH BOTTOM PADDING FOR MOBILE */}
+      {/* Input Area */}
       <div style={{ 
         padding: '12px 16px', 
-        paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 20px))',  // ← FIXED
+        paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 20px))',
         backgroundColor: '#2a2a3e', 
         borderTop: '1px solid #3a3a4e', 
         flexShrink: 0 
