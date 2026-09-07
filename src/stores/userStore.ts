@@ -24,6 +24,10 @@ export const useUserStore = create<UserStore>()(
 
       login: (name: string, ign: string) => {
         const display = `${name} (${ign})`;
+        
+        // 🔥 Set chat_name for chat system
+        localStorage.setItem('chat_name', display);
+        
         set({
           userName: name,
           userIgn: ign,
@@ -36,6 +40,10 @@ export const useUserStore = create<UserStore>()(
       guestLogin: () => {
         const guestName = generateGuestName();
         const display = `${guestName} (Guest)`;
+        
+        // 🔥 Set chat_name for chat system (guests can chat too)
+        localStorage.setItem('chat_name', display);
+        
         set({
           userName: guestName,
           userIgn: 'Guest',
@@ -46,6 +54,9 @@ export const useUserStore = create<UserStore>()(
       },
 
       logout: () => {
+        // 🔥 Clear chat_name on logout
+        localStorage.removeItem('chat_name');
+        
         set({
           userName: '',
           userIgn: '',
