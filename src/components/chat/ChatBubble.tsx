@@ -39,11 +39,28 @@ export function ChatBubble() {
     navigate('/app/chat');
   };
 
-  // Only show on Home (/app/home) and Orders (/app/orders)
-  const path = location.pathname;
-  const showOnPages = ['/app/home', '/app/orders'];
+  // Check if we're on the home or orders page
+  // Use both pathname and hash for mobile compatibility
+  const pathname = location.pathname;
+  const hash = window.location.hash;
   
-  if (!showOnPages.includes(path)) {
+  // Check if on home page (any variant)
+  const isHome = pathname === '/app/home' || 
+                 pathname === '/app/' || 
+                 pathname === '/home' ||
+                 hash.includes('/app/home') ||
+                 hash.includes('home') ||
+                 hash === '#/app/home';
+  
+  // Check if on orders page
+  const isOrders = pathname === '/app/orders' || 
+                   pathname === '/orders' ||
+                   hash.includes('/app/orders') ||
+                   hash.includes('orders') ||
+                   hash === '#/app/orders';
+
+  // Only show on Home or Orders pages
+  if (!isHome && !isOrders) {
     return null;
   }
 
@@ -55,7 +72,7 @@ export function ChatBubble() {
     <div
       style={{
         position: 'fixed',
-        bottom: '120px',  // Moved up more
+        bottom: '120px',
         right: '24px',
         zIndex: 1000,
         display: 'flex',
@@ -100,6 +117,7 @@ export function ChatBubble() {
           transition: 'transform 0.2s, box-shadow 0.2s',
           position: 'relative',
           overflow: 'visible',
+          touchAction: 'manipulation', // Better for mobile
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'scale(1.05)';
@@ -108,6 +126,13 @@ export function ChatBubble() {
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'scale(1)';
           e.currentTarget.style.boxShadow = '0 4px 12px rgba(118, 39, 197, 0.4)';
+        }}
+        // Mobile touch feedback
+        onTouchStart={(e) => {
+          e.currentTarget.style.transform = 'scale(0.95)';
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
         }}
       >
         💬
