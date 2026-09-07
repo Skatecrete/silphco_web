@@ -17,24 +17,38 @@ export function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [initialLoadDone, setInitialLoadDone] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get chat name from localStorage
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
 
+  // DEBUG: Log when component mounts
+  useEffect(() => {
+    console.log('🔍 [ChatWindow] Mounted');
+    console.log('🔍 [ChatWindow] chatName:', chatName);
+    console.log('🔍 [ChatWindow] isLoggedIn:', isLoggedIn);
+    console.log('🔍 [ChatWindow] localStorage keys:', Object.keys(localStorage));
+  }, []);
+
   // Load messages
   const loadMessages = async () => {
-    if (!chatName) return;
+    if (!chatName) {
+      console.log('⚠️ [ChatWindow] No chatName, skipping load');
+      return;
+    }
+    
     try {
-      console.log('Loading messages for:', chatName);
+      console.log('📡 [ChatWindow] Fetching messages for:', chatName);
       const data = await getMessages(chatName);
-      console.log('Messages loaded:', data.messages?.length || 0);
+      console.log('✅ [ChatWindow] Messages received:', data.messages?.length || 0);
+      console.log('📝 [ChatWindow] First message:', data.messages?.[0]);
+      
       setMessages(data.messages || []);
       
       const hasNew = data.messages?.some((m: Message) => m.isNew);
       if (hasNew) {
+        console.log('🔔 [ChatWindow] New messages detected, marking as read');
         await markRead(chatName);
       }
       
@@ -42,20 +56,27 @@ export function ChatWindow() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } catch (e) {
-      console.error('Error loading messages:', e);
+      console.error('❌ [ChatWindow] Error loading messages:', e);
     }
   };
 
   // Send message
   const handleSend = async () => {
-    if (!input.trim() || !chatName) return;
+    if (!input.trim() || !chatName) {
+      console.log('⚠️ [ChatWindow] Cannot send - empty input or no chatName');
+      return;
+    }
     
+    console.log('📤 [ChatWindow] Sending message:', input.trim());
     setLoading(true);
+    
     try {
-      await sendMessage(chatName, input.trim());
+      const result = await sendMessage(chatName, input.trim());
+      console.log('✅ [ChatWindow] Send result:', result);
       setInput('');
       await loadMessages();
     } catch (e) {
+      console.error('❌ [ChatWindow] Send failed:', e);
       alert('Failed to send message. Please try again.');
     } finally {
       setLoading(false);
@@ -72,26 +93,38 @@ export function ChatWindow() {
 
   // Load messages on mount AND start polling
   useEffect(() => {
-    console.log('ChatWindow mounted. chatName:', chatName, 'isLoggedIn:', isLoggedIn);
+    console.log('🔄 [ChatWindow] Starting chat session');
     
     if (!isLoggedIn) {
+      console.log('🚫 [ChatWindow] Not logged in, redirecting to login');
       navigate('/app/login');
       return;
     }
 
     if (chatName) {
+      console.log('✅ [ChatWindow] Chat name found, loading messages');
       // Load immediately on mount
       loadMessages();
-      setInitialLoadDone(true);
       
       // Then start polling every 20 seconds
-      const interval = setInterval(loadMessages, 20000);
-      return () => clearInterval(interval);
+      console.log('⏰ [ChatWindow] Starting 20-second polling');
+      const interval = setInterval(() => {
+        console.log('🔄 [ChatWindow] Polling for new messages...');
+        loadMessages();
+      }, 20000);
+      
+      return () => {
+        console.log('🧹 [ChatWindow] Cleaning up polling');
+        clearInterval(interval);
+      };
+    } else {
+      console.log('⚠️ [ChatWindow] No chat_name found in localStorage');
     }
   }, [chatName, isLoggedIn]);
 
   // If not logged in, show message
   if (!isLoggedIn) {
+    console.log('🚫 [ChatWindow] Rendering login prompt');
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1a1a2e', padding: '24px' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
@@ -122,6 +155,7 @@ export function ChatWindow() {
   }
 
   // Main chat view
+  console.log('💬 [ChatWindow] Rendering main chat view');
   return (
     <div style={{ 
       height: '100vh', 
@@ -144,7 +178,10 @@ export function ChatWindow() {
         minHeight: '60px',
       }}>
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            console.log('🔙 [ChatWindow] Back button clicked');
+            navigate(-1);
+          }}
           style={{
             background: 'none',
             border: 'none',
@@ -223,7 +260,7 @@ export function ChatWindow() {
               borderRadius: '12px',
               border: '1px solid #3a3a4e',
               outline: 'none',
-              fontSize: '16px', // Larger for mobile
+              fontSize: '16px',
               fontFamily: 'inherit',
               resize: 'none',
               minHeight: '44px',
