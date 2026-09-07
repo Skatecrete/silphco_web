@@ -20,7 +20,7 @@ import { Layout } from '@/components/common/Layout';
 import { useAppStore } from '@/stores/appStore';
 import { useUser } from '@/hooks/useUser';
 import { ChatWindow } from '@/components/chat/ChatWindow';
-import { ChatBubble } from '@/components/chat/ChatBubble';
+// ChatBubble import REMOVED
 import { AdminChat } from '@/components/admin/AdminChat';
 
 function LogoutHandler() {
@@ -159,8 +159,7 @@ function App() {
         onClose={() => setShowPromoDialog(false)}
       />
 
-      {/* Chat Bubble - rendered at root level */}
-      <ChatBubble />
+      {/* Chat Bubble - REMOVED */}
     </HashRouter>
   );
 }
