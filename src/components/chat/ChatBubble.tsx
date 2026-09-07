@@ -1,14 +1,14 @@
 // src/components/chat/ChatBubble.tsx
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getMessages } from '@/services/chatApi';
 
 export function ChatBubble() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
   
-  // Get chat name from localStorage (set when user first opens chat)
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
 
@@ -39,9 +39,11 @@ export function ChatBubble() {
     navigate('/app/chat');
   };
 
-  // Don't show on login/gate/landing pages
-  const path = window.location.hash;
-  if (path.includes('/app/login') || path.includes('/gate') || path === '' || path === '#/' || path === '#') {
+  // Only show on Home (/app/home) and Orders (/app/orders)
+  const path = location.pathname;
+  const showOnPages = ['/app/home', '/app/orders'];
+  
+  if (!showOnPages.includes(path)) {
     return null;
   }
 
@@ -50,57 +52,87 @@ export function ChatBubble() {
   }
 
   return (
-    <button
-      onClick={handleClick}
+    <div
       style={{
         position: 'fixed',
-        bottom: '80px',
+        bottom: '120px',  // Moved up more
         right: '24px',
-        width: '56px',
-        height: '56px',
-        borderRadius: '50%',
-        backgroundColor: '#7627C5',
-        color: '#ffffff',
-        border: 'none',
-        boxShadow: '0 4px 12px rgba(118, 39, 197, 0.4)',
-        fontSize: '24px',
-        cursor: 'pointer',
         zIndex: 1000,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'transform 0.2s',
-        overflow: 'visible',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'scale(1.05)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'scale(1)';
+        gap: '8px',
       }}
     >
-      💬
-      {unreadCount > 0 && (
-        <span
-          style={{
-            position: 'absolute',
-            top: '-6px',
-            right: '-6px',
-            backgroundColor: '#F44336',
-            color: '#ffffff',
-            fontSize: '14px',
-            fontWeight: 700,
-            borderRadius: '50%',
-            width: '24px',
-            height: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          ❗
-        </span>
-      )}
-    </button>
+      {/* Label above bubble */}
+      <span
+        style={{
+          color: '#ffffff',
+          fontSize: '12px',
+          fontWeight: 600,
+          backgroundColor: 'rgba(26, 26, 46, 0.85)',
+          padding: '4px 12px',
+          borderRadius: '12px',
+          border: '1px solid rgba(118, 39, 197, 0.3)',
+          textShadow: '0 1px 4px rgba(0,0,0,0.5)',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        💬 Chat with SilphCo
+      </span>
+
+      {/* Chat Bubble Button */}
+      <button
+        onClick={handleClick}
+        style={{
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          backgroundColor: '#7627C5',
+          color: '#ffffff',
+          border: 'none',
+          boxShadow: '0 4px 12px rgba(118, 39, 197, 0.4)',
+          fontSize: '24px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          position: 'relative',
+          overflow: 'visible',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.05)';
+          e.currentTarget.style.boxShadow = '0 6px 20px rgba(118, 39, 197, 0.6)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(118, 39, 197, 0.4)';
+        }}
+      >
+        💬
+        {unreadCount > 0 && (
+          <span
+            style={{
+              position: 'absolute',
+              top: '-6px',
+              right: '-6px',
+              backgroundColor: '#F44336',
+              color: '#ffffff',
+              fontSize: '14px',
+              fontWeight: 700,
+              borderRadius: '50%',
+              width: '24px',
+              height: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            ❗
+          </span>
+        )}
+      </button>
+    </div>
   );
 }
