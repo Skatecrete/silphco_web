@@ -5,64 +5,33 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6i6Yn7ezXqwJKgZF3M
 // ========== USER FUNCTIONS ==========
 
 export async function sendMessage(user: string, message: string): Promise<any> {
-  const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'sendMessage',
-      user: user,
-      message: message,
-    }),
-  });
+  const url = `${SCRIPT_URL}?type=sendMessage&user=${encodeURIComponent(user)}&message=${encodeURIComponent(message)}`;
+  const response = await fetch(url);
   return response.json();
 }
 
 export async function getMessages(user: string): Promise<any> {
-  const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'getMessages',
-      user: user,
-    }),
-  });
+  const url = `${SCRIPT_URL}?type=getMessages&user=${encodeURIComponent(user)}`;
+  const response = await fetch(url);
   return response.json();
 }
 
 export async function markRead(user: string): Promise<any> {
-  const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'markRead',
-      user: user,
-    }),
-  });
+  const url = `${SCRIPT_URL}?type=markRead&user=${encodeURIComponent(user)}`;
+  const response = await fetch(url);
   return response.json();
 }
 
 // ========== ADMIN FUNCTIONS ==========
 
 export async function adminReply(user: string, reply: string): Promise<any> {
-  const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'adminReply',
-      user: user,
-      reply: reply,
-    }),
-  });
+  const url = `${SCRIPT_URL}?type=adminReply&user=${encodeURIComponent(user)}&reply=${encodeURIComponent(reply)}`;
+  const response = await fetch(url);
   return response.json();
 }
 
 export async function getAllUsers(): Promise<any> {
-  const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type: 'getAllUsers',
-    }),
-  });
+  const url = `${SCRIPT_URL}?type=getAllUsers`;
+  const response = await fetch(url);
   return response.json();
 }
