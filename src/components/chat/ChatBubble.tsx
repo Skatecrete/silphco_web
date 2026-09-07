@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/hooks/useUser';
 import { getMessages } from '@/services/chatApi';
 
 export function ChatBubble() {
   const navigate = useNavigate();
-  const { userDisplay, isLoggedIn } = useUser();
   const [unreadCount, setUnreadCount] = useState(0);
+  
+  // Get chat name from localStorage (set when user first opens chat)
+  const chatName = localStorage.getItem('chat_name') || '';
+  const isLoggedIn = !!chatName;
 
-  const chatName = isLoggedIn ? userDisplay : '';
-
+  // Check for new messages every 20 seconds
   useEffect(() => {
     if (!chatName || !isLoggedIn) return;
 
@@ -53,7 +54,7 @@ export function ChatBubble() {
       onClick={handleClick}
       style={{
         position: 'fixed',
-        bottom: '80px',  // Moved up from 24px to avoid covering send button
+        bottom: '80px',
         right: '24px',
         width: '56px',
         height: '56px',
