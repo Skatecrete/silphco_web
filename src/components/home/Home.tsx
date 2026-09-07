@@ -17,6 +17,7 @@ const DIAL_TILES_DATA: DialTileData[] = [
   { id: 'cart', label: 'CART', image: DIAL_TILES.orderCart, route: '/app/orders' },
   { id: 'history', label: 'HISTORY', image: DIAL_TILES.history, route: '/app/history' },
   { id: 'admin', label: 'ADMIN', image: DIAL_TILES.admin, route: '/app/admin' },
+  { id: 'chat', label: 'CHAT', image: DIAL_TILES.chat, route: '/app/chat' },  // <-- ADDED
   { id: 'logout', label: 'LOGOUT', image: DIAL_TILES.logout, route: '/app/logout' },
 ];
 
@@ -93,6 +94,7 @@ export function Home({ onPromoClick }: HomeProps) {
                 cursor: 'pointer',
                 backgroundColor: '#2a2a3e',
                 width: '100%',
+                position: 'relative',
               }}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.92 }}
