@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/hooks/useUser';
 import { sendMessage, getMessages, markRead } from '@/services/chatApi';
 
 interface Message {
@@ -15,14 +14,15 @@ interface Message {
 
 export function ChatWindow() {
   const navigate = useNavigate();
-  const { userDisplay, isLoggedIn } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [notificationPrompt, setNotificationPrompt] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Use the logged-in user's display name
-  const chatName = userDisplay || '';
+  // Get chat name from localStorage (set when user first opens chat)
+  const chatName = localStorage.getItem('chat_name') || '';
+  const isLoggedIn = !!chatName;
 
   // Load messages
   const loadMessages = async () => {
@@ -34,6 +34,10 @@ export function ChatWindow() {
       const hasNew = data.messages?.some((m: Message) => m.isNew);
       if (hasNew) {
         await markRead(chatName);
+        // Show notification prompt if not already shown
+        if (!localStorage.getItem('notification_shown')) {
+          setNotificationPrompt(true);
+        }
       }
       
       setTimeout(() => {
@@ -68,9 +72,34 @@ export function ChatWindow() {
     }
   };
 
+  // Notification prompt response
+  const handleNotificationResponse = (allow: boolean) => {
+    setNotificationPrompt(false);
+    localStorage.setItem('notification_shown', 'true');
+    if (allow) {
+      // Initialize OneSignal
+      const script = document.createElement('script');
+      script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+      script.async = true;
+      script.onload = () => {
+        if (window.OneSignal) {
+          window.OneSignal.showSlidedown({
+            text: {
+              message: `Allow PokeSpawn by SilphCo to send notifications when an admin responds?`,
+            },
+            buttons: {
+              accept: 'Allow',
+              cancel: "Don't Allow",
+            },
+          });
+        }
+      };
+      document.head.appendChild(script);
+    }
+  };
+
   // Load messages and start polling
   useEffect(() => {
-    // If not logged in, redirect to login
     if (!isLoggedIn) {
       navigate('/app/login');
       return;
@@ -143,6 +172,58 @@ export function ChatWindow() {
         <span style={{ color: '#ffffff', fontSize: '18px', fontWeight: 700 }}>Chat with Admin</span>
         <span style={{ color: '#888888', fontSize: '12px', marginLeft: 'auto' }}>{chatName}</span>
       </div>
+
+      {/* Notification Prompt */}
+      {notificationPrompt && (
+        <div style={{ 
+          padding: '12px 16px', 
+          backgroundColor: '#2a1a3e', 
+          borderBottom: '1px solid #3a2a4e',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexShrink: 0,
+        }}>
+          <div>
+            <p style={{ color: '#ffffff', fontSize: '13px', margin: 0 }}>
+              🔔 Allow PokeSpawn by SilphCo to send notifications when an admin responds?
+            </p>
+            <p style={{ color: '#888888', fontSize: '11px', marginTop: '4px' }}>
+              A red ❗ will appear on your chat bubble when an admin responds.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+            <button
+              onClick={() => handleNotificationResponse(false)}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#444444',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
+              Don't Allow
+            </button>
+            <button
+              onClick={() => handleNotificationResponse(true)}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#4CAF50',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
+              Allow
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
