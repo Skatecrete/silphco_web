@@ -18,9 +18,10 @@ export function ChatWindow() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [notificationPrompt, setNotificationPrompt] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Get chat name from localStorage (set when user first opens chat)
+  // Get chat name from localStorage
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
 
@@ -34,7 +35,6 @@ export function ChatWindow() {
       const hasNew = data.messages?.some((m: Message) => m.isNew);
       if (hasNew) {
         await markRead(chatName);
-        // Show notification prompt if not already shown
         if (!localStorage.getItem('notification_shown')) {
           setNotificationPrompt(true);
         }
@@ -77,7 +77,6 @@ export function ChatWindow() {
     setNotificationPrompt(false);
     localStorage.setItem('notification_shown', 'true');
     if (allow) {
-      // Initialize OneSignal
       const script = document.createElement('script');
       script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
       script.async = true;
@@ -98,7 +97,7 @@ export function ChatWindow() {
     }
   };
 
-  // Load messages and start polling
+  // Load messages on mount AND start polling
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/app/login');
@@ -106,7 +105,11 @@ export function ChatWindow() {
     }
 
     if (chatName) {
+      // Load immediately on mount
       loadMessages();
+      setInitialLoadDone(true);
+      
+      // Then start polling every 20 seconds
       const interval = setInterval(loadMessages, 20000);
       return () => clearInterval(interval);
     }
