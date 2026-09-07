@@ -19,6 +19,9 @@ import { PromoCodeDialog } from '@/components/promo/PromoCodeDialog';
 import { Layout } from '@/components/common/Layout';
 import { useAppStore } from '@/stores/appStore';
 import { useUser } from '@/hooks/useUser';
+import { ChatWindow } from '@/components/chat/ChatWindow';
+import { ChatBubble } from '@/components/chat/ChatBubble';
+import { AdminChat } from '@/components/admin/AdminChat';
 
 function LogoutHandler() {
   const { logout } = useUser();
@@ -104,6 +107,8 @@ function App() {
             <Route path="/app/viewall" element={<ViewAllPokemon />} />
             <Route path="/app/services" element={<ServicesPage />} />
             <Route path="/app/infographics" element={<InfographicsPage />} />
+            <Route path="/app/chat" element={<ChatWindow />} />
+            <Route path="/app/admin/chat" element={<AdminChat />} />
             <Route
               path="/app/admin"
               element={
@@ -153,6 +158,9 @@ function App() {
         isOpen={showPromoDialog}
         onClose={() => setShowPromoDialog(false)}
       />
+
+      {/* Chat Bubble - rendered at root level */}
+      <ChatBubble />
     </HashRouter>
   );
 }
