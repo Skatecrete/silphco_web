@@ -12,6 +12,7 @@ export const DIAL_TILES = {
   services: `${BASE_WEB_URL}/dial_tiles/dial_services.png`,
   orderCart: `${BASE_WEB_URL}/dial_tiles/dial_ordercart.png`,
   history: `${BASE_WEB_URL}/dial_tiles/dial_history.png`,
+  chat: '/images/dial_chat.png',
   admin: `${BASE_WEB_URL}/dial_tiles/dial_admin.png`,
   logout: `${BASE_WEB_URL}/dial_tiles/dial_logout.png`,
 };
