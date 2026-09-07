@@ -67,12 +67,14 @@ export function ChatBubble() {
         boxShadow: '0 4px 12px rgba(118, 39, 197, 0.4)',
         fontSize: '24px',
         cursor: 'pointer',
-        zIndex: 100,
+        zIndex: 1000,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'relative',
+        position: 'fixed',
         transition: 'transform 0.2s',
+        transform: 'scale(1)',
+        overflow: 'visible',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'scale(1.05)';
