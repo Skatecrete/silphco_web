@@ -7,15 +7,15 @@ import { getMessages } from '@/services/chatApi';
 
 export function ChatBubble() {
   const navigate = useNavigate();
-  const { userDisplay } = useUser();
+  const { userDisplay, isLoggedIn } = useUser();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [chatName, setChatName] = useState(() => {
-    return localStorage.getItem('chat_name') || '';
-  });
+
+  // Only use chatName if user is logged in
+  const chatName = isLoggedIn ? userDisplay : '';
 
   // Check for new messages every 20 seconds
   useEffect(() => {
-    if (!chatName) return;
+    if (!chatName || !isLoggedIn) return;
 
     const checkUnread = async () => {
       try {
@@ -30,21 +30,24 @@ export function ChatBubble() {
     checkUnread();
     const interval = setInterval(checkUnread, 20000);
     return () => clearInterval(interval);
-  }, [chatName]);
+  }, [chatName, isLoggedIn]);
 
   const handleClick = () => {
-    if (!chatName) {
-      navigate('/app/chat'); // Will show name selection
-    } else {
-      navigate('/app/chat');
+    if (!isLoggedIn) {
+      navigate('/app/login');
+      return;
     }
+    navigate('/app/chat');
   };
 
   // Don't show on login/gate/landing pages
-  if (window.location.hash.includes('/app/login') || 
-      window.location.hash.includes('/gate') || 
-      window.location.hash === '' ||
-      window.location.hash === '#/') {
+  const path = window.location.hash;
+  if (path.includes('/app/login') || path.includes('/gate') || path === '' || path === '#/' || path === '#') {
+    return null;
+  }
+
+  // Don't show if not logged in
+  if (!isLoggedIn) {
     return null;
   }
 
@@ -70,6 +73,12 @@ export function ChatBubble() {
         justifyContent: 'center',
         position: 'relative',
         transition: 'transform 0.2s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.05)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
       }}
     >
       💬
