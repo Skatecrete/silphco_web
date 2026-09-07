@@ -10,10 +10,8 @@ export function ChatBubble() {
   const { userDisplay, isLoggedIn } = useUser();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Only use chatName if user is logged in
   const chatName = isLoggedIn ? userDisplay : '';
 
-  // Check for new messages every 20 seconds
   useEffect(() => {
     if (!chatName || !isLoggedIn) return;
 
@@ -46,7 +44,6 @@ export function ChatBubble() {
     return null;
   }
 
-  // Don't show if not logged in
   if (!isLoggedIn) {
     return null;
   }
@@ -56,7 +53,7 @@ export function ChatBubble() {
       onClick={handleClick}
       style={{
         position: 'fixed',
-        bottom: '24px',
+        bottom: '80px',  // Moved up from 24px to avoid covering send button
         right: '24px',
         width: '56px',
         height: '56px',
@@ -71,9 +68,7 @@ export function ChatBubble() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        position: 'fixed',
         transition: 'transform 0.2s',
-        transform: 'scale(1)',
         overflow: 'visible',
       }}
       onMouseEnter={(e) => {
