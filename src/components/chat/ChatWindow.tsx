@@ -15,7 +15,6 @@ interface Message {
 // ========== HELPER: Format Timestamp ==========
 const formatChatTimestamp = (timestamp: string): string => {
   try {
-    // Handle Google Sheets format: "MM/dd/yyyy HH:mm:ss"
     if (timestamp.includes('/')) {
       const parts = timestamp.split(' ');
       if (parts.length === 2) {
@@ -29,7 +28,6 @@ const formatChatTimestamp = (timestamp: string): string => {
       }
     }
     
-    // Handle ISO format: "2026-09-07T20:21:24.000Z"
     const parts = timestamp.split('T');
     if (parts.length === 2) {
       const datePart = parts[0].split('-');
@@ -56,11 +54,9 @@ export function ChatWindow() {
   const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Get chat name from localStorage
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
 
-  // Load messages
   const loadMessages = async () => {
     if (!chatName) return;
     
@@ -84,7 +80,6 @@ export function ChatWindow() {
     }
   };
 
-  // Send message
   const handleSend = async () => {
     if (!input.trim() || !chatName) return;
     
@@ -100,7 +95,6 @@ export function ChatWindow() {
     }
   };
 
-  // Enter key
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -108,7 +102,6 @@ export function ChatWindow() {
     }
   };
 
-  // Load messages on mount AND start polling
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/app/login');
@@ -122,7 +115,6 @@ export function ChatWindow() {
     }
   }, [chatName, isLoggedIn]);
 
-  // If not logged in, show message
   if (!isLoggedIn) {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1a1a2e', padding: '24px' }}>
@@ -153,7 +145,6 @@ export function ChatWindow() {
     );
   }
 
-  // Main chat view
   return (
     <div style={{ 
       height: '100vh', 
@@ -202,33 +193,30 @@ export function ChatWindow() {
       {/* Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px', WebkitOverflowScrolling: 'touch' }}>
         {isLoading ? (
-          // Loading state
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888888' }}>
+          // ⭐ TRANSPARENT SPINNER - NO WORDS
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             <div style={{ 
-              width: '40px', 
-              height: '40px', 
-              border: '3px solid #2a2a3e', 
-              borderTopColor: '#7627C5', 
+              width: '32px', 
+              height: '32px', 
+              border: '2px solid rgba(118, 39, 197, 0.15)', 
+              borderTopColor: 'rgba(118, 39, 197, 0.5)', 
               borderRadius: '50%', 
               animation: 'spin 0.8s linear infinite' 
             }} />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            <p style={{ fontSize: '14px', marginTop: '16px' }}>Loading messages...</p>
-            <p style={{ fontSize: '12px', color: '#666666', marginTop: '4px' }}>
-              Note: Past messages may take up to a minute to load when opening chat
-            </p>
           </div>
         ) : messages.length === 0 ? (
-          // Empty state
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888888' }}>
-            <p style={{ fontSize: '18px' }}>No messages yet</p>
+          // ⭐ EXACT TEXT YOU REQUESTED
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888888', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: '#666666', marginBottom: '8px' }}>
+              Note: Past messages may take up to a minute to load when opening chat
+            </p>
+            <p style={{ fontSize: '18px', marginTop: '16px' }}>No messages yet</p>
             <p style={{ fontSize: '14px', marginTop: '4px' }}>Send a message below to start chatting</p>
           </div>
         ) : (
-          // Messages
           messages.map((msg, index) => (
             <div key={index} style={{ marginBottom: '12px' }}>
-              {/* User message */}
               {msg.message && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <div style={{ maxWidth: '80%', backgroundColor: '#7627C5', padding: '10px 14px', borderRadius: '12px', borderBottomRightRadius: '4px' }}>
@@ -240,7 +228,6 @@ export function ChatWindow() {
                 </div>
               )}
               
-              {/* Admin reply */}
               {msg.adminReply && (
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '4px' }}>
                   <div style={{ maxWidth: '80%', backgroundColor: '#2a2a3e', padding: '10px 14px', borderRadius: '12px', borderBottomLeftRadius: '4px', border: '1px solid #3a3a4e' }}>
