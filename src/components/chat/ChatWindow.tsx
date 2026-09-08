@@ -1,6 +1,6 @@
 // src/components/chat/ChatWindow.tsx
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendMessage, getMessages, markRead } from '@/services/chatApi';
 
@@ -52,22 +52,55 @@ export function ChatWindow() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageCache = useRef<Message[]>([]);
+  const isFirstLoad = useRef(true);
 
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
 
-  const loadMessages = async () => {
+  // ========== Load messages with caching ==========
+  const loadMessages = useCallback(async () => {
     if (!chatName) return;
     
     try {
-      setIsLoading(true);
       const data = await getMessages(chatName);
-      setMessages(data.messages || []);
+      const newMessages = data.messages || [];
       
-      const hasNew = data.messages?.some((m: Message) => m.isNew);
-      if (hasNew) {
-        await markRead(chatName);
+      // Check if messages have actually changed
+      const currentMessages = messageCache.current;
+      const hasChanged = currentMessages.length !== newMessages.length ||
+        currentMessages.some((msg, index) => {
+          const newMsg = newMessages[index];
+          return !newMsg || 
+            msg.message !== newMsg.message ||
+            msg.adminReply !== newMsg.adminReply ||
+            msg.isNew !== newMsg.isNew;
+        });
+      
+      if (hasChanged) {
+        console.log('📝 Messages changed, updating...');
+        messageCache.current = newMessages;
+        setMessages(newMessages);
+        
+        // Mark new messages as read
+        const hasNew = newMessages.some((m: Message) => m.isNew);
+        if (hasNew) {
+          await markRead(chatName);
+          // After marking read, update the cache to reflect the change
+          const updatedData = await getMessages(chatName);
+          messageCache.current = updatedData.messages || [];
+          setMessages(messageCache.current);
+        }
+      } else {
+        console.log('📝 No changes to messages');
+      }
+      
+      if (isFirstLoad.current) {
+        isFirstLoad.current = false;
+        setHasLoaded(true);
+        setIsLoading(false);
       }
       
       setTimeout(() => {
@@ -75,11 +108,13 @@ export function ChatWindow() {
       }, 100);
     } catch (e) {
       console.error('Error loading messages:', e);
-    } finally {
-      setIsLoading(false);
+      if (isFirstLoad.current) {
+        setIsLoading(false);
+      }
     }
-  };
+  }, [chatName]);
 
+  // ========== Send message ==========
   const handleSend = async () => {
     if (!input.trim() || !chatName) return;
     
@@ -87,7 +122,22 @@ export function ChatWindow() {
     try {
       await sendMessage(chatName, input.trim());
       setInput('');
-      await loadMessages();
+      // Immediately show the sent message by adding it to the cache
+      const now = new Date();
+      const timestamp = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+      const newMessage: Message = {
+        timestamp: timestamp,
+        user: chatName,
+        message: input.trim(),
+        adminReply: null,
+        isNew: false
+      };
+      const updatedCache = [...messageCache.current, newMessage];
+      messageCache.current = updatedCache;
+      setMessages(updatedCache);
+      
+      // Then reload to get the server-saved version with correct timestamp
+      setTimeout(() => loadMessages(), 500);
     } catch (e) {
       alert('Failed to send message. Please try again.');
     } finally {
@@ -102,6 +152,7 @@ export function ChatWindow() {
     }
   };
 
+  // ========== Initial load and polling ==========
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/app/login');
@@ -110,10 +161,14 @@ export function ChatWindow() {
 
     if (chatName) {
       loadMessages();
-      const interval = setInterval(loadMessages, 20000);
+      // Poll every 20 seconds using the cached version
+      const interval = setInterval(() => {
+        console.log('🔄 Polling for new messages...');
+        loadMessages();
+      }, 20000);
       return () => clearInterval(interval);
     }
-  }, [chatName, isLoggedIn]);
+  }, [chatName, isLoggedIn, loadMessages]);
 
   if (!isLoggedIn) {
     return (
@@ -192,8 +247,8 @@ export function ChatWindow() {
 
       {/* Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px', WebkitOverflowScrolling: 'touch' }}>
-        {isLoading ? (
-          // ⭐ TRANSPARENT SPINNER - NO WORDS
+        {isLoading && !hasLoaded ? (
+          // Loading state - only shows on first load
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             <div style={{ 
               width: '32px', 
@@ -206,7 +261,6 @@ export function ChatWindow() {
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : messages.length === 0 ? (
-          // ⭐ EXACT TEXT YOU REQUESTED
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888888', textAlign: 'center' }}>
             <p style={{ fontSize: '14px', color: '#666666', marginBottom: '8px' }}>
               Note: Past messages may take up to a minute to load when opening chat
