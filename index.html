@@ -39,9 +39,13 @@
         });
         console.log("🔔 OneSignal initialized");
         
-        // Get player ID once initialized
-        const state = await OneSignal.getDeviceState();
-        console.log("📱 OneSignal Player ID:", state.userId);
+        // Wait for user to subscribe, then get player ID
+        const subscription = await OneSignal.User.pushSubscription;
+        const playerId = subscription.id;
+        console.log("📱 OneSignal Player ID:", playerId);
+        
+        // Also log the full user object
+        console.log("👤 OneSignal User:", await OneSignal.User.getState());
       });
     </script>
   </head>
