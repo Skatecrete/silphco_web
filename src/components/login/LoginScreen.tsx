@@ -32,10 +32,44 @@ export function LoginScreen() {
 
     setError(false);
     login(trimmedName, trimmedIgn);
+    
+    // 🔔 Prompt for notifications after login
+    subscribeToNotifications();
   };
 
   const handleGuest = () => {
     guestLogin();
+    // 🔔 Prompt for notifications for guests too
+    subscribeToNotifications();
+  };
+
+  // ========== ONESIGNAL SUBSCRIPTION ==========
+  const subscribeToNotifications = async () => {
+    try {
+      // Wait for OneSignal to be available
+      if (window.OneSignal) {
+        console.log('🔔 Requesting notification permission...');
+        
+        // Show the OneSignal slide-down prompt
+        await window.OneSignal.Notifications.requestPermission();
+        
+        // Get the subscription state
+        const subscription = await window.OneSignal.User.pushSubscription;
+        if (subscription && subscription.id) {
+          console.log('✅ User subscribed! Player ID:', subscription.id);
+          // Save Player ID to localStorage for later use
+          localStorage.setItem('onesignal_player_id', subscription.id);
+        } else {
+          console.log('⚠️ User declined notifications');
+        }
+      } else {
+        console.log('⚠️ OneSignal not loaded yet');
+        // Wait and try again
+        setTimeout(subscribeToNotifications, 2000);
+      }
+    } catch (error) {
+      console.error('❌ Error subscribing to notifications:', error);
+    }
   };
 
   return (
