@@ -15,11 +15,7 @@ interface Message {
 // ========== HELPER: Format Timestamp ==========
 const formatChatTimestamp = (timestamp: string): string => {
   try {
-    // Handle various formats:
-    // "2026-09-07T20:21:24.000Z" -> "09/07 20:21"
-    // "09/07/2026 16:34:02" -> "09/07 16:34"
-    
-    // Check if it's the Google Sheets format (MM/dd/yyyy HH:mm:ss)
+    // Handle Google Sheets format: "MM/dd/yyyy HH:mm:ss"
     if (timestamp.includes('/')) {
       const parts = timestamp.split(' ');
       if (parts.length === 2) {
@@ -27,7 +23,7 @@ const formatChatTimestamp = (timestamp: string): string => {
         if (dateParts.length === 3) {
           const month = dateParts[0].padStart(2, '0');
           const day = dateParts[1].padStart(2, '0');
-          const timePart = parts[1].substring(0, 5); // HH:mm only
+          const timePart = parts[1].substring(0, 5);
           return `${month}/${day} ${timePart}`;
         }
       }
@@ -40,9 +36,8 @@ const formatChatTimestamp = (timestamp: string): string => {
       if (datePart.length === 3) {
         const month = datePart[1];
         const day = datePart[2];
-        // Remove seconds and milliseconds
-        let timePart = parts[1].split('.')[0]; // Remove milliseconds
-        timePart = timePart.substring(0, 5); // Keep HH:mm only
+        let timePart = parts[1].split('.')[0];
+        timePart = timePart.substring(0, 5);
         return `${month}/${day} ${timePart}`;
       }
     }
@@ -58,6 +53,7 @@ export function ChatWindow() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get chat name from localStorage
@@ -69,6 +65,7 @@ export function ChatWindow() {
     if (!chatName) return;
     
     try {
+      setIsLoading(true);
       const data = await getMessages(chatName);
       setMessages(data.messages || []);
       
@@ -82,6 +79,8 @@ export function ChatWindow() {
       }, 100);
     } catch (e) {
       console.error('Error loading messages:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -202,12 +201,31 @@ export function ChatWindow() {
 
       {/* Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px', WebkitOverflowScrolling: 'touch' }}>
-        {messages.length === 0 ? (
+        {isLoading ? (
+          // Loading state
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888888' }}>
+            <div style={{ 
+              width: '40px', 
+              height: '40px', 
+              border: '3px solid #2a2a3e', 
+              borderTopColor: '#7627C5', 
+              borderRadius: '50%', 
+              animation: 'spin 0.8s linear infinite' 
+            }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            <p style={{ fontSize: '14px', marginTop: '16px' }}>Loading messages...</p>
+            <p style={{ fontSize: '12px', color: '#666666', marginTop: '4px' }}>
+              Note: Past messages may take up to a minute to load when opening chat
+            </p>
+          </div>
+        ) : messages.length === 0 ? (
+          // Empty state
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888888' }}>
             <p style={{ fontSize: '18px' }}>No messages yet</p>
             <p style={{ fontSize: '14px', marginTop: '4px' }}>Send a message below to start chatting</p>
           </div>
         ) : (
+          // Messages
           messages.map((msg, index) => (
             <div key={index} style={{ marginBottom: '12px' }}>
               {/* User message */}
