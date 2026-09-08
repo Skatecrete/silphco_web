@@ -15,19 +15,38 @@ interface Message {
 // ========== HELPER: Format Timestamp ==========
 const formatChatTimestamp = (timestamp: string): string => {
   try {
-    // Handle ISO format: "2026-09-07T15:26:10.123Z" or "2026-09-07T15:26:10"
+    // Handle various formats:
+    // "2026-09-07T20:21:24.000Z" -> "09/07 20:21"
+    // "09/07/2026 16:34:02" -> "09/07 16:34"
+    
+    // Check if it's the Google Sheets format (MM/dd/yyyy HH:mm:ss)
+    if (timestamp.includes('/')) {
+      const parts = timestamp.split(' ');
+      if (parts.length === 2) {
+        const dateParts = parts[0].split('/');
+        if (dateParts.length === 3) {
+          const month = dateParts[0].padStart(2, '0');
+          const day = dateParts[1].padStart(2, '0');
+          const timePart = parts[1].substring(0, 5); // HH:mm only
+          return `${month}/${day} ${timePart}`;
+        }
+      }
+    }
+    
+    // Handle ISO format: "2026-09-07T20:21:24.000Z"
     const parts = timestamp.split('T');
     if (parts.length === 2) {
       const datePart = parts[0].split('-');
       if (datePart.length === 3) {
         const month = datePart[1];
         const day = datePart[2];
-        // Remove seconds (and anything after) - keep HH:mm
+        // Remove seconds and milliseconds
         let timePart = parts[1].split('.')[0]; // Remove milliseconds
         timePart = timePart.substring(0, 5); // Keep HH:mm only
         return `${month}/${day} ${timePart}`;
       }
     }
+    
     return timestamp;
   } catch (e) {
     return timestamp;
@@ -45,32 +64,16 @@ export function ChatWindow() {
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
 
-  // DEBUG: Log when component mounts
-  useEffect(() => {
-    console.log('🔍 [ChatWindow] Mounted');
-    console.log('🔍 [ChatWindow] chatName:', chatName);
-    console.log('🔍 [ChatWindow] isLoggedIn:', isLoggedIn);
-    console.log('🔍 [ChatWindow] localStorage keys:', Object.keys(localStorage));
-  }, []);
-
   // Load messages
   const loadMessages = async () => {
-    if (!chatName) {
-      console.log('⚠️ [ChatWindow] No chatName, skipping load');
-      return;
-    }
+    if (!chatName) return;
     
     try {
-      console.log('📡 [ChatWindow] Fetching messages for:', chatName);
       const data = await getMessages(chatName);
-      console.log('✅ [ChatWindow] Messages received:', data.messages?.length || 0);
-      console.log('📝 [ChatWindow] First message:', data.messages?.[0]);
-      
       setMessages(data.messages || []);
       
       const hasNew = data.messages?.some((m: Message) => m.isNew);
       if (hasNew) {
-        console.log('🔔 [ChatWindow] New messages detected, marking as read');
         await markRead(chatName);
       }
       
@@ -78,27 +81,20 @@ export function ChatWindow() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } catch (e) {
-      console.error('❌ [ChatWindow] Error loading messages:', e);
+      console.error('Error loading messages:', e);
     }
   };
 
   // Send message
   const handleSend = async () => {
-    if (!input.trim() || !chatName) {
-      console.log('⚠️ [ChatWindow] Cannot send - empty input or no chatName');
-      return;
-    }
+    if (!input.trim() || !chatName) return;
     
-    console.log('📤 [ChatWindow] Sending message:', input.trim());
     setLoading(true);
-    
     try {
-      const result = await sendMessage(chatName, input.trim());
-      console.log('✅ [ChatWindow] Send result:', result);
+      await sendMessage(chatName, input.trim());
       setInput('');
       await loadMessages();
     } catch (e) {
-      console.error('❌ [ChatWindow] Send failed:', e);
       alert('Failed to send message. Please try again.');
     } finally {
       setLoading(false);
@@ -115,38 +111,20 @@ export function ChatWindow() {
 
   // Load messages on mount AND start polling
   useEffect(() => {
-    console.log('🔄 [ChatWindow] Starting chat session');
-    
     if (!isLoggedIn) {
-      console.log('🚫 [ChatWindow] Not logged in, redirecting to login');
       navigate('/app/login');
       return;
     }
 
     if (chatName) {
-      console.log('✅ [ChatWindow] Chat name found, loading messages');
-      // Load immediately on mount
       loadMessages();
-      
-      // Then start polling every 20 seconds
-      console.log('⏰ [ChatWindow] Starting 20-second polling');
-      const interval = setInterval(() => {
-        console.log('🔄 [ChatWindow] Polling for new messages...');
-        loadMessages();
-      }, 20000);
-      
-      return () => {
-        console.log('🧹 [ChatWindow] Cleaning up polling');
-        clearInterval(interval);
-      };
-    } else {
-      console.log('⚠️ [ChatWindow] No chat_name found in localStorage');
+      const interval = setInterval(loadMessages, 20000);
+      return () => clearInterval(interval);
     }
   }, [chatName, isLoggedIn]);
 
   // If not logged in, show message
   if (!isLoggedIn) {
-    console.log('🚫 [ChatWindow] Rendering login prompt');
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#1a1a2e', padding: '24px' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
@@ -177,7 +155,6 @@ export function ChatWindow() {
   }
 
   // Main chat view
-  console.log('💬 [ChatWindow] Rendering main chat view');
   return (
     <div style={{ 
       height: '100vh', 
@@ -200,10 +177,7 @@ export function ChatWindow() {
         minHeight: '60px',
       }}>
         <button
-          onClick={() => {
-            console.log('🔙 [ChatWindow] Back button clicked');
-            navigate(-1);
-          }}
+          onClick={() => navigate(-1)}
           style={{
             background: 'none',
             border: 'none',
@@ -248,7 +222,7 @@ export function ChatWindow() {
                 </div>
               )}
               
-              {/* Admin reply - NOW WITH USERNAME */}
+              {/* Admin reply */}
               {msg.adminReply && (
                 <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '4px' }}>
                   <div style={{ maxWidth: '80%', backgroundColor: '#2a2a3e', padding: '10px 14px', borderRadius: '12px', borderBottomLeftRadius: '4px', border: '1px solid #3a3a4e' }}>
