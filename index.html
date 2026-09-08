@@ -41,11 +41,22 @@
         
         // Wait for user to subscribe, then get player ID
         const subscription = await OneSignal.User.pushSubscription;
-        const playerId = subscription.id;
-        console.log("📱 OneSignal Player ID:", playerId);
+        console.log("📱 Subscription object:", subscription);
         
-        // Also log the full user object
-        console.log("👤 OneSignal User:", await OneSignal.User.getState());
+        if (subscription) {
+          const playerId = subscription.id;
+          console.log("📱 OneSignal Player ID:", playerId);
+        } else {
+          console.log("⚠️ No subscription yet - user may not have subscribed");
+        }
+        
+        // Alternative: Get user state
+        try {
+          const user = await OneSignal.User.getState();
+          console.log("👤 User state:", user);
+        } catch (e) {
+          console.log("⚠️ Could not get user state:", e.message);
+        }
       });
     </script>
   </head>
