@@ -39,24 +39,20 @@
         });
         console.log("🔔 OneSignal initialized");
         
-        // Wait for user to subscribe, then get player ID
-        const subscription = await OneSignal.User.pushSubscription;
-        console.log("📱 Subscription object:", subscription);
-        
-        if (subscription) {
-          const playerId = subscription.id;
-          console.log("📱 OneSignal Player ID:", playerId);
-        } else {
-          console.log("⚠️ No subscription yet - user may not have subscribed");
-        }
-        
-        // Alternative: Get user state
-        try {
-          const user = await OneSignal.User.getState();
-          console.log("👤 User state:", user);
-        } catch (e) {
-          console.log("⚠️ Could not get user state:", e.message);
-        }
+        // Try to get subscription after init
+        setTimeout(async () => {
+          try {
+            const subscription = await OneSignal.User.pushSubscription;
+            console.log("📱 Subscription object:", subscription);
+            if (subscription && subscription.id) {
+              console.log("✅ Player ID:", subscription.id);
+            } else {
+              console.log("⚠️ No subscription yet");
+            }
+          } catch (e) {
+            console.log("⚠️ Error getting subscription:", e.message);
+          }
+        }, 2000);
       });
     </script>
   </head>
