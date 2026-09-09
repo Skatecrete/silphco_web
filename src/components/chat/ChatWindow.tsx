@@ -53,12 +53,75 @@ export function ChatWindow() {
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [notificationPrompt, setNotificationPrompt] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageCache = useRef<Message[]>([]);
   const isFirstLoad = useRef(true);
+  const hasPromptedNotifications = useRef(false);
 
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
+
+  // ========== Check if user is already subscribed ==========
+  const checkNotificationStatus = useCallback(async () => {
+    try {
+      if (window.OneSignal) {
+        const subscription = await window.OneSignal.User.pushSubscription;
+        if (subscription && subscription.id) {
+          console.log('✅ Already subscribed, Player ID:', subscription.id);
+          localStorage.setItem('onesignal_player_id', subscription.id);
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      console.log('⚠️ Could not check subscription:', e.message);
+      return false;
+    }
+  }, []);
+
+  // ========== Prompt for notifications ==========
+  const promptForNotifications = useCallback(async () => {
+    // Don't prompt if already shown, already subscribed, or not on a secure context
+    if (hasPromptedNotifications.current) return;
+    if (!window.OneSignal) {
+      console.log('⚠️ OneSignal not available');
+      return;
+    }
+
+    try {
+      // Check if already subscribed
+      const isSubscribed = await checkNotificationStatus();
+      if (isSubscribed) {
+        hasPromptedNotifications.current = true;
+        return;
+      }
+
+      hasPromptedNotifications.current = true;
+      setNotificationPrompt(true);
+      
+      console.log('🔔 Showing notification prompt...');
+      
+      // Show the OneSignal slide-down prompt
+      await window.OneSignal.Notifications.requestPermission();
+      
+      // Check if they subscribed
+      setTimeout(async () => {
+        const subscription = await window.OneSignal.User.pushSubscription;
+        if (subscription && subscription.id) {
+          console.log('✅ User subscribed! Player ID:', subscription.id);
+          localStorage.setItem('onesignal_player_id', subscription.id);
+          setNotificationPrompt(false);
+        } else {
+          console.log('⚠️ User declined notifications');
+          setNotificationPrompt(false);
+        }
+      }, 3000);
+    } catch (error) {
+      console.error('❌ Error prompting for notifications:', error);
+      setNotificationPrompt(false);
+    }
+  }, [checkNotificationStatus]);
 
   // ========== Load messages with caching ==========
   const loadMessages = useCallback(async () => {
@@ -68,7 +131,6 @@ export function ChatWindow() {
       const data = await getMessages(chatName);
       const newMessages = data.messages || [];
       
-      // Check if messages have actually changed
       const currentMessages = messageCache.current;
       const hasChanged = currentMessages.length !== newMessages.length ||
         currentMessages.some((msg, index) => {
@@ -84,11 +146,9 @@ export function ChatWindow() {
         messageCache.current = newMessages;
         setMessages(newMessages);
         
-        // Mark new messages as read
         const hasNew = newMessages.some((m: Message) => m.isNew);
         if (hasNew) {
           await markRead(chatName);
-          // After marking read, update the cache to reflect the change
           const updatedData = await getMessages(chatName);
           messageCache.current = updatedData.messages || [];
           setMessages(messageCache.current);
@@ -101,6 +161,9 @@ export function ChatWindow() {
         isFirstLoad.current = false;
         setHasLoaded(true);
         setIsLoading(false);
+        
+        // 🔔 Prompt for notifications when chat loads
+        await promptForNotifications();
       }
       
       setTimeout(() => {
@@ -112,7 +175,7 @@ export function ChatWindow() {
         setIsLoading(false);
       }
     }
-  }, [chatName]);
+  }, [chatName, promptForNotifications]);
 
   // ========== Send message ==========
   const handleSend = async () => {
@@ -122,7 +185,6 @@ export function ChatWindow() {
     try {
       await sendMessage(chatName, input.trim());
       setInput('');
-      // Immediately show the sent message by adding it to the cache
       const now = new Date();
       const timestamp = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
       const newMessage: Message = {
@@ -136,7 +198,6 @@ export function ChatWindow() {
       messageCache.current = updatedCache;
       setMessages(updatedCache);
       
-      // Then reload to get the server-saved version with correct timestamp
       setTimeout(() => loadMessages(), 500);
     } catch (e) {
       alert('Failed to send message. Please try again.');
@@ -161,7 +222,6 @@ export function ChatWindow() {
 
     if (chatName) {
       loadMessages();
-      // Poll every 20 seconds using the cached version
       const interval = setInterval(() => {
         console.log('🔄 Polling for new messages...');
         loadMessages();
@@ -245,10 +305,75 @@ export function ChatWindow() {
         </span>
       </div>
 
+      {/* Notification Prompt Banner */}
+      {notificationPrompt && (
+        <div style={{ 
+          padding: '12px 16px', 
+          backgroundColor: '#2a1a3e', 
+          borderBottom: '1px solid #3a2a4e',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexShrink: 0,
+        }}>
+          <div>
+            <p style={{ color: '#ffffff', fontSize: '13px', margin: 0 }}>
+              🔔 Enable notifications for admin replies?
+            </p>
+            <p style={{ color: '#888888', fontSize: '11px', marginTop: '4px' }}>
+              Get notified when admin responds to your messages
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+            <button
+              onClick={() => {
+                setNotificationPrompt(false);
+                // Request permission directly
+                window.OneSignal?.Notifications.requestPermission();
+                setTimeout(async () => {
+                  const subscription = await window.OneSignal?.User.pushSubscription;
+                  if (subscription?.id) {
+                    console.log('✅ Subscribed! Player ID:', subscription.id);
+                    localStorage.setItem('onesignal_player_id', subscription.id);
+                  }
+                }, 3000);
+              }}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#4CAF50',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => {
+                setNotificationPrompt(false);
+                console.log('👎 User declined notifications');
+              }}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#444444',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
+              No Thanks
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px', WebkitOverflowScrolling: 'touch' }}>
         {isLoading && !hasLoaded ? (
-          // Loading state - only shows on first load
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             <div style={{ 
               width: '32px', 
