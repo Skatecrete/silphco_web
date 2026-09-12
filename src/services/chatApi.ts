@@ -1,6 +1,7 @@
 // src/services/chatApi.ts
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDM7VQdfNc8ADsJEL81Z1bW1JWjZ_-8LFJa3AaZFuQf0rO4ojc5OMJ97GKjTnNPbI9ng/exec';
+const PROXY = 'https://corsproxy.io/?url=';
+const SCRIPT_URL = PROXY + encodeURIComponent('https://script.google.com/macros/s/AKfycbwDM7VQdfNc8ADsJEL81Z1bW1JWjZ_-8LFJa3AaZFuQf0rO4ojc5OMJ97GKjTnNPbI9ng/exec');
 
 // ========== Helper: POST with text/plain to avoid CORS preflight ==========
 async function postToScript(body: object): Promise<any> {
