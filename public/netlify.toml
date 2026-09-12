@@ -1,6 +1,6 @@
 [[redirects]]
   from = "/api/chat"
-  to = "https://script.google.com/macros/s/AKfycbwDM7VQdfNc8ADsJEL81Z1bW1JWjZ_-8LFJa3AaZFuQf0rO4ojc5OMJ97GKjTnNPbI9ng/exec"
+  to = "https://script.google.com/macros/s/AKfycbzG1Q22LCOzqyXUwrTzxkqi5csH_yhQdQCAgZqsky0LB2YTiVHD7NttkGkDS6ilcyp7eg/exec"
   status = 200
   force = true
 
