@@ -1,14 +1,12 @@
 import { LeekDuckEvent } from '@/services/leekDuckApi';
-import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
+import { getComingSoonUrl, getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
 import { ALL_POKEMON_NAMES } from '@/utils/constants';
 
-// Build the Pokemon name map from ALL_POKEMON_NAMES
 const POKEMON_NAME_MAP: Record<string, number> = {};
 for (const [id, name] of Object.entries(ALL_POKEMON_NAMES)) {
   POKEMON_NAME_MAP[name.toLowerCase()] = parseInt(id);
 }
 
-// Event name patterns to help with matching
 const EVENT_NAME_PATTERNS: Record<string, string[]> = {
   'community day': ['community day', 'cd'],
   'go fest': ['go fest', 'fest'],
@@ -29,40 +27,33 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
-  const getEventImage = (): string => {
+  const getEventImage = (): string | null => {
     const eventLower = event.name.toLowerCase();
-    
-    // First, try direct Pokemon name match
-    for (const [name, id] of Object.entries(POKEMON_NAME_MAP)) {
-      if (eventLower.includes(name)) {
+
+    for (const [name] of Object.entries(POKEMON_NAME_MAP)) {
+      if (eventLower.includes(name) && name.length > 3) {
         const url = getUltimateGalleryUrl(name);
         if (url) return url;
-        return getPokeApiUrl(id);
       }
     }
-    
-    // Try partial matches for event-specific patterns
-    for (const [pattern, variations] of Object.entries(EVENT_NAME_PATTERNS)) {
+
+    for (const [, variations] of Object.entries(EVENT_NAME_PATTERNS)) {
       for (const variation of variations) {
         if (eventLower.includes(variation)) {
-          // Try to find a Pokemon name near the pattern
-          for (const [name, id] of Object.entries(POKEMON_NAME_MAP)) {
+          for (const [name] of Object.entries(POKEMON_NAME_MAP)) {
             if (eventLower.includes(name) && name.length > 3) {
               const url = getUltimateGalleryUrl(name);
               if (url) return url;
-              return getPokeApiUrl(id);
             }
           }
         }
       }
     }
-    
-    // Fallback emoji
-    return '😎';
+
+    return null;
   };
 
   const imageSrc = getEventImage();
-  const isEmoji = imageSrc.length <= 2;
 
   const formatDate = (dateStr: string) => {
     try {
@@ -85,47 +76,23 @@ export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
         marginBottom: '8px',
       }}
     >
-      {isEmoji ? (
-        <div
-          style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '8px',
-            backgroundColor: 'rgba(118,39,197,0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '32px',
-            flexShrink: 0,
-          }}
-        >
-          {imageSrc}
-        </div>
-      ) : (
-        <img
-          src={imageSrc}
-          alt={event.name}
-          style={{
-            width: '56px',
-            height: '56px',
-            borderRadius: '8px',
-            objectFit: 'contain',
-            backgroundColor: '#1a1a2e',
-            flexShrink: 0,
-          }}
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
-            const parent = target.parentElement;
-            if (parent) {
-              const emoji = document.createElement('div');
-              emoji.style.cssText = 'width:56px;height:56px;border-radius:8px;background:rgba(118,39,197,0.2);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;';
-              emoji.textContent = '😎';
-              parent.prepend(emoji);
-            }
-          }}
-        />
-      )}
+      <img
+        src={imageSrc || getComingSoonUrl()}
+        alt={event.name}
+        style={{
+          width: '56px',
+          height: '56px',
+          borderRadius: '8px',
+          objectFit: 'contain',
+          backgroundColor: '#1a1a2e',
+          flexShrink: 0,
+        }}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.onerror = null;
+          target.src = getComingSoonUrl();
+        }}
+      />
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
