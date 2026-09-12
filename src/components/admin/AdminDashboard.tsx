@@ -10,7 +10,6 @@ interface Order {
   total: number;
   status: string;
   paymentMethod?: string;
-  otherRequests?: string;
   assignedAdmin?: string;
 }
 
