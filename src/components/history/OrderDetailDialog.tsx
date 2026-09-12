@@ -1,3 +1,5 @@
+import { firstNameToGamerTag } from '@/utils/adminMap';
+
 interface Order {
   orderId: string;
   date: string;
@@ -21,6 +23,10 @@ export function OrderDetailDialog({ isOpen, order, onClose }: OrderDetailDialogP
   const statusColor = order.status === 'Paid' || order.status === 'Completed'
     ? '#4CAF50'
     : '#FFA500';
+
+  const adminDisplay = order.assignedAdmin
+    ? firstNameToGamerTag(order.assignedAdmin)
+    : '';
 
   return (
     <div
@@ -71,8 +77,8 @@ export function OrderDetailDialog({ isOpen, order, onClose }: OrderDetailDialogP
           <p style={{ color: '#888888', fontSize: '14px' }}>Date: {order.date}</p>
           <p style={{ color: '#888888', fontSize: '14px' }}>Payment: {order.paymentMethod || 'N/A'}</p>
           <p style={{ color: statusColor, fontSize: '14px', fontWeight: 700 }}>Status: {order.status}</p>
-          {order.assignedAdmin && (
-            <p style={{ color: '#888888', fontSize: '14px' }}>Admin: {order.assignedAdmin}</p>
+          {adminDisplay && (
+            <p style={{ color: '#888888', fontSize: '14px' }}>Admin: {adminDisplay}</p>
           )}
         </div>
 
