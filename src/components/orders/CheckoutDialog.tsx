@@ -80,9 +80,8 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
                 marginBottom: '16px',
               }}
             >
-              <p style={{ color: '#ffffff', fontSize: '14px', lineHeight: 1.6, margin: 0, textAlign: 'center' }}>
-                After placing this order your Admin will reach out as soon as they can.
-                Please visit the Discord Channel{' '}
+              <p style={{ color: '#ffffff', fontSize: '14px', lineHeight: 1.6, margin: 0, textAlign: 'center', fontWeight: 700 }}>
+                After placing this order your Admin will reach out as soon as they can in the SilphCo Chat on this app. Please visit the Discord Channel{' '}
                 <button
                   onClick={() => setShowDiscord(true)}
                   style={{
@@ -98,7 +97,7 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
                 >
                   &gt; HERE &lt;
                 </button>{' '}
-                for a better understanding of how the process works!
+                for a better understanding of how the process works and additional info on services!
               </p>
             </div>
 
