@@ -1,10 +1,6 @@
 // ========== SCRIPT URLS ==========
-// Main script (orders, RSVPs, pricing, services, dex writes) proxied through Netlify.
 const MAIN_SCRIPT_URL = '/api/orders';
-
-// Export script (dex GETs) still uses corsproxy for now.
-const CORS_PROXY = 'https://corsproxy.io/?url=';
-const EXPORT_SCRIPT_ID = 'AKfycbwDM7VQdfNc8ADsJEL81Z1bW1JWjZ_-8LFJa3AaZFuQf0rO4ojc5OMJ97GKjTnNPbI9ng';
+const DEX_GET_URL = '/api/dex';
 
 // ========== TYPES ==========
 export interface PricingResponse {
@@ -217,17 +213,18 @@ export async function updateRSVPStatus(rsvpId: number, newStatus: string): Promi
 
 // ========== DEX ==========
 
-// GET (uses export script — GET works through corsproxy)
+// GET — proxied through Netlify to avoid corsproxy 401.
+// Netlify's /api/dex redirect points at webordersassist.gs, whose
+// doGet handles type=getDexProgress.
 export async function getDexProgress(customerDisplay: string, listType: string): Promise<any[]> {
   try {
-    const baseUrl = 'https://script.google.com/macros/s/' + EXPORT_SCRIPT_ID + '/exec';
     const params = new URLSearchParams({
       type: 'getDexProgress',
       customerDisplay: customerDisplay,
       listType: listType,
     });
 
-    const url = CORS_PROXY + encodeURIComponent(baseUrl + '?' + params.toString());
+    const url = DEX_GET_URL + '?' + params.toString();
 
     const response = await fetch(url, {
       method: 'GET',
@@ -257,7 +254,7 @@ export async function getDexProgress(customerDisplay: string, listType: string):
   }
 }
 
-// ADD (uses main script via /api/orders proxy)
+// ADD (via /api/orders → pokespawnorders.gs)
 export async function addDexPokemon(
   customerDisplay: string,
   pokemonId: number,
@@ -296,7 +293,7 @@ export async function addDexPokemon(
   }
 }
 
-// REMOVE (uses main script via /api/orders proxy)
+// REMOVE (via /api/orders → pokespawnorders.gs)
 export async function removeDexPokemon(
   customerDisplay: string,
   pokemonId: number,
