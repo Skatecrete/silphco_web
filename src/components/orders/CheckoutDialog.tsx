@@ -13,22 +13,36 @@ interface CheckoutDialogProps {
 
 export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart }: CheckoutDialogProps) {
   const { userDisplay, isLoggedIn } = useUser();
+  const [name, setName] = useState('');
+  const [ign, setIgn] = useState('');
   const [timePreference, setTimePreference] = useState('Whenever Possible');
   const [showPayment, setShowPayment] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && isLoggedIn && userDisplay) {
-      // Nothing to prefill — userDisplay is just the gamer tag now.
+      const parts = userDisplay.split(' (');
+      if (parts.length === 2) {
+        setName(parts[0]);
+        setIgn(parts[1].replace(')', ''));
+      }
     }
   }, [isOpen, isLoggedIn, userDisplay]);
 
   const handleContinue = () => {
+    const trimmedName = name.trim();
+    const trimmedIgn = ign.trim();
+
+    if (!trimmedName || !trimmedIgn) {
+      setError('Please enter both name and in-game name');
+      return;
+    }
+
+    setError(null);
     setShowPayment(true);
   };
 
   if (!isOpen) return null;
-
-  const customerName = userDisplay || 'Guest';
 
   return (
     <>
@@ -62,7 +76,7 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h2 style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700 }}>Confirm Order</h2>
+              <h2 style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700 }}>Who are you?! Reveal Yourself!</h2>
               <button
                 onClick={onClose}
                 style={{
@@ -77,19 +91,12 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
               </button>
             </div>
 
-            <div style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', marginBottom: '16px' }}>
-              <p style={{ color: '#ffffff', fontSize: '14px' }}>
-                <strong>Trainer:</strong> {customerName}
-              </p>
-            </div>
-
-            <div>
-              <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: 700, marginBottom: '4px' }}>
-                ⏰ Preferred Time to Start Order
-              </p>
-              <select
-                value={timePreference}
-                onChange={(e) => setTimePreference(e.target.value)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your First Name *"
                 style={{
                   width: '100%',
                   padding: '12px 16px',
@@ -101,17 +108,64 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
                   fontSize: '16px',
                   fontFamily: 'inherit',
                 }}
-              >
-                <option value="Whenever Possible">Whenever Possible</option>
-                <option value="Morning (US)">Morning (US)</option>
-                <option value="Midday (US)">Midday (US)</option>
-                <option value="Night/Overnight (US)">Night/Overnight (US)</option>
-              </select>
-            </div>
+                onFocus={(e) => { e.target.style.borderColor = '#7627C5'; }}
+                onBlur={(e) => { e.target.style.borderColor = 'transparent'; }}
+              />
 
-            <p style={{ color: '#FFA500', fontSize: '12px', marginTop: '12px' }}>
-              *Timed Events cannot have a predetermined time slot, nor can all orders be considered at certain times given the amount of orders we may have.
-            </p>
+              <input
+                type="text"
+                value={ign}
+                onChange={(e) => setIgn(e.target.value)}
+                placeholder="In-Game Name (PoGo Name) *"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  backgroundColor: '#1a1a2e',
+                  color: '#ffffff',
+                  borderRadius: '12px',
+                  border: '2px solid transparent',
+                  outline: 'none',
+                  fontSize: '16px',
+                  fontFamily: 'inherit',
+                }}
+                onFocus={(e) => { e.target.style.borderColor = '#7627C5'; }}
+                onBlur={(e) => { e.target.style.borderColor = 'transparent'; }}
+              />
+
+              {error && (
+                <p style={{ color: '#F44336', fontSize: '14px', margin: 0 }}>{error}</p>
+              )}
+
+              <div>
+                <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: 700, marginBottom: '4px' }}>⏰ Preferred Time to Start Order</p>
+                <select
+                  value={timePreference}
+                  onChange={(e) => setTimePreference(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    backgroundColor: '#1a1a2e',
+                    color: '#ffffff',
+                    borderRadius: '12px',
+                    border: '2px solid transparent',
+                    outline: 'none',
+                    fontSize: '16px',
+                    fontFamily: 'inherit',
+                  }}
+                  onFocus={(e) => { e.target.style.borderColor = '#7627C5'; }}
+                  onBlur={(e) => { e.target.style.borderColor = 'transparent'; }}
+                >
+                  <option value="Whenever Possible">Whenever Possible</option>
+                  <option value="Morning (US)">Morning (US)</option>
+                  <option value="Midday (US)">Midday (US)</option>
+                  <option value="Night/Overnight (US)">Night/Overnight (US)</option>
+                </select>
+              </div>
+
+              <p style={{ color: '#FFA500', fontSize: '12px', margin: 0 }}>
+                *Timed Events cannot have a predetermined time slot, nor can all orders be considered at certain times given the amount of orders we may have.
+              </p>
+            </div>
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
               <button
@@ -152,8 +206,8 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
           setShowPayment(false);
           onClose();
         }}
-        customerName={customerName}
-        customerIgn=""
+        customerName={name}
+        customerIgn={ign}
         timePreference={timePreference}
         items={items}
         totalPrice={totalPrice}
