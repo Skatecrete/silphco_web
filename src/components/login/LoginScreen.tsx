@@ -23,8 +23,9 @@ export function LoginScreen() {
     return null;
   }
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Auto-advance when an admin is picked.
+  const handleAdminSelect = (tag: GamerTag) => {
+    setSelectedAdmin(tag);
     const trimmedName = name.trim();
     const trimmedIgn = ign.trim();
 
@@ -32,13 +33,9 @@ export function LoginScreen() {
       setError('Please enter both name and in-game name');
       return;
     }
-    if (!selectedAdmin) {
-      setError('Please select your admin');
-      return;
-    }
 
     setError(null);
-    localStorage.setItem('admin_gamer_tag', selectedAdmin);
+    localStorage.setItem('admin_gamer_tag', tag);
     login(trimmedName, trimmedIgn);
   };
 
@@ -81,7 +78,7 @@ export function LoginScreen() {
           Welcome back, Trainer!
         </p>
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <input
             type="text"
             value={name}
@@ -119,34 +116,14 @@ export function LoginScreen() {
             }}
           />
 
-          <AdminPicker selected={selectedAdmin} onSelect={setSelectedAdmin} />
+          <AdminPicker selected={selectedAdmin} onSelect={handleAdminSelect} />
 
           {error && (
             <p style={{ color: '#F44336', fontSize: '14px', textAlign: 'center', margin: 0 }}>
               {error}
             </p>
           )}
-
-          <button
-            type="submit"
-            style={{
-              width: '100%',
-              padding: '12px',
-              backgroundColor: '#7627C5',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-            }}
-            onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
-            onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#7627C5'; }}
-          >
-            CONTINUE TO POGO BLISS!
-          </button>
-        </form>
+        </div>
 
         <button
           onClick={handleGuest}
@@ -160,7 +137,7 @@ export function LoginScreen() {
             fontSize: '16px',
             fontWeight: 700,
             cursor: 'pointer',
-            marginTop: '12px',
+            marginTop: '20px',
             transition: 'background-color 0.2s',
           }}
           onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#555555'; }}
@@ -169,9 +146,12 @@ export function LoginScreen() {
           Continue as Guest
         </button>
 
-        <p style={{ color: '#FFA500', fontSize: '12px', textAlign: 'center', marginTop: '16px', lineHeight: 1.5 }}>
-          *Continue as Guest if you don't wish to have<br />
-          your order history or dex progress saved.
+        <p style={{ color: '#FFA500', fontSize: '12px', textAlign: 'center', marginTop: '16px', lineHeight: 1.6 }}>
+          *Continuing as Guest will disable the ability to:
+          <br />- Make orders
+          <br />- Create Dex List
+          <br />- Chat with Admins
+          <br />- RSVP events
         </p>
       </div>
     </div>
