@@ -173,12 +173,11 @@ export function PaymentDialog({
                 backgroundColor: 'rgba(118, 39, 197, 0.15)',
                 border: '1px solid rgba(118, 39, 197, 0.4)',
                 borderRadius: '12px',
-                padding: '12px',
+                padding: '16px',
                 marginBottom: '16px',
               }}>
-                <p style={{ color: '#ffffff', fontSize: '13px', lineHeight: 1.5, margin: 0, textAlign: 'center' }}>
-                  After placing this order your Admin will reach out as soon as they can.
-                  Please visit the Discord Channel{' '}
+                <p style={{ color: '#ffffff', fontSize: '14px', lineHeight: 1.6, margin: 0, textAlign: 'center', fontWeight: 700 }}>
+                  After placing this order your Admin will reach out as soon as they can in the SilphCo Chat on this app. Please visit the Discord Channel{' '}
                   <button
                     onClick={() => setShowDiscord(true)}
                     style={{
@@ -188,13 +187,13 @@ export function PaymentDialog({
                       textDecoration: 'underline',
                       fontWeight: 700,
                       cursor: 'pointer',
-                      fontSize: '13px',
+                      fontSize: '14px',
                       padding: 0,
                     }}
                   >
                     &gt; HERE &lt;
                   </button>{' '}
-                  for a better understanding of how the process works!
+                  for a better understanding of how the process works and additional info on services!
                 </p>
               </div>
 
@@ -338,10 +337,7 @@ function DiscordDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
               fontSize: '15px',
               textDecoration: 'none',
               textAlign: 'center',
-              transition: 'background-color 0.2s',
             }}
-            onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#4752C4'; }}
-            onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#5865F2'; }}
           >
             Join the Channel!
           </a>
@@ -365,10 +361,7 @@ function DiscordDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
               fontSize: '15px',
               textDecoration: 'none',
               textAlign: 'center',
-              transition: 'background-color 0.2s',
             }}
-            onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#4752C4'; }}
-            onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#5865F2'; }}
           >
             Welcome Back Trainer!
           </a>
