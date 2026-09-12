@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
-import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
+import { getComingSoonUrl, resolveImage } from '@/services/imageUrlBuilder';
 
 interface SpawnOrderDialogProps {
   isOpen: boolean;
@@ -19,31 +19,19 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
     normal: 0,
   });
 
-  // Reset quantities when dialog closes
   useEffect(() => {
     if (!isOpen) {
-      setQuantities({
-        shundo: 0,
-        hundo: 0,
-        shiny: 0,
-        normal: 0,
-      });
+      setQuantities({ shundo: 0, hundo: 0, shiny: 0, normal: 0 });
     }
   }, [isOpen]);
 
-  // Reset quantities when Pokemon changes
   useEffect(() => {
-    setQuantities({
-      shundo: 0,
-      hundo: 0,
-      shiny: 0,
-      normal: 0,
-    });
+    setQuantities({ shundo: 0, hundo: 0, shiny: 0, normal: 0 });
   }, [pokemon]);
 
   if (!pokemon) return null;
 
-  const imageUrl = getUltimateGalleryUrl(pokemon.name) || getPokeApiUrl(pokemon.id);
+  const imageUrl = resolveImage(pokemon.name, pokemon.id, pokemon.isShiny);
   const shundoAvailable = pokemon.spawnRate >= 0.45 && pokemon.isShiny;
   const showShundoDisclaimer = pokemon.spawnRate >= 0.45 && pokemon.spawnRate < 0.65 && pokemon.isShiny;
   const isRegional = pokemon.isRegional;
@@ -116,13 +104,7 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
       });
     }
 
-    // Reset all quantities after adding to cart
-    setQuantities({
-      shundo: 0,
-      hundo: 0,
-      shiny: 0,
-      normal: 0,
-    });
+    setQuantities({ shundo: 0, hundo: 0, shiny: 0, normal: 0 });
     onClose();
   };
 
@@ -132,10 +114,7 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         zIndex: 50,
         display: 'flex',
         alignItems: 'center',
@@ -169,6 +148,11 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
               height: '96px',
               objectFit: 'contain',
               margin: '0 auto',
+            }}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null;
+              target.src = getComingSoonUrl();
             }}
           />
           <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 700, marginTop: '8px' }}>
@@ -236,15 +220,11 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
           <button
             onClick={onClose}
             style={{
-              flex: 1,
-              padding: '12px',
+              flex: 1, padding: '12px',
               backgroundColor: '#444444',
               color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 700,
-              cursor: 'pointer',
+              border: 'none', borderRadius: '12px',
+              fontSize: '16px', fontWeight: 700, cursor: 'pointer',
             }}
           >
             Cancel
@@ -253,26 +233,18 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
             onClick={handleAddToCart}
             disabled={getTotal() === 0}
             style={{
-              flex: 1,
-              padding: '12px',
+              flex: 1, padding: '12px',
               backgroundColor: getTotal() > 0 ? '#4CAF50' : '#555555',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 700,
+              color: '#ffffff', border: 'none', borderRadius: '12px',
+              fontSize: '16px', fontWeight: 700,
               cursor: getTotal() > 0 ? 'pointer' : 'not-allowed',
               transition: 'background-color 0.2s, transform 0.1s',
             }}
             onMouseEnter={(e) => {
-              if (getTotal() > 0) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40';
-              }
+              if (getTotal() > 0) (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40';
             }}
             onMouseLeave={(e) => {
-              if (getTotal() > 0) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50';
-              }
+              if (getTotal() > 0) (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50';
             }}
           >
             Add to Cart
@@ -315,18 +287,11 @@ function QuantityRow({ label, price, quantity, onUpdate }: QuantityRowProps) {
           <button
             onClick={() => onUpdate(-1)}
             style={{
-              width: '32px',
-              height: '32px',
+              width: '32px', height: '32px',
               backgroundColor: '#7627C5',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '50%',
-              fontSize: '20px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              color: '#ffffff', border: 'none', borderRadius: '50%',
+              fontSize: '20px', fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'background-color 0.2s, transform 0.1s',
             }}
             onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
@@ -340,18 +305,11 @@ function QuantityRow({ label, price, quantity, onUpdate }: QuantityRowProps) {
           <button
             onClick={() => onUpdate(1)}
             style={{
-              width: '32px',
-              height: '32px',
+              width: '32px', height: '32px',
               backgroundColor: '#7627C5',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '50%',
-              fontSize: '20px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              color: '#ffffff', border: 'none', borderRadius: '50%',
+              fontSize: '20px', fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'background-color 0.2s, transform 0.1s',
             }}
             onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
