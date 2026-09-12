@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { useRaids } from '@/hooks/useRaids';
 import { fetchManualRaids, ManualRaid } from '@/services/rotationApi';
-import { getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
+import { getComingSoonUrl, resolveImage } from '@/services/imageUrlBuilder';
 import { RaidOrderDialog } from './RaidOrderDialog';
 import { DynamaxOrderDialog } from './DynamaxOrderDialog';
 import { Header } from '@/components/common/Header';
@@ -64,13 +64,12 @@ export function RaidsPage() {
     const allPokemon: any[] = [];
     manualRaids.forEach((manual) => {
       manual.pokemon.forEach((name) => {
-        const image = getUltimateGalleryUrl(name) || '';
         allPokemon.push({
           id: 0,
           name,
           tier: manual.category,
           isShiny: false,
-          image,
+          image: resolveImage(name, 0),
           isManual: true,
         });
       });
@@ -236,7 +235,6 @@ export function RaidsPage() {
   );
 }
 
-// ========== RaidGridCard ==========
 interface RaidGridCardProps {
   raid: any;
   cardType?: 'standard' | 'shadow' | 'dynamax' | 'ultra';
@@ -245,7 +243,6 @@ interface RaidGridCardProps {
 
 function RaidGridCard({ raid, cardType = 'standard', onClick }: RaidGridCardProps) {
   const isShadow = raid.name.toLowerCase().includes('shadow');
-  const [failed, setFailed] = useState(false);
 
   const cardBg: Record<string, string> = {
     standard: '#1a2a1a',
@@ -355,39 +352,23 @@ function RaidGridCard({ raid, cardType = 'standard', onClick }: RaidGridCardProp
             }}
           />
         )}
-        {failed || !raid.image ? (
-          <div
-            style={{
-              position: 'relative',
-              zIndex: 10,
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#888888',
-              fontSize: '10px',
-              textAlign: 'center',
-              padding: '4px',
-            }}
-          >
-            Image Coming Soon
-          </div>
-        ) : (
-          <img
-            src={raid.image}
-            alt={raid.name}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              padding: '6px',
-              position: 'relative',
-              zIndex: 2,
-            }}
-            onError={() => setFailed(true)}
-          />
-        )}
+        <img
+          src={raid.image || getComingSoonUrl()}
+          alt={raid.name}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            padding: '6px',
+            position: 'relative',
+            zIndex: 2,
+          }}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.onerror = null;
+            target.src = getComingSoonUrl();
+          }}
+        />
         {showDynamax && (
           <div
             style={{
