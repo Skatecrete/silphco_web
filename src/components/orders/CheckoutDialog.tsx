@@ -207,7 +207,6 @@ export function CheckoutDialog({ isOpen, onClose, items, totalPrice, onClearCart
         </div>
       </div>
 
-      {/* Admin Selection Dialog */}
       <AdminSelectionDialog
         isOpen={showAdminSelection}
         onClose={() => {
