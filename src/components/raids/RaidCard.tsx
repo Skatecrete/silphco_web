@@ -1,3 +1,6 @@
+import { getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
+import { useState } from 'react';
+
 interface RaidCardProps {
   raid: {
     id: number;
@@ -20,6 +23,7 @@ export function RaidCard({
   onClick,
 }: RaidCardProps) {
   const isShadow = raid.name.toLowerCase().includes('shadow');
+  const [failed, setFailed] = useState(false);
 
   return (
     <div
@@ -30,6 +34,7 @@ export function RaidCard({
         cursor: 'pointer',
         width: '100%',
         transition: 'transform 0.2s, background-color 0.2s',
+        position: 'relative',
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.backgroundColor = '#33334a';
@@ -85,20 +90,38 @@ export function RaidCard({
             }}
           />
         )}
-        <img
-          src={raid.image}
-          alt={raid.name}
-          style={{
-            position: 'relative',
-            zIndex: 10,
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-          }}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${raid.id}.png`;
-          }}
-        />
+        {failed || !raid.image ? (
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 10,
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#888888',
+              fontSize: '10px',
+              textAlign: 'center',
+              padding: '4px',
+            }}
+          >
+            Image Coming Soon
+          </div>
+        ) : (
+          <img
+            src={raid.image}
+            alt={raid.name}
+            style={{
+              position: 'relative',
+              zIndex: 10,
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+            }}
+            onError={() => setFailed(true)}
+          />
+        )}
       </div>
       <p
         style={{
