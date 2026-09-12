@@ -8,7 +8,8 @@ import { GamerTag } from '@/utils/adminMap';
 export function LoginScreen() {
   const navigate = useNavigate();
   const { login, guestLogin, isLoggedIn } = useUser();
-  const [gamerTag, setGamerTag] = useState('');
+  const [name, setName] = useState('');
+  const [ign, setIgn] = useState('');
   const [selectedAdmin, setSelectedAdmin] = useState<GamerTag | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,10 +25,11 @@ export function LoginScreen() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = gamerTag.trim();
+    const trimmedName = name.trim();
+    const trimmedIgn = ign.trim();
 
-    if (!trimmed) {
-      setError('Please enter your in-game name');
+    if (!trimmedName || !trimmedIgn) {
+      setError('Please enter both name and in-game name');
       return;
     }
     if (!selectedAdmin) {
@@ -36,13 +38,8 @@ export function LoginScreen() {
     }
 
     setError(null);
-
-    // Store the admin choice — permanent until localStorage is cleared.
     localStorage.setItem('admin_gamer_tag', selectedAdmin);
-
-    // Pass the gamer tag as both name and ign so existing code
-    // (which expects userName + userIgn) keeps working.
-    login(trimmed, trimmed);
+    login(trimmedName, trimmedIgn);
   };
 
   const handleGuest = () => {
@@ -87,9 +84,9 @@ export function LoginScreen() {
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <input
             type="text"
-            value={gamerTag}
-            onChange={(e) => { setGamerTag(e.target.value); setError(null); }}
-            placeholder="In-Game Name (PoGo Name) *"
+            value={name}
+            onChange={(e) => { setName(e.target.value); setError(null); }}
+            placeholder="Your First Name *"
             style={{
               width: '100%',
               padding: '12px 16px',
@@ -102,6 +99,24 @@ export function LoginScreen() {
               fontFamily: 'inherit',
             }}
             autoFocus
+          />
+
+          <input
+            type="text"
+            value={ign}
+            onChange={(e) => { setIgn(e.target.value); setError(null); }}
+            placeholder="In-Game Name (PoGo Name) *"
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              backgroundColor: '#2a2a3e',
+              color: '#ffffff',
+              borderRadius: '12px',
+              border: '2px solid transparent',
+              outline: 'none',
+              fontSize: '16px',
+              fontFamily: 'inherit',
+            }}
           />
 
           <AdminPicker selected={selectedAdmin} onSelect={setSelectedAdmin} />
