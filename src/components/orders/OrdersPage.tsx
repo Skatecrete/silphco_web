@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import { usePricing } from '@/hooks/usePricing';
 import { CartList } from './CartList';
@@ -8,10 +9,13 @@ import { ItemBoxDialog } from './ItemBoxDialog';
 import { Header } from '@/components/common/Header';
 
 export function OrdersPage() {
+  const navigate = useNavigate();
   const { items, totalItems, totalPrice, clearCart, updateQuantity, removeItem, addItem } = useCart();
   const { prices } = usePricing();
   const [showCheckout, setShowCheckout] = useState(false);
   const [showItemBoxes, setShowItemBoxes] = useState(false);
+  const [showQuestions, setShowQuestions] = useState(false);
+  const [showDiscord, setShowDiscord] = useState(false);
 
   const handleAddCoin = (coinAmount: number) => {
     const existingIndex = items.findIndex(
@@ -130,65 +134,26 @@ export function OrdersPage() {
           {items.length > 0 ? '🛒 PROCEED TO CHECKOUT' : '🛒 ADD ITEMS TO CART'}
         </button>
 
-        <div style={{ backgroundColor: '#2a2a3e', borderRadius: '12px', padding: '16px', marginTop: '16px' }}>
-          <p style={{ color: '#ffffff', fontWeight: 700, textAlign: 'center', marginBottom: '12px' }}>📱 Need Help?</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <a
-              href="https://m.me/danstudz.skatecrete"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                padding: '12px',
-                backgroundColor: '#2E7D32',
-                color: '#ffffff',
-                textAlign: 'center',
-                fontWeight: 700,
-                borderRadius: '12px',
-                textDecoration: 'none',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#1B5E20'; }}
-              onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#2E7D32'; }}
-            >
-              💬 Dan (Skatecrete)
-            </a>
-            <a
-              href="https://m.me/thomas.keelan.733"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                padding: '12px',
-                backgroundColor: '#E65100',
-                color: '#ffffff',
-                textAlign: 'center',
-                fontWeight: 700,
-                borderRadius: '12px',
-                textDecoration: 'none',
-                transition: 'background-color 0.2s',
-              }}
-              onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#BF360C'; }}
-              onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#E65100'; }}
-            >
-              💬 Thomas (RampageGamer)
-            </a>
-            <button
-              onClick={() => alert("Kingi's messenger link coming soon!")}
-              style={{
-                padding: '12px',
-                backgroundColor: '#0D47A1',
-                color: '#ffffff',
-                textAlign: 'center',
-                fontWeight: 700,
-                borderRadius: '12px',
-                border: 'none',
-                cursor: 'not-allowed',
-                opacity: 0.6,
-              }}
-            >
-              💬 Kingi (zEViLvSTON4z)
-            </button>
-          </div>
-        </div>
+        <button
+          onClick={() => setShowQuestions(true)}
+          style={{
+            width: '100%',
+            padding: '12px',
+            backgroundColor: '#2196F3',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            marginTop: '16px',
+            transition: 'background-color 0.2s',
+          }}
+          onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#1976D2'; }}
+          onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#2196F3'; }}
+        >
+          ❓ Questions?
+        </button>
       </div>
 
       <CheckoutDialog
@@ -203,6 +168,198 @@ export function OrdersPage() {
         isOpen={showItemBoxes}
         onClose={() => setShowItemBoxes(false)}
       />
+
+      {/* Questions? popup */}
+      {showQuestions && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 60,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          }}
+          onClick={() => setShowQuestions(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#2a2a3e',
+              borderRadius: '16px',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '400px',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700, margin: 0 }}>
+                Questions?
+              </h2>
+              <button
+                onClick={() => setShowQuestions(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#888888',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowQuestions(false);
+                navigate('/app/chat');
+              }}
+              style={{
+                width: '100%',
+                padding: '16px',
+                backgroundColor: '#7627C5',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                marginBottom: '12px',
+                transition: 'background-color 0.2s',
+              }}
+              onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
+              onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#7627C5'; }}
+            >
+              💬 SilphCo Chat
+            </button>
+
+            <button
+              onClick={() => {
+                setShowQuestions(false);
+                setShowDiscord(true);
+              }}
+              style={{
+                width: '100%',
+                padding: '16px',
+                backgroundColor: '#5865F2',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+              }}
+              onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#4752C4'; }}
+              onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5865F2'; }}
+            >
+              🎮 Discord
+            </button>
+          </div>
+        </div>
+      )}
+
+      <DiscordDialog isOpen={showDiscord} onClose={() => setShowDiscord(false)} />
+    </div>
+  );
+}
+
+// ========== Discord dialog ==========
+function DiscordDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null;
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 70,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          backgroundColor: '#2a2a3e',
+          borderRadius: '16px',
+          padding: '24px',
+          width: '100%',
+          maxWidth: '400px',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700, margin: 0 }}>
+            SilphCo Discord
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#888888',
+              fontSize: '24px',
+              cursor: 'pointer',
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+          <p style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, marginBottom: '10px' }}>
+            New to our Discord?
+          </p>
+          <a
+            href="https://discord.gg/E999eTNtyu"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'block',
+              padding: '14px',
+              backgroundColor: '#5865F2',
+              color: '#ffffff',
+              borderRadius: '12px',
+              fontWeight: 700,
+              fontSize: '15px',
+              textDecoration: 'none',
+              textAlign: 'center',
+            }}
+          >
+            Join the Channel!
+          </a>
+        </div>
+
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, marginBottom: '10px' }}>
+            Existing Discordian?
+          </p>
+          <a
+            href="https://discord.com/channels/1528530126839615538/1528530127816757280"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'block',
+              padding: '14px',
+              backgroundColor: '#5865F2',
+              color: '#ffffff',
+              borderRadius: '12px',
+              fontWeight: 700,
+              fontSize: '15px',
+              textDecoration: 'none',
+              textAlign: 'center',
+            }}
+          >
+            Welcome Back Trainer!
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
