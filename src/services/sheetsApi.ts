@@ -26,7 +26,6 @@ export interface OrderDetail {
   date: string;
   customer: string;
   paymentMethod: string;
-  otherRequests: string;
   total: number;
   status: string;
   assignedAdmin: string;
