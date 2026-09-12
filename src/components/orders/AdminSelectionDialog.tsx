@@ -85,7 +85,7 @@ export function AdminSelectionDialog({
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <button
-                onClick={() => handleAdminSelect('Dan')}
+                onClick={() => handleAdminSelect('Skatecrete')}
                 style={{
                   width: '100%',
                   padding: '16px',
@@ -101,10 +101,11 @@ export function AdminSelectionDialog({
                 onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#1B5E20'; }}
                 onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#2E7D32'; }}
               >
-                Dan (Skatecrete)
+                Skatecrete
               </button>
+
               <button
-                onClick={() => handleAdminSelect('Kingi')}
+                disabled
                 style={{
                   width: '100%',
                   padding: '16px',
@@ -114,16 +115,17 @@ export function AdminSelectionDialog({
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s',
+                  cursor: 'not-allowed',
+                  opacity: 0.5,
                 }}
-                onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#0A1F6E'; }}
-                onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#0D47A1'; }}
               >
-                Kingi (zEViLvSTON4z)
+                zEViLvSTON4z
+                <br />
+                <span style={{ fontSize: '12px', fontWeight: 400 }}>Temporarily Unavailable</span>
               </button>
+
               <button
-                onClick={() => handleAdminSelect('Thomas')}
+                disabled
                 style={{
                   width: '100%',
                   padding: '16px',
@@ -133,13 +135,13 @@ export function AdminSelectionDialog({
                   borderRadius: '12px',
                   fontSize: '16px',
                   fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s',
+                  cursor: 'not-allowed',
+                  opacity: 0.5,
                 }}
-                onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#BF360C'; }}
-                onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#E65100'; }}
               >
-                Thomas (RampageGamer)
+                RampageGamer
+                <br />
+                <span style={{ fontSize: '12px', fontWeight: 400 }}>Temporarily Unavailable</span>
               </button>
             </div>
 
