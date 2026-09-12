@@ -1,5 +1,17 @@
 const ULTIMATE_GALLERY_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/ultimategallery';
 
+const STRIP_PREFIXES = [
+  'shadow ',
+  'purified ',
+  'd-max ',
+  'g-max ',
+  'dynamax ',
+  'gigantamax ',
+  'primal ',
+  'ultra beast ',
+  'mega ',
+];
+
 export function getUltimateGalleryUrl(
   pokemonName: string,
   isShiny: boolean = false,
@@ -11,50 +23,54 @@ export function getUltimateGalleryUrl(
 
   let baseName = pokemonName.toLowerCase().trim();
 
-  // Remove common prefixes
-  const prefixes = ['mega ', 'gigantamax ', 'shadow ', 'd-max ', 'ultra beast '];
-  for (const prefix of prefixes) {
+  // Remove parenthetical content: "Nidoran♀ (Female)" → "Nidoran♀"
+  baseName = baseName.replace(/\([^)]*\)/g, '').trim();
+
+  for (const prefix of STRIP_PREFIXES) {
     if (baseName.startsWith(prefix)) {
-      baseName = baseName.substring(prefix.length);
+      baseName = baseName.substring(prefix.length).trim();
       break;
     }
   }
 
-  // Remove parentheses content
-  baseName = baseName.replace(/\([^)]*\)/g, '').trim();
 
-  // Handle region variations
   const regionMap: Record<string, string> = {
     'alolan': 'alola',
     'alola': 'alola',
     'galarian': 'galarian',
+    'galar': 'galarian',
     'hisuian': 'hisuian',
+    'hisui': 'hisuian',
     'paldean': 'paldea',
     'paldea': 'paldea',
   };
 
-  for (const [regionKeyword, regionSuffix] of Object.entries(regionMap)) {
-    if (baseName.startsWith(regionKeyword + ' ')) {
-      const pokemon = baseName.substring(regionKeyword.length + 1);
-      baseName = pokemon + '-' + regionSuffix;
+  for (const [keyword, suffix] of Object.entries(regionMap)) {
+    if (baseName.startsWith(keyword + ' ')) {
+      baseName = baseName.substring(keyword.length + 1).trim() + '-' + suffix;
       break;
-    } else if (baseName.endsWith(' ' + regionKeyword)) {
-      const pokemon = baseName.substring(0, baseName.length - regionKeyword.length - 1);
-      baseName = pokemon + '-' + regionSuffix;
+    }
+    if (baseName.endsWith(' ' + keyword)) {
+      baseName = baseName.substring(0, baseName.length - keyword.length - 1).trim() + '-' + suffix;
       break;
     }
   }
 
-  const slug = baseName.trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  // Build the slug.
+  const slug = baseName
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
 
-  let suffix = '';
-  if (isMega) suffix = '-mega';
-  else if (isGigantamax) suffix = '-gigantamax';
-  else if (isUltraBeast) suffix = '-ultra-beast';
+  if (!slug) return null;
+
+  let formSuffix = '';
+  if (isMega) formSuffix += '-mega';
+  else if (isGigantamax) formSuffix += '-gigantamax';
+  else if (isUltraBeast) formSuffix += '-ultra-beast';
 
   const shinySuffix = isShiny ? '-shiny' : '';
 
-  return `${ULTIMATE_GALLERY_URL}/${slug}${suffix}${shinySuffix}.png`;
+  return `${ULTIMATE_GALLERY_URL}/${slug}${formSuffix}${shinySuffix}.png`;
 }
 
 export function getPokeApiUrl(id: number): string {
