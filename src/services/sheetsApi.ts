@@ -1,14 +1,10 @@
-// ========== CORS PROXY ==========
-const CORS_PROXY = 'https://corsproxy.io/?url=';
-
 // ========== SCRIPT URLS ==========
-// Main script (has doPost, getDexProgress for POST, etc.)
-const MAIN_SCRIPT_ID = 'AKfycbx6i6Yn7ezXqwJKgZF3Mbq_MbgNeb4mQ8weT0Qipu0c9ASFRVK6l-HIdH83xFbJOeI4';
-const MAIN_SCRIPT_URL = CORS_PROXY + 'https://script.google.com/macros/s/' + MAIN_SCRIPT_ID + '/exec';
+// Main script (orders, RSVPs, pricing, services, dex writes) proxied through Netlify.
+const MAIN_SCRIPT_URL = '/api/orders';
 
-// Export script (has doGet for GET requests)
+// Export script (dex GETs) still uses corsproxy for now.
+const CORS_PROXY = 'https://corsproxy.io/?url=';
 const EXPORT_SCRIPT_ID = 'AKfycbwDM7VQdfNc8ADsJEL81Z1bW1JWjZ_-8LFJa3AaZFuQf0rO4ojc5OMJ97GKjTnNPbI9ng';
-const EXPORT_SCRIPT_URL = CORS_PROXY + 'https://script.google.com/macros/s/' + EXPORT_SCRIPT_ID + '/exec';
 
 // ========== TYPES ==========
 export interface PricingResponse {
@@ -53,7 +49,7 @@ export async function fetchPricing(): Promise<Record<string, number>> {
   try {
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ type: 'getPricing' }),
     });
     const data = await response.json();
@@ -72,7 +68,7 @@ export async function getAdditionalServices(): Promise<any[]> {
   try {
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ type: 'getAdditionalServices' }),
     });
     const data = await response.json();
@@ -91,7 +87,7 @@ export async function submitOrder(orderData: any): Promise<any> {
   try {
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(orderData),
     });
     return await response.json();
@@ -106,7 +102,7 @@ export async function getCustomerOrders(customerName: string, ingameName: string
     const fullName = customerName + ' (' + ingameName + ')';
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         type: 'getCustomerOrders',
         customerName: fullName,
@@ -127,7 +123,7 @@ export async function getAllOrders(): Promise<OrderDetail[]> {
   try {
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ type: 'getAllOrders' }),
     });
     const data = await response.json();
@@ -145,7 +141,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
   try {
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         type: 'updateOrderStatus',
         orderId: orderId,
@@ -165,7 +161,7 @@ export async function getCustomerRSVPs(customerName: string, ingameName: string)
   try {
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         type: 'getCustomerRSVPs',
         customerName: customerName,
@@ -187,7 +183,7 @@ export async function getAllRSVPs(): Promise<RSVPDetail[]> {
   try {
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ type: 'getRSVPs' }),
     });
     const data = await response.json();
@@ -205,7 +201,7 @@ export async function updateRSVPStatus(rsvpId: number, newStatus: string): Promi
   try {
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
         type: 'updateRSVPStatus',
         rsvpId: rsvpId,
@@ -220,9 +216,9 @@ export async function updateRSVPStatus(rsvpId: number, newStatus: string): Promi
   }
 }
 
-// ========== DEX FUNCTIONS ==========
+// ========== DEX ==========
 
-// ========== GET (USES EXPORT SCRIPT - GET WORKS HERE) ==========
+// GET (uses export script — GET works through corsproxy)
 export async function getDexProgress(customerDisplay: string, listType: string): Promise<any[]> {
   try {
     const baseUrl = 'https://script.google.com/macros/s/' + EXPORT_SCRIPT_ID + '/exec';
@@ -231,16 +227,12 @@ export async function getDexProgress(customerDisplay: string, listType: string):
       customerDisplay: customerDisplay,
       listType: listType,
     });
-    
+
     const url = CORS_PROXY + encodeURIComponent(baseUrl + '?' + params.toString());
-    
-    console.log('📡 Sending dex GET request to export script:', url);
 
     const response = await fetch(url, {
       method: 'GET',
-      headers: { 
-        'Accept': 'application/json',
-      },
+      headers: { 'Accept': 'application/json' },
     });
 
     if (!response.ok) {
@@ -249,7 +241,6 @@ export async function getDexProgress(customerDisplay: string, listType: string):
     }
 
     const rawText = await response.text();
-    console.log('📡 Raw GET response:', rawText);
 
     if (rawText.trim().startsWith('<!DOCTYPE') || rawText.trim().startsWith('<html')) {
       console.error('❌ Received HTML instead of JSON.');
@@ -258,7 +249,6 @@ export async function getDexProgress(customerDisplay: string, listType: string):
 
     const data = JSON.parse(rawText);
     if (data.status === 'success' && data.dex) {
-      console.log('✅ Dex data:', data.dex);
       return data.dex;
     }
     return [];
@@ -268,7 +258,7 @@ export async function getDexProgress(customerDisplay: string, listType: string):
   }
 }
 
-// ========== ADD (USES MAIN SCRIPT - POST) ==========
+// ADD (uses main script via /api/orders proxy)
 export async function addDexPokemon(
   customerDisplay: string,
   pokemonId: number,
@@ -284,19 +274,13 @@ export async function addDexPokemon(
       listType: listType.trim(),
     };
 
-    console.log('📡 Sending add dex request to main script:', payload);
-
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
     });
 
     const rawText = await response.text();
-    console.log('📡 Raw add response:', rawText);
 
     let data;
     try {
@@ -313,7 +297,7 @@ export async function addDexPokemon(
   }
 }
 
-// ========== REMOVE (USES MAIN SCRIPT - POST) ==========
+// REMOVE (uses main script via /api/orders proxy)
 export async function removeDexPokemon(
   customerDisplay: string,
   pokemonId: number,
@@ -327,19 +311,13 @@ export async function removeDexPokemon(
       listType: listType.trim(),
     };
 
-    console.log('📡 Sending remove dex request to main script:', payload);
-
     const response = await fetch(MAIN_SCRIPT_URL, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload),
     });
 
     const rawText = await response.text();
-    console.log('📡 Raw remove response:', rawText);
 
     let data;
     try {
