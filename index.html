@@ -26,50 +26,7 @@
     <meta name="twitter:card" content="summary" />
     
     <title>SilphCo</title>
-    
-    <!-- ========== ONESIGNAL PUSH NOTIFICATIONS ========== -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "429f9ca4-d01c-40fe-89b1-2eb15202f74a",
-          safari_web_id: "",
-          allowLocalhostAsSecureOrigin: true,
-          serviceWorkerParam: {
-            scope: "/"
-          },
-          serviceWorkerPath: "OneSignalSDKWorker.js",
-        });
-        console.log("🔔 OneSignal initialized");
-        
-        // Try to get subscription after a short delay
-        setTimeout(async () => {
-          try {
-            // Check if user is subscribed
-            const isSubscribed = await OneSignal.Notifications.permission;
-            console.log("📱 Notification permission:", isSubscribed);
-            
-            // Try to get the subscription object
-            try {
-              const subscription = await OneSignal.User.pushSubscription;
-              console.log("📱 Subscription object:", subscription);
-              if (subscription && subscription.id) {
-                console.log("✅ OneSignal Player ID:", subscription.id);
-                // Save to localStorage for later use
-                localStorage.setItem('onesignal_player_id', subscription.id);
-              } else {
-                console.log("⚠️ No subscription object yet - user may need to subscribe");
-              }
-            } catch (subError) {
-              console.log("⚠️ Could not get subscription:", subError.message);
-            }
-          } catch (e) {
-            console.log("⚠️ Error checking notification status:", e.message);
-          }
-        }, 3000);
-      });
-    </script>
+
   </head>
   <body>
     <div id="root"></div>
