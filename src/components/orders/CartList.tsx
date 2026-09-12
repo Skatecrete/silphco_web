@@ -1,5 +1,5 @@
 import { CartItem } from '@/stores/cartStore';
-import { getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
+import { getComingSoonUrl, resolveImage, getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
 
 const COIN_5K_IMAGE = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/web/misc/5kcoins.png';
 const COIN_15K_IMAGE = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/web/misc/15kcoins.png';
@@ -26,14 +26,14 @@ export function CartList({ items, onUpdateQuantity, onRemove }: CartListProps) {
       {items.map((item, index) => {
         const itemPrice = item.price || 0;
 
-        // Determine image URL
-        let imageUrl;
+        let imageUrl: string;
         if (item.type === 'coins' && item.coinAmount) {
           imageUrl = getCoinImage(item.coinAmount);
         } else if (item.imageUrl) {
           imageUrl = item.imageUrl;
         } else {
-          imageUrl = getUltimateGalleryUrl(item.pokemonName) || 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png';
+          const galleryUrl = getUltimateGalleryUrl(item.pokemonName);
+          imageUrl = galleryUrl || resolveImage(item.pokemonName, 0);
         }
 
         return (
@@ -46,19 +46,19 @@ export function CartList({ items, onUpdateQuantity, onRemove }: CartListProps) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {/* Image */}
               <div style={{ width: '40px', height: '40px', flexShrink: 0 }}>
                 <img
                   src={imageUrl}
                   alt={item.pokemonName}
                   style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png';
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = getComingSoonUrl();
                   }}
                 />
               </div>
 
-              {/* Info */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {item.pokemonName}
@@ -69,23 +69,15 @@ export function CartList({ items, onUpdateQuantity, onRemove }: CartListProps) {
                 </p>
               </div>
 
-              {/* Controls */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button
                   onClick={() => onUpdateQuantity(index, item.quantity - 1)}
                   style={{
-                    width: '28px',
-                    height: '28px',
+                    width: '28px', height: '28px',
                     backgroundColor: '#7627C5',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '50%',
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    color: '#ffffff', border: 'none', borderRadius: '50%',
+                    fontSize: '16px', fontWeight: 700, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'background-color 0.2s',
                   }}
                   onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
@@ -99,18 +91,11 @@ export function CartList({ items, onUpdateQuantity, onRemove }: CartListProps) {
                 <button
                   onClick={() => onUpdateQuantity(index, item.quantity + 1)}
                   style={{
-                    width: '28px',
-                    height: '28px',
+                    width: '28px', height: '28px',
                     backgroundColor: '#7627C5',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '50%',
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    color: '#ffffff', border: 'none', borderRadius: '50%',
+                    fontSize: '16px', fontWeight: 700, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'background-color 0.2s',
                   }}
                   onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
@@ -121,17 +106,11 @@ export function CartList({ items, onUpdateQuantity, onRemove }: CartListProps) {
                 <button
                   onClick={() => onRemove(index)}
                   style={{
-                    width: '28px',
-                    height: '28px',
+                    width: '28px', height: '28px',
                     backgroundColor: '#F44336',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '50%',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    color: '#ffffff', border: 'none', borderRadius: '50%',
+                    fontSize: '14px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'background-color 0.2s',
                   }}
                   onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#c62828'; }}
