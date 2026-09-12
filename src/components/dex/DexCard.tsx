@@ -1,4 +1,4 @@
-import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
+import { getComingSoonUrl, getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
 
 interface DexCardProps {
   pokemon: {
@@ -35,7 +35,9 @@ export function DexCard({ pokemon, onToggle }: DexCardProps) {
           alt={pokemon.name}
           style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = getPokeApiUrl(pokemon.id);
+            const target = e.target as HTMLImageElement;
+            target.onerror = null;
+            target.src = getComingSoonUrl();
           }}
         />
       </div>
