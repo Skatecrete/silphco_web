@@ -1,5 +1,4 @@
-import { getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
-import { useState } from 'react';
+import { getComingSoonUrl } from '@/services/imageUrlBuilder';
 
 interface RaidCardProps {
   raid: {
@@ -23,7 +22,6 @@ export function RaidCard({
   onClick,
 }: RaidCardProps) {
   const isShadow = raid.name.toLowerCase().includes('shadow');
-  const [failed, setFailed] = useState(false);
 
   return (
     <div
@@ -90,38 +88,22 @@ export function RaidCard({
             }}
           />
         )}
-        {failed || !raid.image ? (
-          <div
-            style={{
-              position: 'relative',
-              zIndex: 10,
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#888888',
-              fontSize: '10px',
-              textAlign: 'center',
-              padding: '4px',
-            }}
-          >
-            Image Coming Soon
-          </div>
-        ) : (
-          <img
-            src={raid.image}
-            alt={raid.name}
-            style={{
-              position: 'relative',
-              zIndex: 10,
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-            }}
-            onError={() => setFailed(true)}
-          />
-        )}
+        <img
+          src={raid.image || getComingSoonUrl()}
+          alt={raid.name}
+          style={{
+            position: 'relative',
+            zIndex: 10,
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+          }}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.onerror = null;
+            target.src = getComingSoonUrl();
+          }}
+        />
       </div>
       <p
         style={{
