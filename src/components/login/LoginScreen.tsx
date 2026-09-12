@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/hooks/useUser';
 import { LOGIN_LOGO } from '@/utils/imageUrls';
+import { AdminPicker } from './AdminPicker';
+import { GamerTag } from '@/utils/adminMap';
 
 export function LoginScreen() {
   const navigate = useNavigate();
   const { login, guestLogin, isLoggedIn } = useUser();
-  const [name, setName] = useState('');
-  const [ign, setIgn] = useState('');
-  const [error, setError] = useState(false);
+  const [gamerTag, setGamerTag] = useState('');
+  const [selectedAdmin, setSelectedAdmin] = useState<GamerTag | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -22,54 +24,35 @@ export function LoginScreen() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedName = name.trim();
-    const trimmedIgn = ign.trim();
+    const trimmed = gamerTag.trim();
 
-    if (!trimmedName || !trimmedIgn) {
-      setError(true);
+    if (!trimmed) {
+      setError('Please enter your in-game name');
+      return;
+    }
+    if (!selectedAdmin) {
+      setError('Please select your admin');
       return;
     }
 
-    setError(false);
-    login(trimmedName, trimmedIgn);
-    
-    // 🔔 Prompt for notifications after login
-    subscribeToNotifications();
+    setError(null);
+
+    // Store the admin choice — permanent until localStorage is cleared.
+    localStorage.setItem('admin_gamer_tag', selectedAdmin);
+
+    // Pass the gamer tag as both name and ign so existing code
+    // (which expects userName + userIgn) keeps working.
+    login(trimmed, trimmed);
   };
 
   const handleGuest = () => {
-    guestLogin();
-    // 🔔 Prompt for notifications for guests too
-    subscribeToNotifications();
-  };
-
-  // ========== ONESIGNAL SUBSCRIPTION ==========
-  const subscribeToNotifications = async () => {
-    try {
-      // Wait for OneSignal to be available
-      if (window.OneSignal) {
-        console.log('🔔 Requesting notification permission...');
-        
-        // Show the OneSignal slide-down prompt
-        await window.OneSignal.Notifications.requestPermission();
-        
-        // Get the subscription state
-        const subscription = await window.OneSignal.User.pushSubscription;
-        if (subscription && subscription.id) {
-          console.log('✅ User subscribed! Player ID:', subscription.id);
-          // Save Player ID to localStorage for later use
-          localStorage.setItem('onesignal_player_id', subscription.id);
-        } else {
-          console.log('⚠️ User declined notifications');
-        }
-      } else {
-        console.log('⚠️ OneSignal not loaded yet');
-        // Wait and try again
-        setTimeout(subscribeToNotifications, 2000);
-      }
-    } catch (error) {
-      console.error('❌ Error subscribing to notifications:', error);
+    if (!selectedAdmin) {
+      setError('Please select your admin');
+      return;
     }
+    setError(null);
+    localStorage.setItem('admin_gamer_tag', selectedAdmin);
+    guestLogin();
   };
 
   return (
@@ -81,107 +64,31 @@ export function LoginScreen() {
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#1a1a2e',
-        padding: '0 24px',
+        padding: '24px 24px',
       }}
     >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '400px',
-        }}
-      >
-        {/* Logo */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginBottom: '24px',
-          }}
-        >
+      <div style={{ width: '100%', maxWidth: '400px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
           <img
             src={LOGIN_LOGO}
             alt="PokeSpawn"
-            style={{
-              width: '192px',
-              height: '192px',
-              objectFit: 'contain',
-              borderRadius: '24px',
-            }}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-              const parent = target.parentElement;
-              if (parent) {
-                const fallback = document.createElement('div');
-                fallback.style.cssText = `
-                  width: 128px;
-                  height: 128px;
-                  border-radius: 24px;
-                  background: rgba(118, 39, 197, 0.2);
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-size: 48px;
-                `;
-                fallback.textContent = '🎯';
-                parent.appendChild(fallback);
-              }
-            }}
+            style={{ width: '128px', height: '128px', objectFit: 'contain', borderRadius: '24px' }}
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         </div>
 
-        <h1
-          style={{
-            fontSize: '24px',
-            fontWeight: 700,
-            color: '#ffffff',
-            textAlign: 'center',
-            marginBottom: '4px',
-          }}
-        >
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#ffffff', textAlign: 'center', marginBottom: '4px' }}>
           PokeSpawn
         </h1>
-        <p
-          style={{
-            color: '#888888',
-            textAlign: 'center',
-            marginBottom: '32px',
-            fontSize: '16px',
-          }}
-        >
+        <p style={{ color: '#888888', textAlign: 'center', marginBottom: '24px', fontSize: '16px' }}>
           Welcome back, Trainer!
         </p>
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <input
             type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setError(false);
-            }}
-            placeholder="Your First Name *"
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              backgroundColor: '#2a2a3e',
-              color: '#ffffff',
-              borderRadius: '12px',
-              border: error ? '2px solid #F44336' : '2px solid transparent',
-              outline: 'none',
-              fontSize: '16px',
-              fontFamily: 'inherit',
-            }}
-            autoFocus
-          />
-
-          <input
-            type="text"
-            value={ign}
-            onChange={(e) => {
-              setIgn(e.target.value);
-              setError(false);
-            }}
+            value={gamerTag}
+            onChange={(e) => { setGamerTag(e.target.value); setError(null); }}
             placeholder="In-Game Name (PoGo Name) *"
             style={{
               width: '100%',
@@ -189,23 +96,19 @@ export function LoginScreen() {
               backgroundColor: '#2a2a3e',
               color: '#ffffff',
               borderRadius: '12px',
-              border: error ? '2px solid #F44336' : '2px solid transparent',
+              border: '2px solid transparent',
               outline: 'none',
               fontSize: '16px',
               fontFamily: 'inherit',
             }}
+            autoFocus
           />
 
+          <AdminPicker selected={selectedAdmin} onSelect={setSelectedAdmin} />
+
           {error && (
-            <p
-              style={{
-                color: '#F44336',
-                fontSize: '14px',
-                textAlign: 'center',
-                margin: 0,
-              }}
-            >
-              Please enter both name and in-game name
+            <p style={{ color: '#F44336', fontSize: '14px', textAlign: 'center', margin: 0 }}>
+              {error}
             </p>
           )}
 
@@ -223,12 +126,8 @@ export function LoginScreen() {
               cursor: 'pointer',
               transition: 'background-color 0.2s',
             }}
-            onMouseEnter={(e) => {
-              (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E';
-            }}
-            onMouseLeave={(e) => {
-              (e.target as HTMLButtonElement).style.backgroundColor = '#7627C5';
-            }}
+            onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
+            onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#7627C5'; }}
           >
             CONTINUE TO POGO BLISS!
           </button>
@@ -249,25 +148,13 @@ export function LoginScreen() {
             marginTop: '12px',
             transition: 'background-color 0.2s',
           }}
-          onMouseEnter={(e) => {
-            (e.target as HTMLButtonElement).style.backgroundColor = '#555555';
-          }}
-          onMouseLeave={(e) => {
-            (e.target as HTMLButtonElement).style.backgroundColor = '#444444';
-          }}
+          onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#555555'; }}
+          onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#444444'; }}
         >
           Continue as Guest
         </button>
 
-        <p
-          style={{
-            color: '#FFA500',
-            fontSize: '12px',
-            textAlign: 'center',
-            marginTop: '16px',
-            lineHeight: 1.5,
-          }}
-        >
+        <p style={{ color: '#FFA500', fontSize: '12px', textAlign: 'center', marginTop: '16px', lineHeight: 1.5 }}>
           *Continue as Guest if you don't wish to have<br />
           your order history or dex progress saved.
         </p>
