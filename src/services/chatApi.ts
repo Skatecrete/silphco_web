@@ -1,9 +1,7 @@
 // src/services/chatApi.ts
 
-const PROXY = 'https://corsproxy.io/?url=';
-const SCRIPT_URL = PROXY + encodeURIComponent('https://script.google.com/macros/s/AKfycbwDM7VQdfNc8ADsJEL81Z1bW1JWjZ_-8LFJa3AaZFuQf0rO4ojc5OMJ97GKjTnNPbI9ng/exec');
+const SCRIPT_URL = '/api/chat';
 
-// ========== Helper: POST with text/plain to avoid CORS preflight ==========
 async function postToScript(body: object): Promise<any> {
   const response = await fetch(SCRIPT_URL, {
     method: 'POST',
@@ -14,8 +12,6 @@ async function postToScript(body: object): Promise<any> {
   });
   return response.json();
 }
-
-// ========== USER FUNCTIONS ==========
 
 export async function sendMessage(user: string, message: string): Promise<any> {
   return postToScript({ type: 'sendMessage', user, message });
@@ -28,8 +24,6 @@ export async function getMessages(user: string): Promise<any> {
 export async function markRead(user: string): Promise<any> {
   return postToScript({ type: 'markRead', user });
 }
-
-// ========== ADMIN FUNCTIONS ==========
 
 export async function adminReply(user: string, reply: string): Promise<any> {
   return postToScript({ type: 'adminReply', user, reply });
