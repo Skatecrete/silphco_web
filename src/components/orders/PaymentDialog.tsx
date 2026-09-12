@@ -39,7 +39,6 @@ export function PaymentDialog({
     const orderData = {
       type: 'submitOrder',
       customerName: `${customerName} (${customerIgn})`,
-      otherRequests: timePreference !== 'Whenever Possible' ? `Time Preference: ${timePreference}` : '',
       paymentMethod,
       assignedAdmin: selectedAdmin,
       items: items.map((item) => ({
@@ -78,9 +77,9 @@ export function PaymentDialog({
   const getPaymentOptions = () => {
     if (selectedAdmin === 'Dan') {
       return [
-        { id: 'paypal', label: '💰 PayPal', identifier: '@danstudz', copyText: '@danstudz' },
-        { id: 'cashapp', label: '💚 CashApp', identifier: '$DanStudz', copyText: '$DanStudz' },
-        { id: 'venmo', label: '💙 Venmo', identifier: '@DanStudz', copyText: '@DanStudz' },
+        { id: 'paypal', label: '💰 PayPal', identifier: '@silphcoservices', copyText: '@silphcoservices' },
+        { id: 'cashapp', label: '💚 CashApp', identifier: '$silphcoservices', copyText: '$silphcoservices' },
+        { id: 'venmo', label: '💙 Venmo', identifier: '@silphcoservices', copyText: '@silphcoservices' },
       ];
     } else if (selectedAdmin === 'Thomas') {
       return [
