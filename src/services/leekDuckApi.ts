@@ -100,25 +100,10 @@ export async function fetchPromoCodes(): Promise<PromoCode[]> {
       }
     });
 
-    if (promoCodes.length === 0) {
-      return [{
-        code: 'FENDIxFRGMTxPOKEMON',
-        title: 'FENDI x FRGMT x POKEMON Hoodie',
-        rewards: ['FENDI x FRGMT x POKEMON hoodie'],
-        imageUrl: 'https://cdn.leekduck.com/assets/img/avatar_items/n_shirt_partneritemsjan2024hoodie_0_icon.png',
-        expiry: '???',
-      }];
-    }
-
     return promoCodes;
   } catch (e) {
     console.error('Error fetching promo codes:', e);
-    return [{
-      code: 'FENDIxFRGMTxPOKEMON',
-      title: 'FENDI x FRGMT x POKEMON Hoodie',
-      rewards: ['FENDI x FRGMT x POKEMON hoodie'],
-      imageUrl: 'https://cdn.leekduck.com/assets/img/avatar_items/n_shirt_partneritemsjan2024hoodie_0_icon.png',
-      expiry: '???',
-    }];
+    return [];
   }
 }
+
