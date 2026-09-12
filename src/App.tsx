@@ -20,8 +20,6 @@ import { Layout } from '@/components/common/Layout';
 import { useAppStore } from '@/stores/appStore';
 import { useUser } from '@/hooks/useUser';
 import { ChatWindow } from '@/components/chat/ChatWindow';
-// ChatBubble import REMOVED
-import { AdminChat } from '@/components/admin/AdminChat';
 
 function LogoutHandler() {
   const { logout } = useUser();
@@ -108,7 +106,6 @@ function App() {
             <Route path="/app/services" element={<ServicesPage />} />
             <Route path="/app/infographics" element={<InfographicsPage />} />
             <Route path="/app/chat" element={<ChatWindow />} />
-            <Route path="/app/admin/chat" element={<AdminChat />} />
             <Route
               path="/app/admin"
               element={
