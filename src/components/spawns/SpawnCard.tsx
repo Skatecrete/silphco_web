@@ -1,4 +1,4 @@
-import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
+import { getComingSoonUrl, resolveImage } from '@/services/imageUrlBuilder';
 
 interface SpawnCardProps {
   pokemon: {
@@ -31,9 +31,7 @@ export function SpawnCard({ pokemon, onClick }: SpawnCardProps) {
     else if (pokemon.spawnRate > 0.0) { badgeText = 'MINIMAL'; badgeColor = '#2196F3'; }
   }
 
-  const ultimateUrl = getUltimateGalleryUrl(pokemon.name);
-  const fallbackUrl = pokemon.imageUrl || getPokeApiUrl(pokemon.id);
-  const imageUrl = ultimateUrl || fallbackUrl;
+  const imageUrl = pokemon.imageUrl || resolveImage(pokemon.name, pokemon.id, pokemon.isShiny);
 
   const tags: string[] = [];
   if (pokemon.isRegional) tags.push('🌍 Regional');
@@ -56,40 +54,26 @@ export function SpawnCard({ pokemon, onClick }: SpawnCardProps) {
         transition: 'background-color 0.2s',
       }}
       onMouseEnter={(e) => {
-        if (!isNope) {
-          (e.currentTarget as HTMLDivElement).style.backgroundColor = '#33334a';
-        }
+        if (!isNope) (e.currentTarget as HTMLDivElement).style.backgroundColor = '#33334a';
       }}
       onMouseLeave={(e) => {
-        if (!isNope) {
-          (e.currentTarget as HTMLDivElement).style.backgroundColor = '#2a2a3e';
-        }
+        if (!isNope) (e.currentTarget as HTMLDivElement).style.backgroundColor = '#2a2a3e';
       }}
       onClick={isNope ? undefined : onClick}
     >
-      {/* Image */}
-      <div
-        style={{
-          width: '48px',
-          height: '48px',
-          flexShrink: 0,
-        }}
-      >
+      <div style={{ width: '48px', height: '48px', flexShrink: 0 }}>
         <img
           src={imageUrl}
           alt={pokemon.name}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = getPokeApiUrl(pokemon.id);
+            const target = e.target as HTMLImageElement;
+            target.onerror = null;
+            target.src = getComingSoonUrl();
           }}
         />
       </div>
 
-      {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span
@@ -150,7 +134,6 @@ export function SpawnCard({ pokemon, onClick }: SpawnCardProps) {
         </div>
       </div>
 
-      {/* Order Button */}
       {!isNope && (
         <button
           onClick={(e) => {
