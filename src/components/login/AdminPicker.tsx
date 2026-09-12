@@ -19,11 +19,23 @@ export function AdminPicker({ selected, onSelect }: AdminPickerProps) {
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      <p style={{ color: '#ffffff', fontSize: '14px', fontWeight: 700, marginBottom: '8px' }}>
-        👤 Who's your admin?
+    <div style={{ position: 'relative', marginTop: '16px' }}>
+      <p style={{
+        color: '#ffffff',
+        fontSize: '20px',
+        fontWeight: 700,
+        marginBottom: '8px',
+        textAlign: 'center',
+      }}>
+        Select Admin to Continue
       </p>
-      <p style={{ color: '#FFA500', fontSize: '12px', marginBottom: '12px', lineHeight: 1.4 }}>
+      <p style={{
+        color: '#FFA500',
+        fontSize: '15px',
+        marginBottom: '16px',
+        lineHeight: 1.5,
+        textAlign: 'center',
+      }}>
         Don't know? Please contact your admin from your original contact method to find out!
       </p>
 
@@ -33,13 +45,14 @@ export function AdminPicker({ selected, onSelect }: AdminPickerProps) {
           return (
             <button
               key={gamerTag}
+              type="button"
               onClick={() => handleClick(gamerTag, available)}
               disabled={!available}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                padding: '12px 16px',
+                padding: '14px 16px',
                 backgroundColor: isSelected ? '#4CAF50' : (available ? '#1a1a2e' : '#181818'),
                 color: available ? '#ffffff' : '#555555',
                 border: isSelected ? '2px solid #4CAF50' : '2px solid transparent',
