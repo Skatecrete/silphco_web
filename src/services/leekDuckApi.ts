@@ -1,6 +1,8 @@
 const EVENTS_URL = 'https://leekduck.com/feeds/events.json';
 const DEBUTS_URL = 'https://raw.githubusercontent.com/Skatecrete/pogo-raid-data/main/debuts.json';
 
+const PROXY = 'https://api.allorigins.win/raw?url=';
+
 export interface LeekDuckEvent {
   name: string;
   eventType: string;
@@ -35,7 +37,7 @@ export interface PromoCode {
 
 export async function fetchEvents(): Promise<LeekDuckEvent[]> {
   try {
-    const response = await fetch('https://corsproxy.io/?' + encodeURIComponent(EVENTS_URL));
+    const response = await fetch(PROXY + encodeURIComponent(EVENTS_URL));
     if (!response.ok) throw new Error('Failed to fetch events');
     return await response.json();
   } catch (e) {
@@ -57,7 +59,7 @@ export async function fetchDebuts(): Promise<DebutsResponse | null> {
 
 export async function fetchPromoCodes(): Promise<PromoCode[]> {
   try {
-    const response = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://leekduck.com/promo-codes/'));
+    const response = await fetch(PROXY + encodeURIComponent('https://leekduck.com/promo-codes/'));
     const html = await response.text();
 
     const parser = new DOMParser();
