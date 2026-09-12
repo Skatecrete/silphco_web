@@ -8,7 +8,6 @@ interface PaymentDialogProps {
   customerName: string;
   customerIgn: string;
   timePreference: string;
-  selectedAdmin: string;
   items: CartItem[];
   totalPrice: number;
   onClearCart: () => void;
@@ -20,13 +19,14 @@ export function PaymentDialog({
   customerName,
   customerIgn,
   timePreference,
-  selectedAdmin,
   items,
   totalPrice,
   onClearCart,
 }: PaymentDialogProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const adminGamerTag = localStorage.getItem('admin_gamer_tag') || 'Skatecrete';
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -36,11 +36,15 @@ export function PaymentDialog({
   const handleSubmitOrder = async (paymentMethod: string) => {
     setLoading(true);
 
+    const fullCustomer = customerIgn
+      ? `${customerName} (${customerIgn})`
+      : customerName;
+
     const orderData = {
       type: 'submitOrder',
-      customerName: `${customerName} (${customerIgn})`,
+      customerName: fullCustomer,
       paymentMethod,
-      assignedAdmin: selectedAdmin,
+      assignedAdmin: adminGamerTag,
       items: items.map((item) => ({
         type: item.type,
         pokemonName: item.pokemonName,
@@ -75,13 +79,13 @@ export function PaymentDialog({
   if (!isOpen) return null;
 
   const getPaymentOptions = () => {
-    if (selectedAdmin === 'Dan') {
+    if (adminGamerTag === 'Skatecrete') {
       return [
         { id: 'paypal', label: '💰 PayPal', identifier: '@silphcoservices', copyText: '@silphcoservices' },
         { id: 'cashapp', label: '💚 CashApp', identifier: '$silphcoservices', copyText: '$silphcoservices' },
         { id: 'venmo', label: '💙 Venmo', identifier: '@silphcoservices', copyText: '@silphcoservices' },
       ];
-    } else if (selectedAdmin === 'Thomas') {
+    } else if (adminGamerTag === 'RampageGamer') {
       return [
         { id: 'paypal', label: '💰 PayPal', identifier: '@Thomas061298', copyText: '@Thomas061298' },
       ];
@@ -98,10 +102,7 @@ export function PaymentDialog({
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         zIndex: 52,
         display: 'flex',
         alignItems: 'center',
@@ -158,11 +159,11 @@ export function PaymentDialog({
             </div>
 
             <div style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', marginBottom: '16px' }}>
-              <p style={{ color: '#ffffff', fontSize: '14px' }}><strong>Customer:</strong> {customerName} ({customerIgn})</p>
-              <p style={{ color: '#ffffff', fontSize: '14px' }}><strong>Admin:</strong> {selectedAdmin}</p>
+              <p style={{ color: '#ffffff', fontSize: '14px' }}><strong>Trainer:</strong> {customerName}</p>
+              <p style={{ color: '#ffffff', fontSize: '14px' }}><strong>Admin:</strong> {adminGamerTag}</p>
               <p style={{ color: '#4CAF50', fontSize: '14px', fontWeight: 700, marginTop: '4px' }}>Total: ${totalPrice.toFixed(2)}</p>
               {timePreference !== 'Whenever Possible' && (
-                <p style={{ color: '#FFA500', fontSize: '14px' }}><strong>Time Preference:</strong> {timePreference}</p>
+                <p style={{ color: '#FFA500', fontSize: '14px' }}><strong>Time:</strong> {timePreference}</p>
               )}
             </div>
 
@@ -197,11 +198,6 @@ export function PaymentDialog({
                       ⚠️ Please send with Friends and Family option
                     </p>
                   )}
-                  {option.id === 'other' && (
-                    <p style={{ color: '#FFA500', fontSize: '12px', marginTop: '4px' }}>
-                      Please contact Kingi directly for payment options
-                    </p>
-                  )}
                 </div>
               ))}
             </div>
@@ -214,15 +210,11 @@ export function PaymentDialog({
               <button
                 onClick={onClose}
                 style={{
-                  flex: 1,
-                  padding: '12px',
+                  flex: 1, padding: '12px',
                   backgroundColor: '#444444',
                   color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
+                  border: 'none', borderRadius: '12px',
+                  fontSize: '16px', fontWeight: 700, cursor: 'pointer',
                 }}
               >
                 Cancel
@@ -230,16 +222,11 @@ export function PaymentDialog({
               <button
                 onClick={() => handleSubmitOrder('Web Order')}
                 style={{
-                  flex: 1,
-                  padding: '12px',
+                  flex: 1, padding: '12px',
                   backgroundColor: '#4CAF50',
                   color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s',
+                  border: 'none', borderRadius: '12px',
+                  fontSize: '16px', fontWeight: 700, cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40'; }}
                 onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50'; }}
