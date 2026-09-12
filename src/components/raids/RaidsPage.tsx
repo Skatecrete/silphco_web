@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { useRaids } from '@/hooks/useRaids';
 import { fetchManualRaids, ManualRaid } from '@/services/rotationApi';
-import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
+import { getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
 import { RaidOrderDialog } from './RaidOrderDialog';
 import { DynamaxOrderDialog } from './DynamaxOrderDialog';
 import { Header } from '@/components/common/Header';
@@ -60,25 +60,13 @@ export function RaidsPage() {
     }
   };
 
-  const getPokemonIdFromName = (name: string): number => {
-    const map: Record<string, number> = {
-      'pikachu': 25, 'eevee': 133, 'mewtwo': 150, 'mew': 151,
-      'lugia': 249, 'ho-oh': 250, 'kyogre': 382, 'groudon': 383,
-      'rayquaza': 384, 'dialga': 483, 'palkia': 484, 'giratina': 487,
-      'moltres': 146, 'zapdos': 145, 'articuno': 144,
-    };
-    const key = name.toLowerCase().trim();
-    return map[key] || 25;
-  };
-
   const buildManualRaidObjects = (manualRaids: ManualRaid[]): any[] => {
     const allPokemon: any[] = [];
     manualRaids.forEach((manual) => {
       manual.pokemon.forEach((name) => {
-        const id = getPokemonIdFromName(name);
-        const image = getUltimateGalleryUrl(name) || getPokeApiUrl(id);
+        const image = getUltimateGalleryUrl(name) || '';
         allPokemon.push({
-          id,
+          id: 0,
           name,
           tier: manual.category,
           isShiny: false,
@@ -120,7 +108,6 @@ export function RaidsPage() {
           </div>
         ) : (
           <>
-            {/* Manual Raids */}
             {manualRaidObjects.length > 0 && (
               <div style={{ backgroundColor: '#1a2a1a', borderRadius: '14px', padding: '14px', border: '2px solid #2a3a2a', marginBottom: '16px' }}>
                 <div style={{ fontSize: '14px', fontWeight: 700, padding: '8px 12px 10px', margin: '-14px -14px 12px', background: 'rgba(255,255,255,0.06)', borderRadius: '14px 14px 0 0', borderBottom: '2px solid rgba(255,255,255,0.08)', color: '#FFA500' }}>
@@ -129,7 +116,7 @@ export function RaidsPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px', width: '100%' }}>
                   {manualRaidObjects.map((raid) => (
                     <RaidGridCard
-                      key={`manual-${raid.id}-${raid.name}`}
+                      key={`manual-${raid.name}`}
                       raid={raid}
                       cardType="standard"
                       onClick={() => handleRaidClick(raid)}
@@ -139,7 +126,6 @@ export function RaidsPage() {
               </div>
             )}
 
-            {/* Standard Raids - Deep Green */}
             {visibleCategories
               .filter(cat => !cat.key.startsWith('shadow') && cat.key !== 'ultraBeasts')
               .map((cat) => (
@@ -160,7 +146,6 @@ export function RaidsPage() {
                 </div>
               ))}
 
-            {/* Shadow Raids - Deep Purple */}
             {visibleCategories
               .filter(cat => cat.key.startsWith('shadow'))
               .map((cat) => (
@@ -181,7 +166,6 @@ export function RaidsPage() {
                 </div>
               ))}
 
-            {/* Ultra Beasts - Cyan Accent */}
             {visibleCategories
               .filter(cat => cat.key === 'ultraBeasts')
               .map((cat) => (
@@ -202,7 +186,6 @@ export function RaidsPage() {
                 </div>
               ))}
 
-            {/* Dynamax Raids - Deep Red */}
             {dynamaxRaids.length > 0 && (
               <>
                 {['💥 Gigantamax', '⚡⚡⚡⚡⚡ Dynamax Tier 5', '⚡⚡⚡⚡ Dynamax Tier 4', '⚡⚡⚡ Dynamax Tier 3', '⚡⚡ Dynamax Tier 2', '⚡ Dynamax Tier 1'].map((tier) => {
@@ -232,7 +215,6 @@ export function RaidsPage() {
         )}
       </div>
 
-      {/* Raid Order Dialog */}
       <RaidOrderDialog
         isOpen={showRaidDialog}
         raid={selectedRaid}
@@ -242,7 +224,6 @@ export function RaidsPage() {
         }}
       />
 
-      {/* Dynamax Order Dialog */}
       <DynamaxOrderDialog
         isOpen={showDynamaxDialog}
         raid={selectedRaid}
@@ -264,6 +245,7 @@ interface RaidGridCardProps {
 
 function RaidGridCard({ raid, cardType = 'standard', onClick }: RaidGridCardProps) {
   const isShadow = raid.name.toLowerCase().includes('shadow');
+  const [failed, setFailed] = useState(false);
 
   const cardBg: Record<string, string> = {
     standard: '#1a2a1a',
@@ -373,21 +355,39 @@ function RaidGridCard({ raid, cardType = 'standard', onClick }: RaidGridCardProp
             }}
           />
         )}
-        <img
-          src={raid.image}
-          alt={raid.name}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            padding: '6px',
-            position: 'relative',
-            zIndex: 2,
-          }}
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${raid.id}.png`;
-          }}
-        />
+        {failed || !raid.image ? (
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 10,
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#888888',
+              fontSize: '10px',
+              textAlign: 'center',
+              padding: '4px',
+            }}
+          >
+            Image Coming Soon
+          </div>
+        ) : (
+          <img
+            src={raid.image}
+            alt={raid.name}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              padding: '6px',
+              position: 'relative',
+              zIndex: 2,
+            }}
+            onError={() => setFailed(true)}
+          />
+        )}
         {showDynamax && (
           <div
             style={{
