@@ -14,21 +14,18 @@ export function OrdersPage() {
   const [showItemBoxes, setShowItemBoxes] = useState(false);
 
   const handleAddCoin = (coinAmount: number) => {
-    // Check if coin item already exists
     const existingIndex = items.findIndex(
       (item) => item.type === 'coins' && item.coinAmount === coinAmount
     );
 
     if (existingIndex >= 0) {
-      // Update quantity of existing coin item
       const existingItem = items[existingIndex];
       updateQuantity(existingIndex, existingItem.quantity + 1);
     } else {
-      // Add new coin item
       const price = coinAmount === 5600 ? prices.coins5600 :
                     coinAmount === 15500 ? prices.coins15500 :
                     prices.coins31000;
-      
+
       addItem({
         id: `coins-${coinAmount}-${Date.now()}`,
         type: 'coins',
@@ -58,7 +55,6 @@ export function OrdersPage() {
       <Header title="Order Cart" cartCount={totalItems} />
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
-        {/* Cart Section */}
         <div style={{ backgroundColor: '#2a2a3e', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <p style={{ color: '#ffffff', fontWeight: 700 }}>🛒 YOUR CART</p>
@@ -82,10 +78,8 @@ export function OrdersPage() {
           </div>
         </div>
 
-        {/* Coins Section */}
         <CoinSelector prices={prices} onAddCoin={handleAddCoin} />
 
-        {/* Item Boxes Button */}
         <button
           onClick={() => setShowItemBoxes(true)}
           style={{
@@ -107,29 +101,6 @@ export function OrdersPage() {
           🎁 View/Add In-Store Item Boxes
         </button>
 
-        {/* Notes Section */}
-        <div style={{ backgroundColor: '#2a2a3e', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-          <p style={{ color: '#ffffff', fontWeight: 700, marginBottom: '8px' }}>📝 Other Requests (Optional)</p>
-          <textarea
-            id="notesInput"
-            rows={3}
-            placeholder="Any other service ideas or questions please ask here! For example, if you want the 31k Coin order split between 2 accounts or want details on upcoming Go Fests, etc..."
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              backgroundColor: '#1a1a2e',
-              color: '#ffffff',
-              borderRadius: '8px',
-              border: 'none',
-              outline: 'none',
-              fontSize: '14px',
-              fontFamily: 'inherit',
-              resize: 'vertical',
-            }}
-          />
-        </div>
-
-        {/* Checkout Button */}
         <button
           onClick={handleCheckout}
           disabled={items.length === 0}
@@ -159,7 +130,6 @@ export function OrdersPage() {
           {items.length > 0 ? '🛒 PROCEED TO CHECKOUT' : '🛒 ADD ITEMS TO CART'}
         </button>
 
-        {/* Contact Section */}
         <div style={{ backgroundColor: '#2a2a3e', borderRadius: '12px', padding: '16px', marginTop: '16px' }}>
           <p style={{ color: '#ffffff', fontWeight: 700, textAlign: 'center', marginBottom: '12px' }}>📱 Need Help?</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -218,13 +188,9 @@ export function OrdersPage() {
               💬 Kingi (zEViLvSTON4z)
             </button>
           </div>
-          <p style={{ color: '#888888', fontSize: '12px', textAlign: 'center', marginTop: '12px' }}>
-            💡 Reach out to your admin through Facebook Messenger!
-          </p>
         </div>
       </div>
 
-      {/* Checkout Dialog */}
       <CheckoutDialog
         isOpen={showCheckout}
         onClose={() => setShowCheckout(false)}
@@ -233,7 +199,6 @@ export function OrdersPage() {
         onClearCart={clearCart}
       />
 
-      {/* Item Boxes Dialog */}
       <ItemBoxDialog
         isOpen={showItemBoxes}
         onClose={() => setShowItemBoxes(false)}
