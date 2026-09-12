@@ -42,13 +42,18 @@ export async function fetchScrapedDuckRaids(): Promise<any[]> {
   }
 }
 
-const MANUAL_RAIDS_URL = 'https://corsproxy.io/?' + encodeURIComponent('https://script.google.com/macros/s/AKfycbx6i6Yn7ezXqwJKgZF3Mbq_MbgNeb4mQ8weT0Qipu0c9ASFRVK6l-HIdH83xFbJOeI4/exec');
+export interface ManualRaid {
+  category: string;
+  pokemon: string[];
+}
+
+const MANUAL_RAIDS_URL = '/api/orders';
 
 export async function fetchManualRaids(): Promise<ManualRaid[]> {
   try {
     const response = await fetch(MANUAL_RAIDS_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ type: 'getManualRaids' }),
     });
     const data = await response.json();
