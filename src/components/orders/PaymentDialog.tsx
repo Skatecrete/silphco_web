@@ -25,6 +25,7 @@ export function PaymentDialog({
 }: PaymentDialogProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showDiscord, setShowDiscord] = useState(false);
 
   const adminGamerTag = localStorage.getItem('admin_gamer_tag') || 'Skatecrete';
 
@@ -33,16 +34,16 @@ export function PaymentDialog({
     alert(`Copied: ${text}`);
   };
 
+  const displayTrainer = customerIgn
+    ? `${customerName} (${customerIgn})`
+    : customerName;
+
   const handleSubmitOrder = async (paymentMethod: string) => {
     setLoading(true);
 
-    const fullCustomer = customerIgn
-      ? `${customerName} (${customerIgn})`
-      : customerName;
-
     const orderData = {
       type: 'submitOrder',
-      customerName: fullCustomer,
+      customerName: displayTrainer,
       paymentMethod,
       assignedAdmin: adminGamerTag,
       items: items.map((item) => ({
@@ -99,17 +100,195 @@ export function PaymentDialog({
   const paymentOptions = getPaymentOptions();
 
   return (
+    <>
+      <div
+        style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          zIndex: 52,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          overflow: 'auto',
+        }}
+        onClick={onClose}
+      >
+        <div
+          style={{
+            backgroundColor: '#2a2a3e',
+            borderRadius: '16px',
+            padding: '24px',
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            position: 'relative',
+            margin: 'auto',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <div style={{ width: '48px', height: '48px', border: '4px solid #333', borderTopColor: '#7627C5', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              <p style={{ color: '#888888', marginTop: '16px' }}>Submitting order...</p>
+            </div>
+          ) : success ? (
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <div style={{ fontSize: '64px', marginBottom: '16px' }}>✅</div>
+              <p style={{ color: '#ffffff', fontSize: '24px', fontWeight: 700 }}>✨ Success! ✨</p>
+              <p style={{ color: '#888888', marginTop: '8px' }}>You Just Gained Some Aura 😎</p>
+              <p style={{ color: '#4CAF50', marginTop: '16px' }}>Order submitted!</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h2 style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700 }}>Complete Order</h2>
+                <button
+                  onClick={onClose}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#888888',
+                    fontSize: '24px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', marginBottom: '16px' }}>
+                <p style={{ color: '#ffffff', fontSize: '14px' }}><strong>Trainer:</strong> {displayTrainer}</p>
+                <p style={{ color: '#ffffff', fontSize: '14px' }}><strong>Admin:</strong> {adminGamerTag}</p>
+                <p style={{ color: '#4CAF50', fontSize: '14px', fontWeight: 700, marginTop: '4px' }}>Total: ${totalPrice.toFixed(2)}</p>
+                {timePreference !== 'Whenever Possible' && (
+                  <p style={{ color: '#FFA500', fontSize: '14px' }}><strong>Time:</strong> {timePreference}</p>
+                )}
+              </div>
+
+              <div style={{
+                backgroundColor: 'rgba(118, 39, 197, 0.15)',
+                border: '1px solid rgba(118, 39, 197, 0.4)',
+                borderRadius: '12px',
+                padding: '12px',
+                marginBottom: '16px',
+              }}>
+                <p style={{ color: '#ffffff', fontSize: '13px', lineHeight: 1.5, margin: 0, textAlign: 'center' }}>
+                  After placing this order your Admin will reach out as soon as they can.
+                  Please visit the Discord Channel{' '}
+                  <button
+                    onClick={() => setShowDiscord(true)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#22d3ee',
+                      textDecoration: 'underline',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      padding: 0,
+                    }}
+                  >
+                    &gt; HERE &lt;
+                  </button>{' '}
+                  for a better understanding of how the process works!
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+                {paymentOptions.map((option) => (
+                  <div key={option.id} style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
+                    <p style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px' }}>{option.label}</p>
+                    {option.identifier && (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '8px' }}>
+                        <span style={{ color: '#ffffff', fontFamily: 'monospace', fontSize: '18px', backgroundColor: '#2a2a3e', padding: '4px 12px', borderRadius: '8px' }}>
+                          {option.identifier}
+                        </span>
+                        <button
+                          onClick={() => copyToClipboard(option.copyText)}
+                          style={{
+                            padding: '4px 16px',
+                            backgroundColor: '#2196F3',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    )}
+                    {option.id === 'paypal' && (
+                      <p style={{ color: '#FFA500', fontSize: '10px', marginTop: '4px' }}>
+                        ⚠️ Please send with Friends and Family option
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <p style={{ color: '#FFA500', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>
+                Once payment is received, your order will be placed in queue 🧙
+              </p>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={onClose}
+                  style={{
+                    flex: 1, padding: '12px',
+                    backgroundColor: '#444444',
+                    color: '#ffffff',
+                    border: 'none', borderRadius: '12px',
+                    fontSize: '16px', fontWeight: 700, cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleSubmitOrder('Web Order')}
+                  style={{
+                    flex: 1, padding: '12px',
+                    backgroundColor: '#4CAF50',
+                    color: '#ffffff',
+                    border: 'none', borderRadius: '12px',
+                    fontSize: '16px', fontWeight: 700, cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40'; }}
+                  onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50'; }}
+                >
+                  Submit Order
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <DiscordDialog isOpen={showDiscord} onClose={() => setShowDiscord(false)} />
+    </>
+  );
+}
+
+// ========== Discord dialog ==========
+function DiscordDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null;
+  return (
     <div
       style={{
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
-        zIndex: 52,
+        zIndex: 60,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '16px',
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        overflow: 'auto',
       }}
       onClick={onClose}
     >
@@ -120,122 +299,80 @@ export function PaymentDialog({
           padding: '24px',
           width: '100%',
           maxWidth: '400px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          position: 'relative',
-          margin: 'auto',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '32px 0' }}>
-            <div style={{ width: '48px', height: '48px', border: '4px solid #333', borderTopColor: '#7627C5', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            <p style={{ color: '#888888', marginTop: '16px' }}>Submitting order...</p>
-          </div>
-        ) : success ? (
-          <div style={{ textAlign: 'center', padding: '32px 0' }}>
-            <div style={{ fontSize: '64px', marginBottom: '16px' }}>✅</div>
-            <p style={{ color: '#ffffff', fontSize: '24px', fontWeight: 700 }}>✨ Success! ✨</p>
-            <p style={{ color: '#888888', marginTop: '8px' }}>You Just Gained Some Aura 😎</p>
-            <p style={{ color: '#4CAF50', marginTop: '16px' }}>Order submitted!</p>
-          </div>
-        ) : (
-          <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h2 style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700 }}>Complete Order</h2>
-              <button
-                onClick={onClose}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#888888',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                }}
-              >
-                ✕
-              </button>
-            </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700, margin: 0 }}>
+            SilphCo Discord
+          </h2>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#888888',
+              fontSize: '24px',
+              cursor: 'pointer',
+            }}
+          >
+            ✕
+          </button>
+        </div>
 
-            <div style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', marginBottom: '16px' }}>
-              <p style={{ color: '#ffffff', fontSize: '14px' }}><strong>Trainer:</strong> {customerName}</p>
-              <p style={{ color: '#ffffff', fontSize: '14px' }}><strong>Admin:</strong> {adminGamerTag}</p>
-              <p style={{ color: '#4CAF50', fontSize: '14px', fontWeight: 700, marginTop: '4px' }}>Total: ${totalPrice.toFixed(2)}</p>
-              {timePreference !== 'Whenever Possible' && (
-                <p style={{ color: '#FFA500', fontSize: '14px' }}><strong>Time:</strong> {timePreference}</p>
-              )}
-            </div>
+        <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+          <p style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, marginBottom: '10px' }}>
+            New to our Discord?
+          </p>
+          <a
+            href="https://discord.gg/E999eTNtyu"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'block',
+              padding: '14px',
+              backgroundColor: '#5865F2',
+              color: '#ffffff',
+              borderRadius: '12px',
+              fontWeight: 700,
+              fontSize: '15px',
+              textDecoration: 'none',
+              textAlign: 'center',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#4752C4'; }}
+            onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#5865F2'; }}
+          >
+            Join the Channel!
+          </a>
+        </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
-              {paymentOptions.map((option) => (
-                <div key={option.id} style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
-                  <p style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px' }}>{option.label}</p>
-                  {option.identifier && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '8px' }}>
-                      <span style={{ color: '#ffffff', fontFamily: 'monospace', fontSize: '18px', backgroundColor: '#2a2a3e', padding: '4px 12px', borderRadius: '8px' }}>
-                        {option.identifier}
-                      </span>
-                      <button
-                        onClick={() => copyToClipboard(option.copyText)}
-                        style={{
-                          padding: '4px 16px',
-                          backgroundColor: '#2196F3',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Copy
-                      </button>
-                    </div>
-                  )}
-                  {option.id === 'paypal' && (
-                    <p style={{ color: '#FFA500', fontSize: '10px', marginTop: '4px' }}>
-                      ⚠️ Please send with Friends and Family option
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <p style={{ color: '#FFA500', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>
-              Once payment is received, your order will be placed in queue 🧙
-            </p>
-
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={onClose}
-                style={{
-                  flex: 1, padding: '12px',
-                  backgroundColor: '#444444',
-                  color: '#ffffff',
-                  border: 'none', borderRadius: '12px',
-                  fontSize: '16px', fontWeight: 700, cursor: 'pointer',
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleSubmitOrder('Web Order')}
-                style={{
-                  flex: 1, padding: '12px',
-                  backgroundColor: '#4CAF50',
-                  color: '#ffffff',
-                  border: 'none', borderRadius: '12px',
-                  fontSize: '16px', fontWeight: 700, cursor: 'pointer',
-                }}
-                onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40'; }}
-                onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50'; }}
-              >
-                Submit Order
-              </button>
-            </div>
-          </>
-        )}
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, marginBottom: '10px' }}>
+            Existing Discordian?
+          </p>
+          <a
+            href="https://discord.com/channels/1528530126839615538/1528530127816757280"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'block',
+              padding: '14px',
+              backgroundColor: '#5865F2',
+              color: '#ffffff',
+              borderRadius: '12px',
+              fontWeight: 700,
+              fontSize: '15px',
+              textDecoration: 'none',
+              textAlign: 'center',
+              transition: 'background-color 0.2s',
+            }}
+            onMouseEnter={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#4752C4'; }}
+            onMouseLeave={(e) => { (e.target as HTMLAnchorElement).style.backgroundColor = '#5865F2'; }}
+          >
+            Welcome Back Trainer!
+          </a>
+        </div>
       </div>
     </div>
   );
