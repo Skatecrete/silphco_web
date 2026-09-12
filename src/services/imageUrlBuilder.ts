@@ -1,4 +1,5 @@
 const ULTIMATE_GALLERY_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/ultimategallery';
+const COMING_SOON_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/web/misc/imagecomingsoon.png';
 
 const STRIP_PREFIXES = [
   'shadow ',
@@ -23,7 +24,6 @@ export function getUltimateGalleryUrl(
 
   let baseName = pokemonName.toLowerCase().trim();
 
-  // Remove parenthetical content: "Nidoran♀ (Female)" → "Nidoran♀"
   baseName = baseName.replace(/\([^)]*\)/g, '').trim();
 
   for (const prefix of STRIP_PREFIXES) {
@@ -32,7 +32,6 @@ export function getUltimateGalleryUrl(
       break;
     }
   }
-
 
   const regionMap: Record<string, string> = {
     'alolan': 'alola',
@@ -56,7 +55,6 @@ export function getUltimateGalleryUrl(
     }
   }
 
-  // Build the slug.
   const slug = baseName
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
@@ -75,4 +73,26 @@ export function getUltimateGalleryUrl(
 
 export function getPokeApiUrl(id: number): string {
   return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/${id}.png`;
+}
+
+export function getComingSoonUrl(): string {
+  return COMING_SOON_URL;
+}
+
+/**
+ * Resolves the best available image for a Pokemon.
+ * Order: Ultimate Gallery → PokeAPI (only if id > 0) → Coming Soon image.
+ */
+export function resolveImage(
+  pokemonName: string,
+  id: number,
+  isShiny: boolean = false,
+  isMega: boolean = false,
+  isGigantamax: boolean = false,
+  isUltraBeast: boolean = false
+): string {
+  const galleryUrl = getUltimateGalleryUrl(pokemonName, isShiny, isMega, isGigantamax, isUltraBeast);
+  if (galleryUrl) return galleryUrl;
+  if (id && id > 0) return getPokeApiUrl(id);
+  return COMING_SOON_URL;
 }
