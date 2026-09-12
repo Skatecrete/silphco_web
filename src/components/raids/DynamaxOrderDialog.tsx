@@ -140,4 +140,45 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
           </p>
         )}
 
-        <p style={{ color: '#FFA500', fontSize
+        <p style={{ color: '#FFA500', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>
+          ⚠️ Raids may be limited due to spawning distance, personal mon not strong enough, or limited max particle use.
+        </p>
+
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1, padding: '12px',
+              backgroundColor: '#444444',
+              color: '#ffffff',
+              border: 'none', borderRadius: '12px',
+              fontSize: '16px', fontWeight: 700, cursor: 'pointer',
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleAddToCart}
+            disabled={quantity === 0}
+            style={{
+              flex: 1, padding: '12px',
+              backgroundColor: quantity > 0 ? '#4CAF50' : '#555555',
+              color: '#ffffff', border: 'none', borderRadius: '12px',
+              fontSize: '16px', fontWeight: 700,
+              cursor: quantity > 0 ? 'pointer' : 'not-allowed',
+              transition: 'background-color 0.2s, transform 0.1s',
+            }}
+            onMouseEnter={(e) => {
+              if (quantity > 0) (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40';
+            }}
+            onMouseLeave={(e) => {
+              if (quantity > 0) (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50';
+            }}
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
