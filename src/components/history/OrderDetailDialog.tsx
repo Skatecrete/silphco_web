@@ -6,7 +6,6 @@ interface Order {
   total: number;
   status: string;
   paymentMethod?: string;
-  otherRequests?: string;
   assignedAdmin?: string;
 }
 
@@ -19,8 +18,8 @@ interface OrderDetailDialogProps {
 export function OrderDetailDialog({ isOpen, order, onClose }: OrderDetailDialogProps) {
   if (!isOpen || !order) return null;
 
-  const statusColor = order.status === 'Paid' || order.status === 'Completed' 
-    ? '#4CAF50' 
+  const statusColor = order.status === 'Paid' || order.status === 'Completed'
+    ? '#4CAF50'
     : '#FFA500';
 
   return (
@@ -86,7 +85,7 @@ export function OrderDetailDialog({ isOpen, order, onClose }: OrderDetailDialogP
               {order.items.map((item, index) => (
                 <div key={index} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
                   <span style={{ color: '#cccccc' }}>
-                    {item.huntType === 'Coins' 
+                    {item.huntType === 'Coins'
                       ? `${item.coins} Coins x${item.quantity}`
                       : `${item.huntType}: ${item.pokemon} x${item.quantity}`
                     }
@@ -102,13 +101,6 @@ export function OrderDetailDialog({ isOpen, order, onClose }: OrderDetailDialogP
           <span style={{ color: '#ffffff', fontWeight: 700 }}>Total:</span>
           <span style={{ color: '#4CAF50', fontWeight: 700, fontSize: '18px' }}>${order.total.toFixed(2)}</span>
         </div>
-
-        {order.otherRequests && (
-          <div style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', marginBottom: '16px' }}>
-            <p style={{ color: '#FFA500', fontSize: '14px', fontWeight: 700 }}>📝 Notes</p>
-            <p style={{ color: '#cccccc', fontSize: '14px' }}>{order.otherRequests}</p>
-          </div>
-        )}
 
         <button
           onClick={onClose}
