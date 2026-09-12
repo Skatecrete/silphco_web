@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
-import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
+import { getComingSoonUrl, resolveImage } from '@/services/imageUrlBuilder';
 
 interface RaidOrderDialogProps {
   isOpen: boolean;
@@ -12,21 +12,17 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
   const { addItem } = useCart();
   const [selectedPack, setSelectedPack] = useState<{ quantity: number; price: number } | null>(null);
 
-  // Reset selected pack when dialog closes or raid changes
   useEffect(() => {
-    if (!isOpen) {
-      setSelectedPack(null);
-    }
+    if (!isOpen) setSelectedPack(null);
   }, [isOpen]);
 
-  // Reset selected pack when raid changes
   useEffect(() => {
     setSelectedPack(null);
   }, [raid]);
 
   if (!raid) return null;
 
-  const imageUrl = getUltimateGalleryUrl(raid.name, raid.isShiny) || getPokeApiUrl(raid.id);
+  const imageUrl = resolveImage(raid.name, raid.id, raid.isShiny);
 
   const PACKS = [
     { quantity: 10, price: 7.0 },
@@ -45,7 +41,6 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
       raidTier: raid.tier,
       imageUrl,
     });
-    // Reset selection after adding to cart
     setSelectedPack(null);
     onClose();
   };
@@ -56,10 +51,7 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         zIndex: 50,
         display: 'flex',
         alignItems: 'center',
@@ -87,6 +79,11 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
             src={imageUrl}
             alt={raid.name}
             style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto' }}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null;
+              target.src = getComingSoonUrl();
+            }}
           />
           <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 700, marginTop: '8px' }}>
             {raid.name}
@@ -145,15 +142,11 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
           <button
             onClick={onClose}
             style={{
-              flex: 1,
-              padding: '12px',
+              flex: 1, padding: '12px',
               backgroundColor: '#444444',
               color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 700,
-              cursor: 'pointer',
+              border: 'none', borderRadius: '12px',
+              fontSize: '16px', fontWeight: 700, cursor: 'pointer',
             }}
           >
             Cancel
@@ -162,26 +155,18 @@ export function RaidOrderDialog({ isOpen, raid, onClose }: RaidOrderDialogProps)
             onClick={handleAddToCart}
             disabled={!selectedPack}
             style={{
-              flex: 1,
-              padding: '12px',
+              flex: 1, padding: '12px',
               backgroundColor: selectedPack ? '#4CAF50' : '#555555',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 700,
+              color: '#ffffff', border: 'none', borderRadius: '12px',
+              fontSize: '16px', fontWeight: 700,
               cursor: selectedPack ? 'pointer' : 'not-allowed',
               transition: 'background-color 0.2s, transform 0.1s',
             }}
             onMouseEnter={(e) => {
-              if (selectedPack) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40';
-              }
+              if (selectedPack) (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40';
             }}
             onMouseLeave={(e) => {
-              if (selectedPack) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50';
-              }
+              if (selectedPack) (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50';
             }}
           >
             Add to Cart
