@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/common/Header';
 import { getAllOrders, getAllRSVPs, updateOrderStatus, updateRSVPStatus } from '@/services/sheetsApi';
+import { firstNameToGamerTag } from '@/utils/adminMap';
 
 interface Order {
   orderId: string;
@@ -33,6 +34,8 @@ export function AdminDashboard({ adminName, onLogout }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'orders' | 'rsvps'>('orders');
 
+  const adminDisplay = firstNameToGamerTag(adminName);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -45,7 +48,6 @@ export function AdminDashboard({ adminName, onLogout }: AdminDashboardProps) {
         getAllRSVPs(),
       ]);
 
-      // Filter for this admin
       const filteredOrders = (ordersData || []).filter(
         (order) => order.assignedAdmin === adminName
       );
@@ -79,7 +81,7 @@ export function AdminDashboard({ adminName, onLogout }: AdminDashboardProps) {
   if (loading) {
     return (
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#1a1a2e' }}>
-        <Header title="Admin Dashboard" showCart={false} />
+        <Header title={`Admin: ${adminDisplay}`} showCart={false} />
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: '48px', height: '48px', border: '4px solid #333', borderTopColor: '#7627C5', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -93,7 +95,7 @@ export function AdminDashboard({ adminName, onLogout }: AdminDashboardProps) {
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#1a1a2e', overflow: 'hidden' }}>
-      <Header title={`Admin: ${adminName}`} showCart={false} />
+      <Header title={`Admin: ${adminDisplay}`} showCart={false} />
 
       <div style={{ padding: '12px 16px', display: 'flex', gap: '8px', borderBottom: '1px solid #333', flexShrink: 0 }}>
         <button
