@@ -1,7 +1,7 @@
 const EVENTS_URL = 'https://leekduck.com/feeds/events.json';
 const DEBUTS_URL = 'https://raw.githubusercontent.com/Skatecrete/pogo-raid-data/main/debuts.json';
 
-const PROXY = 'https://api.allorigins.win/raw?url=';
+const PROXY = 'https://corsproxy.io/?url=';
 
 export interface LeekDuckEvent {
   name: string;
@@ -106,4 +106,3 @@ export async function fetchPromoCodes(): Promise<PromoCode[]> {
     return [];
   }
 }
-
