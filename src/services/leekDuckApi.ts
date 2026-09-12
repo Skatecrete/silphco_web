@@ -1,7 +1,7 @@
 const EVENTS_URL = 'https://leekduck.com/feeds/events.json';
 const DEBUTS_URL = 'https://raw.githubusercontent.com/Skatecrete/pogo-raid-data/main/debuts.json';
 
-const PROXY = 'https://corsproxy.io/?url=';
+const PROXY = 'https://api.cors.lol/?url=';
 
 export interface LeekDuckEvent {
   name: string;
