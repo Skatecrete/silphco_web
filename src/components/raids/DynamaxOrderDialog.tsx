@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
-import { getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
+import { getComingSoonUrl, resolveImage } from '@/services/imageUrlBuilder';
 
 interface DynamaxOrderDialogProps {
   isOpen: boolean;
@@ -12,11 +12,8 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(0);
 
-  // Reset quantity when dialog closes or raid changes
   useEffect(() => {
-    if (!isOpen) {
-      setQuantity(0);
-    }
+    if (!isOpen) setQuantity(0);
   }, [isOpen]);
 
   useEffect(() => {
@@ -26,7 +23,7 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
   if (!raid) return null;
 
   const isGigantamax = raid.tier.includes('Gigantamax');
-  const imageUrl = getUltimateGalleryUrl(raid.name, true, false, isGigantamax) || getPokeApiUrl(raid.id);
+  const imageUrl = resolveImage(raid.name, raid.id, true, false, isGigantamax);
 
   const DYNAMAX_PRICE_PER_4 = 10.0;
   const DYNAMAX_PRICE_SINGLE = 2.5;
@@ -47,7 +44,6 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
       raidTier: raid.tier,
       imageUrl,
     });
-    // Reset quantity after adding to cart
     setQuantity(0);
     onClose();
   };
@@ -58,10 +54,7 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         zIndex: 50,
         display: 'flex',
         alignItems: 'center',
@@ -89,6 +82,11 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
             src={imageUrl}
             alt={raid.name}
             style={{ width: '80px', height: '80px', objectFit: 'contain', margin: '0 auto' }}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.onerror = null;
+              target.src = getComingSoonUrl();
+            }}
           />
           <h2 style={{ color: '#ffffff', fontSize: '24px', fontWeight: 700, marginTop: '8px' }}>
             {raid.name}
@@ -104,18 +102,11 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
           <button
             onClick={() => setQuantity(Math.max(0, quantity - 1))}
             style={{
-              width: '40px',
-              height: '40px',
+              width: '40px', height: '40px',
               backgroundColor: '#7627C5',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '50%',
-              fontSize: '24px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              color: '#ffffff', border: 'none', borderRadius: '50%',
+              fontSize: '24px', fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'background-color 0.2s, transform 0.1s',
             }}
             onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
@@ -129,18 +120,11 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
           <button
             onClick={() => setQuantity(quantity + 1)}
             style={{
-              width: '40px',
-              height: '40px',
+              width: '40px', height: '40px',
               backgroundColor: '#7627C5',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '50%',
-              fontSize: '24px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              color: '#ffffff', border: 'none', borderRadius: '50%',
+              fontSize: '24px', fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'background-color 0.2s, transform 0.1s',
             }}
             onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
@@ -156,57 +140,4 @@ export function DynamaxOrderDialog({ isOpen, raid, onClose }: DynamaxOrderDialog
           </p>
         )}
 
-        <p style={{ color: '#FFA500', fontSize: '12px', textAlign: 'center', marginBottom: '16px' }}>
-          ⚠️ Raids may be limited due to spawning distance, personal mon not strong enough, or limited max particle use.
-        </p>
-
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button
-            onClick={onClose}
-            style={{
-              flex: 1,
-              padding: '12px',
-              backgroundColor: '#444444',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleAddToCart}
-            disabled={quantity === 0}
-            style={{
-              flex: 1,
-              padding: '12px',
-              backgroundColor: quantity > 0 ? '#4CAF50' : '#555555',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 700,
-              cursor: quantity > 0 ? 'pointer' : 'not-allowed',
-              transition: 'background-color 0.2s, transform 0.1s',
-            }}
-            onMouseEnter={(e) => {
-              if (quantity > 0) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#3d8b40';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (quantity > 0) {
-                (e.target as HTMLButtonElement).style.backgroundColor = '#4CAF50';
-              }
-            }}
-          >
-            Add to Cart
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+        <p style={{ color: '#FFA500', fontSize
