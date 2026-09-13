@@ -7,7 +7,6 @@ import { DexTabs } from './DexTabs';
 import { RegionFilter } from './RegionFilter';
 import { Header } from '@/components/common/Header';
 import { REGIONS } from '@/utils/regionHelper';
-import { getDexProgress } from '@/services/sheetsApi';
 
 export function DexPage() {
   const { totalItems } = useCart();
@@ -19,34 +18,24 @@ export function DexPage() {
     pokemon,
     loading,
     error,
-    pendingRemovals,
     pendingAdds,
-    removeMode,
     confirmingAdds,
-    confirmingRemovals,
     togglePokemon,
     confirmAdds,
     cancelAdds,
-    confirmRemovals,
-    cancelRemovals,
-    toggleRemoveMode,
-    hasPendingRemovals,
     hasPendingAdds,
     refreshDex
   } = useDex(listType);
   const [dexMatchPopupShown, setDexMatchPopupShown] = useState(false);
   const [dexCheckComplete, setDexCheckComplete] = useState(false);
 
-  // ========== FILTERED POKEMON ==========
   const filteredPokemon = useMemo(() => {
     let result = pokemon;
 
-    // If NOT searching and no region filter, show ONLY checked Pokémon
     if (!searchQuery.trim() && !selectedRegion) {
       result = result.filter((p) => p.onList === true);
     }
 
-    // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -54,7 +43,6 @@ export function DexPage() {
       );
     }
 
-    // Region filter
     if (selectedRegion) {
       const region = REGIONS.find((r) => r.name === selectedRegion);
       if (region) {
@@ -62,7 +50,6 @@ export function DexPage() {
       }
     }
 
-    // Shiny tab filter
     if (listType === 'Shiny') {
       result = result.filter((p) => p.isShinyAvailable);
     }
@@ -71,16 +58,12 @@ export function DexPage() {
   }, [pokemon, searchQuery, selectedRegion, listType]);
 
   const totalOnList = pokemon.filter((p) => p.onList).length;
-  const totalPending = pendingRemovals.length;
 
-  // Refresh dex when tab changes
   useEffect(() => {
     refreshDex();
   }, [listType]);
 
-  // ========== DEX MATCH POPUP (lightweight check) ==========
   useEffect(() => {
-    // Only run once when dex is loaded and user is logged in
     if (!loading && pokemon.length > 0 && isLoggedIn && userDisplay && !dexMatchPopupShown && !dexCheckComplete) {
       setDexCheckComplete(true);
       checkDexMatches();
@@ -88,25 +71,19 @@ export function DexPage() {
   }, [loading, pokemon, isLoggedIn, userDisplay]);
 
   const checkDexMatches = () => {
-    // Get the list of checked Pokémon IDs
     const checkedIds = pokemon.filter(p => p.onList).map(p => p.id);
-
-    // If no checked Pokémon, skip
     if (checkedIds.length === 0) return;
 
-    // Get spawns data from GitHub (lightweight, no hook)
     fetch('https://raw.githubusercontent.com/Skatecrete/pogo-raid-data/main/spawns.json')
       .then(res => res.json())
       .then(data => {
         const spawns = data.spawns || [];
         const matches = spawns.filter((s: any) => checkedIds.includes(s.id));
-
         if (matches.length > 0) {
           showDexMatchPopup(matches);
         }
       })
       .catch(() => {
-        // Silent fail - dex match check is non-critical
         console.debug('Dex match check skipped');
       });
   };
@@ -246,7 +223,6 @@ export function DexPage() {
       <div style={{ padding: '4px 16px', backgroundColor: 'rgba(26,26,46,0.95)', borderBottom: '1px solid rgba(128,128,128,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ color: '#FFA500', fontSize: '12px' }}>
           {totalOnList} on list
-          {totalPending > 0 && ` | ⏳ ${totalPending} pending`}
         </span>
         {searchQuery && (
           <span style={{ color: '#888888', fontSize: '12px' }}>
@@ -316,23 +292,6 @@ export function DexPage() {
           onRegionSelect={setSelectedRegion}
           onClear={() => setSelectedRegion(null)}
         />
-        <button
-          onClick={toggleRemoveMode}
-          disabled={confirmingRemovals}
-          style={{
-            padding: '6px 12px',
-            backgroundColor: removeMode ? '#F44336' : '#444444',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '12px',
-            fontWeight: 700,
-            cursor: confirmingRemovals ? 'not-allowed' : 'pointer',
-            opacity: confirmingRemovals ? 0.5 : 1,
-          }}
-        >
-          {removeMode ? '🛑 Stop Removing' : '🗑️ Remove'}
-        </button>
         <span style={{ color: '#888888', fontSize: '14px', marginLeft: 'auto' }}>
           {filteredPokemon.length} shown
         </span>
@@ -380,52 +339,6 @@ export function DexPage() {
             }}
           >
             ❌ Cancel All
-          </button>
-        </div>
-      )}
-
-      {hasPendingRemovals && (
-        <div style={{ padding: '8px 16px', display: 'flex', gap: '8px', backgroundColor: 'rgba(26,26,46,0.95)', borderBottom: '1px solid rgba(128,128,128,0.2)' }}>
-          <button
-            onClick={async () => {
-              const result = await confirmRemovals();
-              if (result && result.successCount > 0) {
-                refreshDex();
-              }
-            }}
-            disabled={confirmingRemovals}
-            style={{
-              flex: 1,
-              padding: '8px',
-              backgroundColor: confirmingRemovals ? '#2E7D32' : '#4CAF50',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 600,
-              cursor: confirmingRemovals ? 'wait' : 'pointer',
-              opacity: confirmingRemovals ? 0.7 : 1,
-            }}
-          >
-            {confirmingRemovals ? 'Removing...' : `✅ Confirm (${totalPending})`}
-          </button>
-          <button
-            onClick={cancelRemovals}
-            disabled={confirmingRemovals}
-            style={{
-              flex: 1,
-              padding: '8px',
-              backgroundColor: confirmingRemovals ? '#555555' : '#F44336',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: 600,
-              cursor: confirmingRemovals ? 'not-allowed' : 'pointer',
-              opacity: confirmingRemovals ? 0.5 : 1,
-            }}
-          >
-            ❌ Cancel
           </button>
         </div>
       )}
