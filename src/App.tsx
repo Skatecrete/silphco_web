@@ -16,10 +16,11 @@ import { InfographicsPage } from '@/components/infographics/InfographicsPage';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
 import { AdminLoginDialog } from '@/components/admin/AdminLoginDialog';
 import { PromoCodeDialog } from '@/components/promo/PromoCodeDialog';
-import { Layout } from '@/components/common/Layout';
+import { ChatWindow } from '@/components/chat/ChatWindow';
+import { NewMessagePopup } from '@/components/common/NewMessagePopup';
+import { useMessageWatcher } from '@/hooks/useMessageWatcher';
 import { useAppStore } from '@/stores/appStore';
 import { useUser } from '@/hooks/useUser';
-import { ChatWindow } from '@/components/chat/ChatWindow';
 
 function LogoutHandler() {
   const { logout } = useUser();
@@ -66,8 +67,24 @@ function AppWrapper() {
   return <Outlet />;
 }
 
-function App() {
+// ========== Global message watcher (renders popup everywhere inside /app) ==========
+function MessageWatcherLayer() {
+  const { isLoggedIn } = useUser();
   const { isUnlocked } = useAppStore();
+  const { show, unreadCount, dismiss } = useMessageWatcher();
+
+  if (!isUnlocked || !isLoggedIn) return null;
+
+  return (
+    <NewMessagePopup
+      visible={show}
+      unreadCount={unreadCount}
+      onDismiss={dismiss}
+    />
+  );
+}
+
+function App() {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminName, setAdminName] = useState<string | null>(null);
   const [showPromoDialog, setShowPromoDialog] = useState(false);
@@ -83,6 +100,9 @@ function App() {
 
   return (
     <HashRouter>
+      {/* Global watcher — renders on any /app route when logged in */}
+      <MessageWatcherLayer />
+
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
@@ -150,13 +170,11 @@ function App() {
         onLogin={handleAdminLogin}
       />
 
-      {/* Promo Code Dialog - rendered at root level */}
+      {/* Promo Code Dialog */}
       <PromoCodeDialog
         isOpen={showPromoDialog}
         onClose={() => setShowPromoDialog(false)}
       />
-
-      {/* Chat Bubble - REMOVED */}
     </HashRouter>
   );
 }
