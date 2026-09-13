@@ -21,11 +21,15 @@ export function DexPage() {
     error,
     pendingRemovals,
     pendingAdds,
+    removeMode,
+    confirmingAdds,
+    confirmingRemovals,
     togglePokemon,
     confirmAdds,
     cancelAdds,
     confirmRemovals,
     cancelRemovals,
+    toggleRemoveMode,
     hasPendingRemovals,
     hasPendingAdds,
     refreshDex
@@ -312,6 +316,23 @@ export function DexPage() {
           onRegionSelect={setSelectedRegion}
           onClear={() => setSelectedRegion(null)}
         />
+        <button
+          onClick={toggleRemoveMode}
+          disabled={confirmingRemovals}
+          style={{
+            padding: '6px 12px',
+            backgroundColor: removeMode ? '#F44336' : '#444444',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '12px',
+            fontWeight: 700,
+            cursor: confirmingRemovals ? 'not-allowed' : 'pointer',
+            opacity: confirmingRemovals ? 0.5 : 1,
+          }}
+        >
+          {removeMode ? '🛑 Stop Removing' : '🗑️ Remove'}
+        </button>
         <span style={{ color: '#888888', fontSize: '14px', marginLeft: 'auto' }}>
           {filteredPokemon.length} shown
         </span>
@@ -326,32 +347,36 @@ export function DexPage() {
                 refreshDex();
               }
             }}
+            disabled={confirmingAdds}
             style={{
               flex: 1,
               padding: '8px',
-              backgroundColor: '#4CAF50',
+              backgroundColor: confirmingAdds ? '#2E7D32' : '#4CAF50',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: 600,
-              cursor: 'pointer',
+              cursor: confirmingAdds ? 'wait' : 'pointer',
+              opacity: confirmingAdds ? 0.7 : 1,
             }}
           >
-            ✅ Confirm All ({pendingAdds.length})
+            {confirmingAdds ? 'Saving...' : `✅ Confirm All (${pendingAdds.length})`}
           </button>
           <button
             onClick={cancelAdds}
+            disabled={confirmingAdds}
             style={{
               flex: 1,
               padding: '8px',
-              backgroundColor: '#F44336',
+              backgroundColor: confirmingAdds ? '#555555' : '#F44336',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: 600,
-              cursor: 'pointer',
+              cursor: confirmingAdds ? 'not-allowed' : 'pointer',
+              opacity: confirmingAdds ? 0.5 : 1,
             }}
           >
             ❌ Cancel All
@@ -368,32 +393,36 @@ export function DexPage() {
                 refreshDex();
               }
             }}
+            disabled={confirmingRemovals}
             style={{
               flex: 1,
               padding: '8px',
-              backgroundColor: '#4CAF50',
+              backgroundColor: confirmingRemovals ? '#2E7D32' : '#4CAF50',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: 600,
-              cursor: 'pointer',
+              cursor: confirmingRemovals ? 'wait' : 'pointer',
+              opacity: confirmingRemovals ? 0.7 : 1,
             }}
           >
-            ✅ Confirm ({totalPending})
+            {confirmingRemovals ? 'Removing...' : `✅ Confirm (${totalPending})`}
           </button>
           <button
             onClick={cancelRemovals}
+            disabled={confirmingRemovals}
             style={{
               flex: 1,
               padding: '8px',
-              backgroundColor: '#F44336',
+              backgroundColor: confirmingRemovals ? '#555555' : '#F44336',
               color: '#ffffff',
               border: 'none',
               borderRadius: '8px',
               fontSize: '14px',
               fontWeight: 600,
-              cursor: 'pointer',
+              cursor: confirmingRemovals ? 'not-allowed' : 'pointer',
+              opacity: confirmingRemovals ? 0.5 : 1,
             }}
           >
             ❌ Cancel
