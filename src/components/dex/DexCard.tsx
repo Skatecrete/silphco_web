@@ -1,18 +1,22 @@
-import { getComingSoonUrl, getUltimateGalleryUrl, getPokeApiUrl } from '@/services/imageUrlBuilder';
+import { getUltimateGalleryUrl, getPokeApiUrl, getComingSoonUrl } from '@/services/imageUrlBuilder';
 
 interface DexCardProps {
   pokemon: {
     id: number;
     name: string;
     onList: boolean;
+    wasOnServer: boolean;
     isPendingRemoval: boolean;
     isShinyAvailable: boolean;
   };
   onToggle: (checked: boolean) => void;
+  isSearchMode: boolean;
 }
 
-export function DexCard({ pokemon, onToggle }: DexCardProps) {
+export function DexCard({ pokemon, onToggle, isSearchMode }: DexCardProps) {
   const imageUrl = getUltimateGalleryUrl(pokemon.name) || getPokeApiUrl(pokemon.id);
+
+  const showAddedLabel = isSearchMode && pokemon.wasOnServer;
 
   return (
     <div
@@ -54,17 +58,32 @@ export function DexCard({ pokemon, onToggle }: DexCardProps) {
         </span>
       )}
 
-      <input
-        type="checkbox"
-        checked={pokemon.onList}
-        onChange={(e) => onToggle(e.target.checked)}
-        style={{
-          width: '20px',
-          height: '20px',
-          accentColor: '#4CAF50',
-          cursor: 'pointer',
-        }}
-      />
+      {showAddedLabel ? (
+        <span
+          style={{
+            color: '#4CAF50',
+            fontWeight: 700,
+            fontSize: '13px',
+            padding: '4px 10px',
+            backgroundColor: 'rgba(76, 175, 80, 0.15)',
+            borderRadius: '8px',
+          }}
+        >
+          Added
+        </span>
+      ) : (
+        <input
+          type="checkbox"
+          checked={pokemon.onList}
+          onChange={(e) => onToggle(e.target.checked)}
+          style={{
+            width: '20px',
+            height: '20px',
+            accentColor: '#4CAF50',
+            cursor: 'pointer',
+          }}
+        />
+      )}
     </div>
   );
 }
