@@ -329,3 +329,42 @@ export async function removeDexPokemon(
     return false;
   }
 }
+
+export async function addDexPokemonBatch(
+  customerDisplay: string,
+  items: { id: number; name: string }[],
+  listType: string
+): Promise<{ success: boolean; added: number }> {
+  try {
+    const payload = {
+      type: 'addDexPokemonBatch',
+      customerDisplay: customerDisplay.trim(),
+      listType: listType.trim(),
+      items: items,
+    };
+
+    const response = await fetch(MAIN_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+    });
+
+    const rawText = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      console.error('❌ Failed to parse batch add response:', rawText);
+      return { success: false, added: 0 };
+    }
+
+    return {
+      success: data.status === 'success',
+      added: data.added || 0,
+    };
+  } catch (e) {
+    console.error('❌ Error batch adding dex pokemon:', e);
+    return { success: false, added: 0 };
+  }
+}
