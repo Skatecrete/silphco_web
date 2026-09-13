@@ -1,5 +1,3 @@
-// src/services/chatApi.ts
-
 const SCRIPT_URL = '/api/chat';
 
 async function postToScript(body: object): Promise<any> {
@@ -14,7 +12,22 @@ async function postToScript(body: object): Promise<any> {
 }
 
 export async function sendMessage(user: string, message: string): Promise<any> {
-  return postToScript({ type: 'sendMessage', user, message });
+  const result = await postToScript({ type: 'sendMessage', user, message });
+
+  // Fire-and-forget push trigger. Do NOT await this fetch.
+  // The web app doesn't block on it; the browser dispatches it in
+  // the background while the user already sees "sent".
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      type: 'triggerChatPush',
+      user: user,
+      message: message,
+    }),
+  }).catch(() => {});
+
+  return result;
 }
 
 export async function getMessages(user: string): Promise<any> {
