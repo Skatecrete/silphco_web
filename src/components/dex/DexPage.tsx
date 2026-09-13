@@ -14,18 +14,27 @@ export function DexPage() {
   const [listType, setListType] = useState<'Normal' | 'Shiny'>('Normal');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+
+  const isSearchMode = !!searchQuery.trim();
+
   const {
     pokemon,
     loading,
     error,
     pendingAdds,
+    pendingRemovals,
     confirmingAdds,
+    confirmingRemovals,
     togglePokemon,
     confirmAdds,
     cancelAdds,
+    confirmRemovals,
+    cancelRemovals,
     hasPendingAdds,
+    hasPendingRemovals,
     refreshDex
-  } = useDex(listType);
+  } = useDex(listType, isSearchMode);
+
   const [dexMatchPopupShown, setDexMatchPopupShown] = useState(false);
   const [dexCheckComplete, setDexCheckComplete] = useState(false);
 
@@ -58,6 +67,7 @@ export function DexPage() {
   }, [pokemon, searchQuery, selectedRegion, listType]);
 
   const totalOnList = pokemon.filter((p) => p.onList).length;
+  const totalPendingRemovals = pendingRemovals.length;
 
   useEffect(() => {
     refreshDex();
@@ -83,9 +93,7 @@ export function DexPage() {
           showDexMatchPopup(matches);
         }
       })
-      .catch(() => {
-        console.debug('Dex match check skipped');
-      });
+      .catch(() => {});
   };
 
   const showDexMatchPopup = (matches: any[]) => {
@@ -223,6 +231,7 @@ export function DexPage() {
       <div style={{ padding: '4px 16px', backgroundColor: 'rgba(26,26,46,0.95)', borderBottom: '1px solid rgba(128,128,128,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ color: '#FFA500', fontSize: '12px' }}>
           {totalOnList} on list
+          {totalPendingRemovals > 0 && ` | ⏳ ${totalPendingRemovals} pending removal`}
         </span>
         {searchQuery && (
           <span style={{ color: '#888888', fontSize: '12px' }}>
@@ -343,6 +352,52 @@ export function DexPage() {
         </div>
       )}
 
+      {hasPendingRemovals && (
+        <div style={{ padding: '8px 16px', display: 'flex', gap: '8px', backgroundColor: 'rgba(26,26,46,0.95)', borderBottom: '1px solid rgba(128,128,128,0.2)' }}>
+          <button
+            onClick={async () => {
+              const result = await confirmRemovals();
+              if (result && result.successCount > 0) {
+                refreshDex();
+              }
+            }}
+            disabled={confirmingRemovals}
+            style={{
+              flex: 1,
+              padding: '8px',
+              backgroundColor: confirmingRemovals ? '#2E7D32' : '#4CAF50',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: confirmingRemovals ? 'wait' : 'pointer',
+              opacity: confirmingRemovals ? 0.7 : 1,
+            }}
+          >
+            {confirmingRemovals ? 'Removing...' : `✅ Confirm (${totalPendingRemovals})`}
+          </button>
+          <button
+            onClick={cancelRemovals}
+            disabled={confirmingRemovals}
+            style={{
+              flex: 1,
+              padding: '8px',
+              backgroundColor: confirmingRemovals ? '#555555' : '#F44336',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: confirmingRemovals ? 'not-allowed' : 'pointer',
+              opacity: confirmingRemovals ? 0.5 : 1,
+            }}
+          >
+            ❌ Cancel
+          </button>
+        </div>
+      )}
+
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px' }}>
         {filteredPokemon.length === 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888888', textAlign: 'center' }}>
@@ -361,6 +416,7 @@ export function DexPage() {
                 key={p.id}
                 pokemon={p}
                 onToggle={(checked) => togglePokemon(p.id, checked)}
+                isSearchMode={isSearchMode}
               />
             ))}
           </div>
