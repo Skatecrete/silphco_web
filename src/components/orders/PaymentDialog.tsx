@@ -25,7 +25,6 @@ export function PaymentDialog({
 }: PaymentDialogProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [showDiscord, setShowDiscord] = useState(false);
 
   const adminGamerTag = localStorage.getItem('admin_gamer_tag') || 'Skatecrete';
 
@@ -169,34 +168,6 @@ export function PaymentDialog({
                 )}
               </div>
 
-              <div style={{
-                backgroundColor: 'rgba(118, 39, 197, 0.15)',
-                border: '1px solid rgba(118, 39, 197, 0.4)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '16px',
-              }}>
-                <p style={{ color: '#ffffff', fontSize: '14px', lineHeight: 1.6, margin: 0, textAlign: 'center', fontWeight: 700 }}>
-                  After placing this order your Admin will reach out as soon as they can in the SilphCo Chat on this app. Please visit the Discord Channel{' '}
-                  <button
-                    onClick={() => setShowDiscord(true)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#22d3ee',
-                      textDecoration: 'underline',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      padding: 0,
-                    }}
-                  >
-                    &gt; HERE &lt;
-                  </button>{' '}
-                  for a better understanding of how the process works and additional info on services!
-                </p>
-              </div>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
                 {paymentOptions.map((option) => (
                   <div key={option.id} style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
@@ -268,105 +239,6 @@ export function PaymentDialog({
           )}
         </div>
       </div>
-
-      <DiscordDialog isOpen={showDiscord} onClose={() => setShowDiscord(false)} />
     </>
-  );
-}
-
-// ========== Discord dialog ==========
-function DiscordDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  if (!isOpen) return null;
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0, left: 0, right: 0, bottom: 0,
-        zIndex: 60,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '16px',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          backgroundColor: '#2a2a3e',
-          borderRadius: '16px',
-          padding: '24px',
-          width: '100%',
-          maxWidth: '400px',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ color: '#ffffff', fontSize: '20px', fontWeight: 700, margin: 0 }}>
-            SilphCo Discord
-          </h2>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#888888',
-              fontSize: '24px',
-              cursor: 'pointer',
-            }}
-          >
-            ✕
-          </button>
-        </div>
-
-        <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-          <p style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, marginBottom: '10px' }}>
-            New to our Discord?
-          </p>
-          <a
-            href="https://discord.gg/E999eTNtyu"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'block',
-              padding: '14px',
-              backgroundColor: '#5865F2',
-              color: '#ffffff',
-              borderRadius: '12px',
-              fontWeight: 700,
-              fontSize: '15px',
-              textDecoration: 'none',
-              textAlign: 'center',
-            }}
-          >
-            Join the Channel!
-          </a>
-        </div>
-
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ color: '#ffffff', fontSize: '15px', fontWeight: 700, marginBottom: '10px' }}>
-            Existing Discordian?
-          </p>
-          <a
-            href="https://discord.com/channels/1528530126839615538/1528530127816757280"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'block',
-              padding: '14px',
-              backgroundColor: '#5865F2',
-              color: '#ffffff',
-              borderRadius: '12px',
-              fontWeight: 700,
-              fontSize: '15px',
-              textDecoration: 'none',
-              textAlign: 'center',
-            }}
-          >
-            Welcome Back Trainer!
-          </a>
-        </div>
-      </div>
-    </div>
   );
 }
