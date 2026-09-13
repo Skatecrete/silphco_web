@@ -1,66 +1,29 @@
 const EVENTS_URL = 'https://leekduck.com/feeds/events.json';
 const DEBUTS_URL = 'https://raw.githubusercontent.com/Skatecrete/pogo-raid-data/main/debuts.json';
+const PROMO_URL = 'https://leekduck.com/promo-codes/';
 
-const PROXY = 'https://api.cors.lol/?url=';
+// Your own Apps Script proxy — no rate limits, no CORS
+const PROXY_BASE = 'https://script.google.com/macros/s/AKfycbzG1Q22LCOzqyXUwrTzxkqi5csH_yhQdQCAgZqsky0LB2YTiVHD7NttkGkDS6ilcyp7eg/exec';
 
-export interface LeekDuckEvent {
-  name: string;
-  eventType: string;
-  heading: string;
-  link: string;
-  image: string;
-  start: string;
-  end: string;
-}
-
-export interface DebutData {
-  event_name: string;
-  event_date: string;
-  new_pokemon: string[];
-  new_shiny: string[];
-  pokemon_images: Record<string, string>;
-  event_type: string;
-}
-
-export interface DebutsResponse {
-  last_updated: string;
-  debuts: DebutData[];
-}
-
-export interface PromoCode {
-  code: string;
-  title: string;
-  rewards: string[];
-  imageUrl: string | null;
-  expiry: string;
+async function proxyFetch(targetUrl: string): Promise<string> {
+  const url = PROXY_BASE + '?type=proxyFetch&url=' + encodeURIComponent(targetUrl);
+  const response = await fetch(url);
+  return await response.text();
 }
 
 export async function fetchEvents(): Promise<LeekDuckEvent[]> {
   try {
-    const response = await fetch(PROXY + encodeURIComponent(EVENTS_URL));
-    if (!response.ok) throw new Error('Failed to fetch events');
-    return await response.json();
+    const text = await proxyFetch(EVENTS_URL);
+    return JSON.parse(text);
   } catch (e) {
     console.error('Error fetching events:', e);
     return [];
   }
 }
 
-export async function fetchDebuts(): Promise<DebutsResponse | null> {
-  try {
-    const response = await fetch(DEBUTS_URL);
-    if (!response.ok) throw new Error('Failed to fetch debuts');
-    return await response.json();
-  } catch (e) {
-    console.error('Error fetching debuts:', e);
-    return null;
-  }
-}
-
 export async function fetchPromoCodes(): Promise<PromoCode[]> {
   try {
-    const response = await fetch(PROXY + encodeURIComponent('https://leekduck.com/promo-codes/'));
-    const html = await response.text();
+    const html = await proxyFetch(PROMO_URL);
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
