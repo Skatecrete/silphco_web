@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getDexProgress, addDexPokemon, removeDexPokemon } from '@/services/sheetsApi';
+import { getDexProgress, addDexPokemonBatch, removeDexPokemon } from '@/services/sheetsApi';
 import { useUser } from './useUser';
 import { ALL_POKEMON_NAMES } from '@/utils/constants';
 
@@ -13,6 +13,7 @@ interface DexPokemon {
   id: number;
   name: string;
   onList: boolean;
+  wasOnServer: boolean;
   isShinyAvailable: boolean;
   isPendingRemoval: boolean;
 }
@@ -25,6 +26,7 @@ export function useDex(listType: 'Normal' | 'Shiny') {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pendingRemovals, setPendingRemovals] = useState<Set<number>>(new Set());
+  const [pendingAdds, setPendingAdds] = useState<Set<number>>(new Set());
   const [lastFetchTime, setLastFetchTime] = useState<number>(0);
 
   const loadDex = useCallback(async (forceRefresh: boolean = false) => {
@@ -43,17 +45,26 @@ export function useDex(listType: 'Normal' | 'Shiny') {
 
     try {
       const dexList = await getDexProgress(userDisplay, listType);
-      const ids = new Set(dexList.map((entry: DexEntry) => entry.id));
+      const ids = new Set(
+        (dexList || []).map((entry: DexEntry) => parseInt(String(entry.id), 10))
+      );
 
-      const allPokemon: DexPokemon[] = Object.entries(ALL_POKEMON_NAMES).map(([id, name]) => ({
-        id: parseInt(id),
-        name,
-        onList: ids.has(parseInt(id)),
-        isShinyAvailable: true,
-        isPendingRemoval: false,
-      }));
+      const allPokemon: DexPokemon[] = Object.entries(ALL_POKEMON_NAMES).map(([id, name]) => {
+        const numericId = parseInt(id);
+        const onServer = ids.has(numericId);
+        return {
+          id: numericId,
+          name,
+          onList: onServer,
+          wasOnServer: onServer,
+          isShinyAvailable: true,
+          isPendingRemoval: false,
+        };
+      });
 
       setPokemon(allPokemon);
+      setPendingRemovals(new Set());
+      setPendingAdds(new Set());
       setLastFetchTime(now);
     } catch (err) {
       setError('Failed to load dex');
@@ -63,54 +74,84 @@ export function useDex(listType: 'Normal' | 'Shiny') {
     }
   }, [userDisplay, isLoggedIn, listType, lastFetchTime, pokemon.length]);
 
-  const togglePokemon = async (pokemonId: number, checked: boolean) => {
-    if (!userDisplay) {
-      console.error('❌ No user display found');
-      return;
+  const togglePokemon = (pokemonId: number, checked: boolean) => {
+    if (!userDisplay) return;
+
+    setPokemon((prev) =>
+      prev.map((p) => {
+        if (p.id !== pokemonId) return p;
+
+        if (checked) {
+          if (p.isPendingRemoval) {
+            setPendingRemovals((s) => {
+              const ns = new Set(s);
+              ns.delete(pokemonId);
+              return ns;
+            });
+            return { ...p, onList: true, isPendingRemoval: false };
+          }
+
+          if (!p.wasOnServer) {
+            setPendingAdds((s) => new Set(s).add(pokemonId));
+          }
+          return { ...p, onList: true };
+        } else {
+          if (p.wasOnServer && !p.isPendingRemoval) {
+            setPendingRemovals((s) => new Set(s).add(pokemonId));
+            return { ...p, onList: false, isPendingRemoval: true };
+          }
+
+          if (p.isPendingRemoval) {
+            setPendingRemovals((s) => {
+              const ns = new Set(s);
+              ns.delete(pokemonId);
+              return ns;
+            });
+            return { ...p, onList: true, isPendingRemoval: false };
+          }
+
+          setPendingAdds((s) => {
+            const ns = new Set(s);
+            ns.delete(pokemonId);
+            return ns;
+          });
+          return { ...p, onList: false };
+        }
+      })
+    );
+  };
+
+  const confirmAdds = async () => {
+    if (pendingAdds.size === 0 || !userDisplay) {
+      return { success: true, added: 0 };
     }
 
-    const pokemonName = ALL_POKEMON_NAMES[pokemonId] || `Pokemon #${pokemonId}`;
+    const items = Array.from(pendingAdds).map((id) => ({
+      id,
+      name: ALL_POKEMON_NAMES[id] || `Pokemon #${id}`,
+    }));
 
-    if (checked) {
-      // ✅ CHECKING: Add to dex
-      console.log(`➕ Adding ${pokemonName} (ID: ${pokemonId}) to ${listType} dex for ${userDisplay}`);
-      
-      const success = await addDexPokemon(userDisplay, pokemonId, pokemonName, listType);
-      console.log(`📡 Add result: ${success}`);
-      
-      if (success) {
-        // Update local state
-        setPokemon((prev) =>
-          prev.map((p) =>
-            p.id === pokemonId ? { ...p, onList: true, isPendingRemoval: false } : p
-          )
-        );
-        // Remove from pending if it was there
-        setPendingRemovals((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(pokemonId);
-          return newSet;
-        });
-        console.log(`✅ ${pokemonName} added to ${listType} dex`);
-      } else {
-        console.error(`❌ Failed to add ${pokemonName} to dex`);
-        // Revert local state
-        setPokemon((prev) =>
-          prev.map((p) =>
-            p.id === pokemonId ? { ...p, onList: false, isPendingRemoval: false } : p
-          )
-        );
-      }
-    } else {
-      // ❌ UNCHECKING: Mark for removal
-      console.log(`⏳ Marking ${pokemonName} for removal from ${listType} dex`);
-      setPendingRemovals((prev) => new Set(prev).add(pokemonId));
+    const result = await addDexPokemonBatch(userDisplay, items, listType);
+
+    if (result.success) {
       setPokemon((prev) =>
         prev.map((p) =>
-          p.id === pokemonId ? { ...p, onList: false, isPendingRemoval: true } : p
+          pendingAdds.has(p.id) ? { ...p, wasOnServer: true, isPendingRemoval: false } : p
         )
       );
+      setPendingAdds(new Set());
     }
+
+    return result;
+  };
+
+  const cancelAdds = () => {
+    setPendingAdds(new Set());
+    setPokemon((prev) =>
+      prev.map((p) =>
+        p.wasOnServer ? p : { ...p, onList: false }
+      )
+    );
   };
 
   const confirmRemovals = async () => {
@@ -119,47 +160,42 @@ export function useDex(listType: 'Normal' | 'Shiny') {
     }
 
     const toRemove = Array.from(pendingRemovals);
-    console.log(`🗑️ Confirming removal of ${toRemove.length} Pokémon from ${listType} dex`);
     let successCount = 0;
 
     for (const id of toRemove) {
-      const pokemonName = ALL_POKEMON_NAMES[id] || `Pokemon #${id}`;
-      console.log(`  Removing ${pokemonName} (ID: ${id})...`);
-      
       const success = await removeDexPokemon(userDisplay, id, listType);
-      console.log(`  Result: ${success}`);
-      
       if (success) {
         successCount++;
         setPendingRemovals((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(id);
-          return newSet;
+          const ns = new Set(prev);
+          ns.delete(id);
+          return ns;
         });
         setPokemon((prev) =>
           prev.map((p) =>
-            p.id === id ? { ...p, onList: false, isPendingRemoval: false } : p
+            p.id === id
+              ? { ...p, onList: false, wasOnServer: false, isPendingRemoval: false }
+              : p
           )
         );
       }
     }
 
-    console.log(`✅ Removed ${successCount}/${toRemove.length} Pokémon`);
     return { successCount, total: toRemove.length };
   };
 
   const cancelRemovals = () => {
-    console.log(`❌ Cancelling removals from ${listType} dex`);
     setPendingRemovals(new Set());
     setPokemon((prev) =>
-      prev.map((p) => ({
-        ...p,
-        isPendingRemoval: false,
-      }))
+      prev.map((p) => {
+        if (p.isPendingRemoval) {
+          return { ...p, onList: true, isPendingRemoval: false };
+        }
+        return p;
+      })
     );
   };
 
-  // Load dex on mount
   useEffect(() => {
     loadDex();
   }, [loadDex]);
@@ -169,10 +205,14 @@ export function useDex(listType: 'Normal' | 'Shiny') {
     loading,
     error,
     pendingRemovals: Array.from(pendingRemovals),
+    pendingAdds: Array.from(pendingAdds),
     togglePokemon,
+    confirmAdds,
+    cancelAdds,
     confirmRemovals,
     cancelRemovals,
     refreshDex: () => loadDex(true),
     hasPendingRemovals: pendingRemovals.size > 0,
+    hasPendingAdds: pendingAdds.size > 0,
   };
 }
