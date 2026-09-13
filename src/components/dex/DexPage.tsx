@@ -15,16 +15,20 @@ export function DexPage() {
   const [listType, setListType] = useState<'Normal' | 'Shiny'>('Normal');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const { 
-    pokemon, 
-    loading, 
-    error, 
-    pendingRemovals, 
-    togglePokemon, 
-    confirmRemovals, 
-    cancelRemovals, 
+  const {
+    pokemon,
+    loading,
+    error,
+    pendingRemovals,
+    pendingAdds,
+    togglePokemon,
+    confirmAdds,
+    cancelAdds,
+    confirmRemovals,
+    cancelRemovals,
     hasPendingRemovals,
-    refreshDex 
+    hasPendingAdds,
+    refreshDex
   } = useDex(listType);
   const [dexMatchPopupShown, setDexMatchPopupShown] = useState(false);
   const [dexCheckComplete, setDexCheckComplete] = useState(false);
@@ -82,7 +86,7 @@ export function DexPage() {
   const checkDexMatches = () => {
     // Get the list of checked Pokémon IDs
     const checkedIds = pokemon.filter(p => p.onList).map(p => p.id);
-    
+
     // If no checked Pokémon, skip
     if (checkedIds.length === 0) return;
 
@@ -92,7 +96,7 @@ export function DexPage() {
       .then(data => {
         const spawns = data.spawns || [];
         const matches = spawns.filter((s: any) => checkedIds.includes(s.id));
-        
+
         if (matches.length > 0) {
           showDexMatchPopup(matches);
         }
@@ -313,6 +317,48 @@ export function DexPage() {
         </span>
       </div>
 
+      {hasPendingAdds && (
+        <div style={{ padding: '8px 16px', display: 'flex', gap: '8px', backgroundColor: 'rgba(26,26,46,0.95)', borderBottom: '1px solid rgba(128,128,128,0.2)' }}>
+          <button
+            onClick={async () => {
+              const result = await confirmAdds();
+              if (result && result.added > 0) {
+                refreshDex();
+              }
+            }}
+            style={{
+              flex: 1,
+              padding: '8px',
+              backgroundColor: '#4CAF50',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            ✅ Confirm All ({pendingAdds.length})
+          </button>
+          <button
+            onClick={cancelAdds}
+            style={{
+              flex: 1,
+              padding: '8px',
+              backgroundColor: '#F44336',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            ❌ Cancel All
+          </button>
+        </div>
+      )}
+
       {hasPendingRemovals && (
         <div style={{ padding: '8px 16px', display: 'flex', gap: '8px', backgroundColor: 'rgba(26,26,46,0.95)', borderBottom: '1px solid rgba(128,128,128,0.2)' }}>
           <button
@@ -363,7 +409,7 @@ export function DexPage() {
               Search above by Name or ID to add some!
             </p>
             <p style={{ fontSize: '14px', marginTop: '4px', color: '#FFA500' }}>
-              Once a Pokemon is checked, it autosaves to your list.
+              Once a Pokemon is checked and confirmed, it saves to your list.
             </p>
           </div>
         ) : (
