@@ -11,10 +11,12 @@ export function NewMessagePopup({ visible, unreadCount, onDismiss }: NewMessageP
 
   if (!visible) return null;
 
-  const label =
+  const lineOne =
     unreadCount === 1
-      ? '📩 New message from your Admin — tap to open chat'
-      : `📩 ${unreadCount} new messages from your Admin — tap to open chat`;
+      ? 'New Message from Admin'
+      : `${unreadCount} New Messages from Admin`;
+
+  const lineTwo = 'Tap to open Chat';
 
   return (
     <div
@@ -26,7 +28,6 @@ export function NewMessagePopup({ visible, unreadCount, onDismiss }: NewMessageP
         zIndex: 2000,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
         padding: '10px 44px 10px 16px',
         backgroundColor: '#4CAF50',
         color: '#ffffff',
@@ -34,7 +35,6 @@ export function NewMessagePopup({ visible, unreadCount, onDismiss }: NewMessageP
         fontSize: '13px',
         cursor: 'pointer',
         boxShadow: '0 2px 8px rgba(0,0,0,0.35)',
-        textAlign: 'center',
         userSelect: 'none',
       }}
       onClick={() => {
@@ -42,7 +42,33 @@ export function NewMessagePopup({ visible, unreadCount, onDismiss }: NewMessageP
         navigate('/app/chat');
       }}
     >
-      <span>{label}</span>
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          lineHeight: 1.3,
+          textAlign: 'center',
+          overflow: 'hidden',
+        }}
+      >
+        <span
+          style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            maxWidth: '100%',
+          }}
+        >
+          {lineOne}
+        </span>
+        <span style={{ fontSize: '11px', fontWeight: 400, opacity: 0.9 }}>
+          {lineTwo}
+        </span>
+      </div>
+
       <button
         onClick={(e) => {
           e.stopPropagation();
