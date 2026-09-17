@@ -12,6 +12,8 @@ interface Message {
   isNew: boolean;
 }
 
+const ADMIN_AVATAR_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/web/misc/Silphco_Logo.png';
+
 const formatChatTimestamp = (timestamp: string): string => {
   try {
     if (timestamp.includes('/')) {
@@ -26,7 +28,7 @@ const formatChatTimestamp = (timestamp: string): string => {
         }
       }
     }
-    
+
     const parts = timestamp.split('T');
     if (parts.length === 2) {
       const datePart = parts[0].split('-');
@@ -38,7 +40,7 @@ const formatChatTimestamp = (timestamp: string): string => {
         return `${month}/${day} ${timePart}`;
       }
     }
-    
+
     return timestamp;
   } catch (e) {
     return timestamp;
@@ -55,31 +57,32 @@ export function ChatWindow() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageCache = useRef<Message[]>([]);
   const isFirstLoad = useRef(true);
+  const [avatarFailed, setAvatarFailed] = useState(false);
 
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
 
   const loadMessages = useCallback(async () => {
     if (!chatName) return;
-    
+
     try {
       const data = await getMessages(chatName);
       const newMessages = data.messages || [];
-      
+
       const currentMessages = messageCache.current;
       const hasChanged = currentMessages.length !== newMessages.length ||
         currentMessages.some((msg, index) => {
           const newMsg = newMessages[index];
-          return !newMsg || 
+          return !newMsg ||
             msg.message !== newMsg.message ||
             msg.adminReply !== newMsg.adminReply ||
             msg.isNew !== newMsg.isNew;
         });
-      
+
       if (hasChanged) {
         messageCache.current = newMessages;
         setMessages(newMessages);
-        
+
         const hasNew = newMessages.some((m: Message) => m.isNew);
         if (hasNew) {
           await markRead(chatName);
@@ -88,13 +91,13 @@ export function ChatWindow() {
           setMessages(messageCache.current);
         }
       }
-      
+
       if (isFirstLoad.current) {
         isFirstLoad.current = false;
         setHasLoaded(true);
         setIsLoading(false);
       }
-      
+
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -108,7 +111,7 @@ export function ChatWindow() {
 
   const handleSend = async () => {
     if (!input.trim() || !chatName) return;
-    
+
     setLoading(true);
     try {
       await sendMessage(chatName, input.trim());
@@ -125,7 +128,7 @@ export function ChatWindow() {
       const updatedCache = [...messageCache.current, newMessage];
       messageCache.current = updatedCache;
       setMessages(updatedCache);
-      
+
       setTimeout(() => loadMessages(), 500);
     } catch (e) {
       alert('Failed to send message. Please try again.');
@@ -187,18 +190,18 @@ export function ChatWindow() {
   }
 
   return (
-    <div style={{ 
-      height: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      backgroundColor: '#1a1a2e', 
+    <div style={{
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#1a1a2e',
       overflow: 'hidden',
       width: '100%',
       position: 'relative',
     }}>
-      <div style={{ 
-        padding: '16px', 
-        backgroundColor: '#2a2a3e', 
+      <div style={{
+        padding: '16px',
+        backgroundColor: '#2a2a3e',
         borderBottom: '1px solid #3a3a4e',
         display: 'flex',
         alignItems: 'center',
@@ -233,13 +236,13 @@ export function ChatWindow() {
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px', WebkitOverflowScrolling: 'touch' }}>
         {isLoading && !hasLoaded ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            <div style={{ 
-              width: '32px', 
-              height: '32px', 
-              border: '2px solid rgba(118, 39, 197, 0.15)', 
-              borderTopColor: 'rgba(118, 39, 197, 0.5)', 
-              borderRadius: '50%', 
-              animation: 'spin 0.8s linear infinite' 
+            <div style={{
+              width: '32px',
+              height: '32px',
+              border: '2px solid rgba(118, 39, 197, 0.15)',
+              borderTopColor: 'rgba(118, 39, 197, 0.5)',
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite'
             }} />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
@@ -264,12 +267,47 @@ export function ChatWindow() {
                   </div>
                 </div>
               )}
-              
+
               {msg.adminReply && (
-                <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', gap: '8px', marginTop: '4px' }}>
+                  {!avatarFailed ? (
+                    <img
+                      src={ADMIN_AVATAR_URL}
+                      alt="Admin"
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        flexShrink: 0,
+                        objectFit: 'cover',
+                        backgroundColor: '#1a1a2e',
+                        border: '1px solid #3a3a4e',
+                      }}
+                      onError={() => setAvatarFailed(true)}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        flexShrink: 0,
+                        backgroundColor: '#3a3a4e',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#ffffff',
+                        fontSize: '14px',
+                        fontWeight: 700,
+                        border: '1px solid #3a3a4e',
+                      }}
+                    >
+                      S
+                    </div>
+                  )}
                   <div style={{ maxWidth: '80%', backgroundColor: '#2a2a3e', padding: '10px 14px', borderRadius: '12px', borderBottomLeftRadius: '4px', border: '1px solid #3a3a4e' }}>
                     <p style={{ color: '#ffffff', fontSize: '14px', margin: 0, wordBreak: 'break-word' }}>
-                      👤 Admin: {msg.adminReply}
+                      {msg.adminReply}
                     </p>
                     <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', marginTop: '4px' }}>
                       {formatChatTimestamp(msg.timestamp)}
@@ -283,12 +321,12 @@ export function ChatWindow() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div style={{ 
-        padding: '12px 16px', 
+      <div style={{
+        padding: '12px 16px',
         paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 20px))',
-        backgroundColor: '#2a2a3e', 
-        borderTop: '1px solid #3a3a4e', 
-        flexShrink: 0 
+        backgroundColor: '#2a2a3e',
+        borderTop: '1px solid #3a3a4e',
+        flexShrink: 0
       }}>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
           <textarea
@@ -336,7 +374,7 @@ export function ChatWindow() {
             {loading ? 'Sending...' : 'Send'}
           </button>
         </div>
-        
+
         <p style={{ color: '#666666', fontSize: '11px', textAlign: 'center', marginTop: '8px', fontStyle: 'italic' }}>
           *Messages are automatically deleted after 30 days
         </p>
