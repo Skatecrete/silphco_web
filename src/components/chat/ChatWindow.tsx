@@ -14,6 +14,25 @@ interface Message {
 
 const ADMIN_AVATAR_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/web/misc/Silphco_Logo.png';
 
+// Cursive stack — works on iOS, Android, Windows, macOS without a font file.
+const CURSIVE_STACK = '"Brush Script MT", "Lucida Handwriting", "Segoe Script", "Apple Chancery", cursive';
+
+// Deterministic hue per initial so each user gets a distinct color.
+const getInitialColor = (name: string): string => {
+  const letter = (name || '?').trim().charAt(0).toUpperCase();
+  let hash = 0;
+  for (let i = 0; i < letter.length; i++) {
+    hash = letter.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue}, 55%, 55%)`;
+};
+
+const getInitial = (name: string): string => {
+  const trimmed = (name || '').trim();
+  return trimmed ? trimmed.charAt(0).toUpperCase() : '?';
+};
+
 const formatChatTimestamp = (timestamp: string): string => {
   try {
     if (timestamp.includes('/')) {
@@ -61,6 +80,8 @@ export function ChatWindow() {
 
   const chatName = localStorage.getItem('chat_name') || '';
   const isLoggedIn = !!chatName;
+  const userInitial = getInitial(chatName);
+  const userColor = getInitialColor(chatName);
 
   const loadMessages = useCallback(async () => {
     if (!chatName) return;
@@ -258,12 +279,33 @@ export function ChatWindow() {
           messages.map((msg, index) => (
             <div key={index} style={{ marginBottom: '12px' }}>
               {msg.message && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
                   <div style={{ maxWidth: '80%', backgroundColor: '#7627C5', padding: '10px 14px', borderRadius: '12px', borderBottomRightRadius: '4px' }}>
                     <p style={{ color: '#ffffff', fontSize: '14px', margin: 0, wordBreak: 'break-word' }}>{msg.message}</p>
                     <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', marginTop: '4px', textAlign: 'right' }}>
                       {formatChatTimestamp(msg.timestamp)}
                     </p>
+                  </div>
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      flexShrink: 0,
+                      backgroundColor: userColor,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#ffffff',
+                      fontFamily: CURSIVE_STACK,
+                      fontSize: '26px',
+                      lineHeight: 1,
+                      paddingTop: '4px',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.35)',
+                    }}
+                  >
+                    {userInitial}
                   </div>
                 </div>
               )}
