@@ -269,14 +269,14 @@ export function ChatWindow() {
               )}
 
               {msg.adminReply && (
-                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end', gap: '8px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
                   {!avatarFailed ? (
                     <img
                       src={ADMIN_AVATAR_URL}
                       alt="Admin"
                       style={{
-                        width: '28px',
-                        height: '28px',
+                        width: '36px',
+                        height: '36px',
                         borderRadius: '50%',
                         flexShrink: 0,
                         objectFit: 'cover',
@@ -288,8 +288,8 @@ export function ChatWindow() {
                   ) : (
                     <div
                       style={{
-                        width: '28px',
-                        height: '28px',
+                        width: '36px',
+                        height: '36px',
                         borderRadius: '50%',
                         flexShrink: 0,
                         backgroundColor: '#3a3a4e',
@@ -297,7 +297,7 @@ export function ChatWindow() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: '#ffffff',
-                        fontSize: '14px',
+                        fontSize: '16px',
                         fontWeight: 700,
                         border: '1px solid #3a3a4e',
                       }}
