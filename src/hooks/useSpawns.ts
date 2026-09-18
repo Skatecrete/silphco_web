@@ -80,8 +80,11 @@ export function useSpawns() {
       }
 
       const pokemonList: Pokemon[] = [];
+      const seenIds = new Set<number>();
 
       for (const spawn of data.spawns) {
+        if (seenIds.has(spawn.id)) continue;
+        seenIds.add(spawn.id);
         pokemonList.push({
           id: spawn.id,
           name: spawn.name,
