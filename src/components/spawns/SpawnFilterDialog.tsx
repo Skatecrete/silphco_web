@@ -111,7 +111,7 @@ export function SpawnFilterDialog({
               onChange={() => toggleFilter('shundo')}
               style={{ width: '20px', height: '20px', accentColor: '#7627C5' }}
             />
-            <span>✨ Shundo (0.65%+ Spawn)</span>
+            <span>✨ Shundo (0.45%+ Spawn)</span>
           </label>
 
           <label style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#ffffff', cursor: 'pointer' }}>
