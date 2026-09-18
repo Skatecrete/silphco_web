@@ -399,11 +399,10 @@ export function SpawnsPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            {filteredPokemon.map((pokemon: any) => (
+            {filteredPokemon.map((pokemon: any, index: number) => (
               <SpawnCard
-                key={pokemon.id}
-                pokemon={pokemon}
-                onClick={() => handlePokemonClick(pokemon)}
+                key={`${pokemon.id}-${index}`}
+                ...
               />
             ))}
           </div>
