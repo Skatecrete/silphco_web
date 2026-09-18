@@ -10,6 +10,7 @@ interface PricingData {
   shiny: number;
   shinyRegional: number;
   pvp: number;
+  normal: number;
   normalRegional: number;
   coins5600: number;
   coins15500: number;
@@ -29,6 +30,7 @@ const DEFAULT_PRICES: PricingData = {
   shiny: 2.0,
   shinyRegional: 5.0,
   pvp: 5.0,
+  normal: 1.0,
   normalRegional: 3.0,
   coins5600: 24.0,
   coins15500: 45.0,
@@ -66,6 +68,7 @@ export function usePricing() {
           shiny: data['Spawn_Shiny'] || DEFAULT_PRICES.shiny,
           shinyRegional: data['Spawn_Shiny_Regional'] || DEFAULT_PRICES.shinyRegional,
           pvp: data['Spawn_PvP'] || DEFAULT_PRICES.pvp,
+          normal: data['Spawn_Normal'] || DEFAULT_PRICES.normal,
           normalRegional: data['Spawn_Normal_Regional'] || DEFAULT_PRICES.normalRegional,
           coins5600: data['Coins_5600'] || DEFAULT_PRICES.coins5600,
           coins15500: data['Coins_15500'] || DEFAULT_PRICES.coins15500,
