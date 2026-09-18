@@ -18,14 +18,8 @@ const ADMIN_AVATAR_URL = 'https://raw.githubusercontent.com/Skatecrete/infograph
 const CURSIVE_STACK = '"Brush Script MT", "Lucida Handwriting", "Segoe Script", "Apple Chancery", cursive';
 
 // Deterministic hue per initial so each user gets a distinct color.
-const getInitialColor = (name: string): string => {
-  const letter = (name || '?').trim().charAt(0).toUpperCase();
-  let hash = 0;
-  for (let i = 0; i < letter.length; i++) {
-    hash = letter.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const hue = Math.abs(hash) % 360;
-  return `hsl(${hue}, 55%, 55%)`;
+const getInitialColor = (_name: string): string => {
+  return '#5B2E9E';
 };
 
 const getInitial = (name: string): string => {
