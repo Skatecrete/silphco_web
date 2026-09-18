@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
+import { usePricing } from '@/hooks/usePricing';
 import { getComingSoonUrl, resolveImage } from '@/services/imageUrlBuilder';
 
 interface SpawnOrderDialogProps {
@@ -12,6 +13,7 @@ type QuantityType = 'shundo' | 'hundo' | 'shiny' | 'normal';
 
 export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogProps) {
   const { addItem } = useCart();
+  const { prices } = usePricing();
   const [quantities, setQuantities] = useState({
     shundo: 0,
     hundo: 0,
@@ -37,10 +39,10 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
   const isRegional = pokemon.isRegional;
 
   const PRICES = {
-    shundo: 5.0,
-    hundo: isRegional ? 8.0 : 3.0,
-    shiny: isRegional ? 5.0 : 2.0,
-    normal: 3.0,
+    shundo: prices.shundo,
+    hundo: isRegional ? prices.hundoRegional : prices.hundo,
+    shiny: isRegional ? prices.shinyRegional : prices.shiny,
+    normal: isRegional ? prices.normalRegional : prices.normal,
   };
 
   const updateQuantity = (type: QuantityType, delta: number) => {
@@ -203,7 +205,7 @@ export function SpawnOrderDialog({ isOpen, pokemon, onClose }: SpawnOrderDialogP
         />
 
         <QuantityRow
-          label="🎲 NORMAL (Any IV)"
+          label={`🎲 NORMAL (Any IV)${isRegional ? ' - REGIONAL' : ''}`}
           price={PRICES.normal}
           quantity={quantities.normal}
           onUpdate={(delta) => updateQuantity('normal', delta)}
