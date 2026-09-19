@@ -1,6 +1,8 @@
 import { LeekDuckEvent } from '@/services/leekDuckApi';
-import { getComingSoonUrl, getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
+import { getEventsPlaceholderUrl, getUltimateGalleryUrl } from '@/services/imageUrlBuilder';
 import { ALL_POKEMON_NAMES } from '@/utils/constants';
+
+const TROPHY_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/web/misc/trophy.png';
 
 const POKEMON_NAME_MAP: Record<string, number> = {};
 for (const [id, name] of Object.entries(ALL_POKEMON_NAMES)) {
@@ -29,6 +31,11 @@ interface EventCardProps {
 export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
   const getEventImage = (): string | null => {
     const eventLower = event.name.toLowerCase();
+
+    // League events → trophy
+    if (eventLower.includes('league')) {
+      return TROPHY_URL;
+    }
 
     for (const [name] of Object.entries(POKEMON_NAME_MAP)) {
       if (eventLower.includes(name) && name.length > 3) {
@@ -77,7 +84,7 @@ export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
       }}
     >
       <img
-        src={imageSrc || getComingSoonUrl()}
+        src={imageSrc || getEventsPlaceholderUrl()}
         alt={event.name}
         style={{
           width: '56px',
@@ -90,7 +97,7 @@ export function EventCard({ event, showRSVP = false, onRSVP }: EventCardProps) {
         onError={(e) => {
           const target = e.target as HTMLImageElement;
           target.onerror = null;
-          target.src = getComingSoonUrl();
+          target.src = getEventsPlaceholderUrl();
         }}
       />
 
