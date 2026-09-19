@@ -13,8 +13,7 @@ const STRIP_PREFIXES = [
   'mega ',
 ];
 
-// Parenthetical or trailing-form name → suffix.
-// Keys are lowercase with hyphens removed for matching flexibility.
+// Parenthetical or trailing form name → suffix.
 const PAREN_TO_SUFFIX: Record<string, string> = {
   // Forces of Nature
   'incarnate': 'incarnate',
@@ -66,13 +65,13 @@ const PAREN_TO_SUFFIX: Record<string, string> = {
   'family-of-three': 'family-of-three',
   'family-of-four': 'family-of-four',
 
-  // Tatsugiri
-  'curly form': 'curly-form',
-  'droopy form': 'droopy-form',
-  'stretchy form': 'stretchy-form',
-  'curly': 'curly-form',
-  'droopy': 'droopy-form',
-  'stretchy': 'stretchy-form',
+  // Tatsugiri — catalog uses -curly, -droopy, -stretchy (no "-form")
+  'curly form': 'curly',
+  'droopy form': 'droopy',
+  'stretchy form': 'stretchy',
+  'curly': 'curly',
+  'droopy': 'droopy',
+  'stretchy': 'stretchy',
 
   // Burmy / Wormadam
   'plant': 'plant',
@@ -81,7 +80,6 @@ const PAREN_TO_SUFFIX: Record<string, string> = {
   'sandy cloak': 'sandy',
   'trash': 'trash',
   'trash cloak': 'trash',
-  'plant cloak': 'plant',
 
   // Basculin
   'red striped': 'red-striped',
@@ -117,17 +115,22 @@ const PAREN_TO_SUFFIX: Record<string, string> = {
   'sensu style': 'sensu',
 
   // Deoxys
-  'normal': 'normal',
   'attack': 'attack',
   'defense': 'defense',
   'speed': 'speed',
 
-  // Misc
-  'male': 'male',
+  // Zygarde — catalog uses fifty-percent / ten-percent
+  'fifty percent': 'fifty-percent',
+  'fifty-percent': 'fifty-percent',
+  'ten percent': 'ten-percent',
+  'ten-percent': 'ten-percent',
+  'complete': 'complete',
+
+  // Gender — only Indeedee has a female file
   'female': 'female',
 };
 
-// Pokémon that REQUIRE a form suffix because bare name doesn't exist in catalog
+// Pokémon that REQUIRE a default form suffix because bare name doesn't exist.
 const DEFAULT_FORM_SUFFIX: Record<string, string> = {
   'unown': 'a',
   'wormadam': 'plant',
@@ -141,7 +144,7 @@ const DEFAULT_FORM_SUFFIX: Record<string, string> = {
   'vivillon': 'archipelago',
   'aegislash': 'shield',
   'hoopa': 'confined',
-  'zygarde': '50',
+  'zygarde': 'fifty-percent',
   'lycanroc': 'midday',
   'wishiwashi': 'solo',
   'toxtricity': 'amped',
@@ -150,25 +153,11 @@ const DEFAULT_FORM_SUFFIX: Record<string, string> = {
   'urshifu': 'single-strike',
   'enamorus': 'incarnate',
   'maushold': 'family-of-four',
-  'tatsugiri': 'curly-form',
+  'tatsugiri': 'curly',
   'darmanitan': 'standard',
-  'meowstic': 'male',
-  'indeedee': 'male',
-  'basculegion': 'male',
-  'oinkologne': 'male',
-  'frillish': 'male',
-  'jellicent': 'male',
-  'pyroar': 'male',
-  'hippopotas': 'male',
-  'hippowdon': 'male',
-  'castform': 'castform',
-  'cherrim': 'overcast',
-  'deoxys': 'normal',
-  'mothim': 'plant',
 };
 
-// Trailing words that should be converted to a form suffix
-// Order matters — longest matches first
+// Trailing words that should be converted to a form suffix. Longest matches first.
 const TRAILING_FORM_WORDS = [
   'incarnate', 'therian',
   'altered', 'origin',
@@ -187,6 +176,8 @@ const TRAILING_FORM_WORDS = [
   'plant', 'sandy', 'trash',
   'red striped', 'blue striped', 'white striped',
   'red-striped', 'blue-striped', 'white-striped',
+  'fifty percent', 'fifty-percent', 'ten percent', 'ten-percent',
+  'complete',
   'standard', 'zen',
   'sunny', 'rainy', 'snowy',
   'overcast', 'sunshine',
@@ -206,7 +197,7 @@ export function getUltimateGalleryUrl(
 
   let baseName = pokemonName.toLowerCase().trim();
 
-  // 1. Check for parenthetical form (e.g., "Thundurus (Therian)")
+  // 1. Check for parenthetical form BEFORE stripping.
   let explicitFormSuffix = '';
   const parenMatch = baseName.match(/\(([^)]+)\)/);
   if (parenMatch) {
@@ -217,7 +208,7 @@ export function getUltimateGalleryUrl(
     baseName = baseName.replace(/\([^)]*\)/g, '').trim();
   }
 
-  // 2. Strip prefixes (shadow, purified, dynamax, etc.)
+  // 2. Strip prefixes (shadow, purified, dynamax, mega, etc.)
   for (const prefix of STRIP_PREFIXES) {
     if (baseName.startsWith(prefix)) {
       baseName = baseName.substring(prefix.length).trim();
@@ -225,7 +216,7 @@ export function getUltimateGalleryUrl(
     }
   }
 
-  // 3. Handle regional forms (alolan/galarian/hisuian/paldean)
+  // 3. Handle regional forms.
   const regionMap: Record<string, string> = {
     'alolan': 'alola',
     'alola': 'alola',
@@ -248,7 +239,7 @@ export function getUltimateGalleryUrl(
     }
   }
 
-  // 4. If no explicit form from parens, check for trailing form words
+  // 4. If no explicit form from parens, check trailing form words.
   if (!explicitFormSuffix) {
     for (const word of TRAILING_FORM_WORDS) {
       if (baseName.endsWith(' ' + word)) {
@@ -267,14 +258,14 @@ export function getUltimateGalleryUrl(
 
   if (!slug) return null;
 
-  // 5. Append explicit form suffix if we have one
+  // 5. Append explicit form suffix if we have one.
   if (explicitFormSuffix) {
     if (!slug.endsWith('-' + explicitFormSuffix)) {
       slug += '-' + explicitFormSuffix;
     }
   }
 
-  // 6. Apply default form suffix if none was specified and the mon needs one
+  // 6. Apply default form suffix if none specified and the mon needs one.
   if (!explicitFormSuffix && DEFAULT_FORM_SUFFIX[slug]) {
     slug += '-' + DEFAULT_FORM_SUFFIX[slug];
   }
