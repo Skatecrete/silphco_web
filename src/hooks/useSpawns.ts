@@ -14,6 +14,7 @@ export interface Pokemon {
   isTopMasterLeague: boolean;
   isTopPremierCup: boolean;
   isTopUltraPremier: boolean;
+  isPermaboosted: boolean;
   imageUrl: string;
 }
 
@@ -97,6 +98,7 @@ export function useSpawns() {
           isTopMasterLeague: isInList(spawn.name, MASTER_LEAGUE),
           isTopPremierCup: isInList(spawn.name, PREMIER_CUP),
           isTopUltraPremier: isInList(spawn.name, ULTRA_PREMIER),
+          isPermaboosted: PERMABOOSTED_IDS.has(spawn.id),
           imageUrl: spawn.image_url,
         });
       }
@@ -116,6 +118,7 @@ export function useSpawns() {
             isTopMasterLeague: isInList(name, MASTER_LEAGUE),
             isTopPremierCup: isInList(name, PREMIER_CUP),
             isTopUltraPremier: isInList(name, ULTRA_PREMIER),
+            isPermaboosted: PERMABOOSTED_IDS.has(numericId),
             imageUrl: '',
           });
         }
