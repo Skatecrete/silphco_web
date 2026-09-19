@@ -42,16 +42,15 @@ export function SpawnsPage() {
     const hasFilters = Object.values(filters).some((v) => v);
     if (hasFilters) {
       result = result.filter((p: any) => {
-        let matches = false;
-        if (filters.regional) matches = matches || p.isRegional;
-        if (filters.shundo) matches = matches || (p.spawnRate >= 0.45 && p.isShiny);
-        if (filters.shiny164) matches = matches || (p.isShiny && p.spawnRate >= 0.45);
-        if (filters.greatLeague) matches = matches || p.isTopGreatLeague;
-        if (filters.ultraLeague) matches = matches || p.isTopUltraLeague;
-        if (filters.masterLeague) matches = matches || p.isTopMasterLeague;
-        if (filters.premierCup) matches = matches || p.isTopPremierCup;
-        if (filters.ultraPremier) matches = matches || p.isTopUltraPremier;
-        return matches;
+        if (filters.regional && !p.isRegional) return false;
+        if (filters.shundo && !(p.spawnRate >= 0.45 && p.isShiny)) return false;
+        if (filters.shiny164 && !(p.isPermaboosted && p.isShiny)) return false;
+        if (filters.greatLeague && !p.isTopGreatLeague) return false;
+        if (filters.ultraLeague && !p.isTopUltraLeague) return false;
+        if (filters.masterLeague && !p.isTopMasterLeague) return false;
+        if (filters.premierCup && !p.isTopPremierCup) return false;
+        if (filters.ultraPremier && !p.isTopUltraPremier) return false;
+        return true;
       });
     }
 
