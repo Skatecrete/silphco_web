@@ -1,5 +1,6 @@
 const ULTIMATE_GALLERY_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/ultimategallery';
 const COMING_SOON_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/web/misc/imagecomingsoon.png';
+const EVENTS_PLACEHOLDER_URL = 'https://raw.githubusercontent.com/Skatecrete/infographics/main/web/misc/events_placeholder.png';
 
 const STRIP_PREFIXES = [
   'shadow ',
@@ -285,6 +286,10 @@ export function getPokeApiUrl(id: number): string {
 
 export function getComingSoonUrl(): string {
   return COMING_SOON_URL;
+}
+
+export function getEventsPlaceholderUrl(): string {
+  return EVENTS_PLACEHOLDER_URL;
 }
 
 export function resolveImage(
