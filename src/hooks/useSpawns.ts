@@ -75,17 +75,11 @@ export function useSpawns() {
         return;
       }
 
-      const fetchedMap = new Map<number, SpawnData>();
-      for (const spawn of data.spawns) {
-        fetchedMap.set(spawn.id, spawn);
-      }
-
+      const fetchedIds = new Set<number>();
       const pokemonList: Pokemon[] = [];
-      const seenIds = new Set<number>();
 
       for (const spawn of data.spawns) {
-        if (seenIds.has(spawn.id)) continue;
-        seenIds.add(spawn.id);
+        fetchedIds.add(spawn.id);
         pokemonList.push({
           id: spawn.id,
           name: spawn.name,
@@ -105,7 +99,7 @@ export function useSpawns() {
 
       for (const [id, name] of Object.entries(ALL_POKEMON_NAMES)) {
         const numericId = parseInt(id);
-        if (!fetchedMap.has(numericId)) {
+        if (!fetchedIds.has(numericId)) {
           pokemonList.push({
             id: numericId,
             name: name,
