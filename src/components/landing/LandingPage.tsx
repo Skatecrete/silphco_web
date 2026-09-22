@@ -49,7 +49,7 @@ export function LandingPage() {
             marginBottom: '32px',
           }}
         >
-          Welcome to the SilphCo Operations Hub
+          Welcome to SilphCo Services!
         </p>
 
         {/* Web App Button */}
