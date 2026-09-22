@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CartItem } from '@/stores/cartStore';
 import { submitOrder } from '@/services/sheetsApi';
 
@@ -23,6 +24,7 @@ export function PaymentDialog({
   totalPrice,
   onClearCart,
 }: PaymentDialogProps) {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -61,11 +63,6 @@ export function PaymentDialog({
       if (result.status === 'success') {
         setSuccess(true);
         onClearCart();
-        setTimeout(() => {
-          onClose();
-          setSuccess(false);
-          setLoading(false);
-        }, 2000);
       } else {
         alert('Order failed. Please try again or contact admin.');
         setLoading(false);
@@ -112,7 +109,7 @@ export function PaymentDialog({
           backgroundColor: 'rgba(0, 0, 0, 0.7)',
           overflow: 'auto',
         }}
-        onClick={onClose}
+        onClick={loading ? undefined : onClose}
       >
         <div
           style={{
@@ -135,11 +132,67 @@ export function PaymentDialog({
               <p style={{ color: '#888888', marginTop: '16px' }}>Submitting order...</p>
             </div>
           ) : success ? (
-            <div style={{ textAlign: 'center', padding: '32px 0' }}>
-              <div style={{ fontSize: '64px', marginBottom: '16px' }}>✅</div>
+            <div style={{ textAlign: 'center', padding: '16px 0' }}>
+              <div style={{ fontSize: '64px', marginBottom: '12px' }}>✅</div>
               <p style={{ color: '#ffffff', fontSize: '24px', fontWeight: 700 }}>✨ Success! ✨</p>
               <p style={{ color: '#888888', marginTop: '8px' }}>You Just Gained Some Aura 😎</p>
-              <p style={{ color: '#4CAF50', marginTop: '16px' }}>Order submitted!</p>
+              <p style={{ color: '#4CAF50', marginTop: '12px' }}>Order submitted!</p>
+
+              {/* Note about in-game credentials */}
+              <div
+                style={{
+                  backgroundColor: 'rgba(118, 39, 197, 0.15)',
+                  border: '1px solid rgba(118, 39, 197, 0.4)',
+                  borderRadius: '12px',
+                  padding: '12px',
+                  marginTop: '20px',
+                  textAlign: 'left',
+                }}
+              >
+                <p style={{ color: '#ffffff', fontSize: '13px', margin: 0, lineHeight: 1.5 }}>
+                  ⚠️ <strong>Please provide your in-game login details in SilphCo Chat</strong> so we can complete your order. Tap the button below to open chat.
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate('/app/chat');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  backgroundColor: '#7627C5',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  marginTop: '16px',
+                  transition: 'background-color 0.2s',
+                }}
+                onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#5A1E9E'; }}
+                onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.backgroundColor = '#7627C5'; }}
+              >
+                💬 Open SilphCo Chat
+              </button>
+
+              <button
+                onClick={onClose}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  backgroundColor: 'transparent',
+                  color: '#888888',
+                  border: 'none',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  marginTop: '8px',
+                }}
+              >
+                Close
+              </button>
             </div>
           ) : (
             <>
