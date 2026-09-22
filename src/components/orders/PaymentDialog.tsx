@@ -140,11 +140,14 @@ export function PaymentDialog({
                   borderRadius: '12px',
                   padding: '12px',
                   marginTop: '20px',
-                  textAlign: 'left',
+                  textAlign: 'center',
                 }}
               >
                 <p style={{ color: '#ffffff', fontSize: '13px', margin: 0, lineHeight: 1.5 }}>
-                  ⚠️ <strong>Please provide your in-game login details in SilphCo Chat</strong> so we can complete your order. Tap the button below to open chat.
+                  ⚠️ <strong>Please provide your in-game login details in SilphCo Chat</strong> so we can complete your order.
+                </p>
+                <p style={{ color: '#ffffff', fontSize: '13px', margin: '6px 0 0 0', lineHeight: 1.5 }}>
+                  Tap the button below to open chat.
                 </p>
               </div>
 
