@@ -63,6 +63,7 @@ export function PaymentDialog({
       if (result.status === 'success') {
         setSuccess(true);
         onClearCart();
+        setLoading(false);
       } else {
         alert('Order failed. Please try again or contact admin.');
         setLoading(false);
@@ -125,20 +126,13 @@ export function PaymentDialog({
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '32px 0' }}>
-              <div style={{ width: '48px', height: '48px', border: '4px solid #333', borderTopColor: '#7627C5', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
-              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-              <p style={{ color: '#888888', marginTop: '16px' }}>Submitting order...</p>
-            </div>
-          ) : success ? (
+          {success ? (
             <div style={{ textAlign: 'center', padding: '16px 0' }}>
               <div style={{ fontSize: '64px', marginBottom: '12px' }}>✅</div>
               <p style={{ color: '#ffffff', fontSize: '24px', fontWeight: 700 }}>✨ Success! ✨</p>
               <p style={{ color: '#888888', marginTop: '8px' }}>You Just Gained Some Aura 😎</p>
               <p style={{ color: '#4CAF50', marginTop: '12px' }}>Order submitted!</p>
 
-              {/* Note about in-game credentials */}
               <div
                 style={{
                   backgroundColor: 'rgba(118, 39, 197, 0.15)',
@@ -193,6 +187,12 @@ export function PaymentDialog({
               >
                 Close
               </button>
+            </div>
+          ) : loading ? (
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <div style={{ width: '48px', height: '48px', border: '4px solid #333', borderTopColor: '#7627C5', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              <p style={{ color: '#888888', marginTop: '16px' }}>Submitting order...</p>
             </div>
           ) : (
             <>
