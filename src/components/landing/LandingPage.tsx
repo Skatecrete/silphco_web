@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@/hooks/useUser';
 
 const APK_DOWNLOAD_URL = 'https://drive.google.com/uc?export=download&id=1YVsTEIqoS6vvQ0j020MS-0sTbwUPSK8t';
 
 export function LandingPage() {
   const navigate = useNavigate();
+  const { isLoggedIn } = useUser();
 
   const handleEnter = () => {
     navigate('/gate');
@@ -82,43 +84,47 @@ export function LandingPage() {
           Our Web App
         </button>
 
-        {/* APK Download Button */}
-        <a
-          href={APK_DOWNLOAD_URL}
-          download
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: '16px',
-            backgroundColor: '#388E3C',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '18px',
-            fontWeight: 700,
-            textAlign: 'center',
-            textDecoration: 'none',
-            transition: 'background-color 0.2s, transform 0.1s',
-          }}
-          onMouseEnter={(e) => {
-            (e.target as HTMLAnchorElement).style.backgroundColor = '#2E7D32';
-          }}
-          onMouseLeave={(e) => {
-            (e.target as HTMLAnchorElement).style.backgroundColor = '#388E3C';
-          }}
-        >
-          📱 Download Android App
-        </a>
+        {/* APK Download Button — hidden after login */}
+        {!isLoggedIn && (
+          <>
+            <a
+              href={APK_DOWNLOAD_URL}
+              download
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '16px',
+                backgroundColor: '#388E3C',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '18px',
+                fontWeight: 700,
+                textAlign: 'center',
+                textDecoration: 'none',
+                transition: 'background-color 0.2s, transform 0.1s',
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLAnchorElement).style.backgroundColor = '#2E7D32';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLAnchorElement).style.backgroundColor = '#388E3C';
+              }}
+            >
+              📱 Download Android App
+            </a>
 
-        <p
-          style={{
-            color: '#555555',
-            fontSize: '12px',
-            marginTop: '12px',
-          }}
-        >
-          Android APK • Version 1.0
-        </p>
+            <p
+              style={{
+                color: '#555555',
+                fontSize: '12px',
+                marginTop: '12px',
+              }}
+            >
+              Android APK • Version 1.0
+            </p>
+          </>
+        )}
       </div>
 
       <div
