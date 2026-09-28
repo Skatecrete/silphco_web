@@ -230,14 +230,29 @@ export function PaymentDialog({
                   <div key={option.id} style={{ backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '12px', textAlign: 'center' }}>
                     <p style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px' }}>{option.label}</p>
                     {option.identifier && (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginTop: '8px' }}>
-                        <span style={{ color: '#ffffff', fontFamily: 'monospace', fontSize: '18px', backgroundColor: '#2a2a3e', padding: '4px 12px', borderRadius: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '8px', width: '100%' }}>
+                        <span
+                          style={{
+                            color: '#ffffff',
+                            fontFamily: 'monospace',
+                            fontSize: '14px',
+                            backgroundColor: '#2a2a3e',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            minWidth: 0,
+                            flex: '0 1 auto',
+                            maxWidth: '100%',
+                          }}
+                        >
                           {option.identifier}
                         </span>
                         <button
                           onClick={() => copyToClipboard(option.copyText)}
                           style={{
-                            padding: '4px 16px',
+                            padding: '6px 16px',
                             backgroundColor: '#2196F3',
                             color: '#ffffff',
                             border: 'none',
@@ -245,6 +260,7 @@ export function PaymentDialog({
                             fontSize: '14px',
                             fontWeight: 600,
                             cursor: 'pointer',
+                            flexShrink: 0,
                           }}
                         >
                           Copy
