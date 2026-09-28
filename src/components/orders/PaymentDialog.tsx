@@ -235,7 +235,7 @@ export function PaymentDialog({
                           style={{
                             color: '#ffffff',
                             fontFamily: 'monospace',
-                            fontSize: '14px',
+                            fontSize: '12px',
                             backgroundColor: '#2a2a3e',
                             padding: '6px 12px',
                             borderRadius: '8px',
