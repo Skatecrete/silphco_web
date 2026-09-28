@@ -82,6 +82,7 @@ export function PaymentDialog({
         { id: 'paypal', label: '💰 PayPal', identifier: '@silphcoservices', copyText: '@silphcoservices' },
         { id: 'cashapp', label: '💚 CashApp', identifier: '$silphcoservices', copyText: '$silphcoservices' },
         { id: 'venmo', label: '💙 Venmo', identifier: '@silphcoservices', copyText: '@silphcoservices' },
+        { id: 'applepay', label: '🍎 Apple Pay', identifier: 'silphcoservices@icloud.com', copyText: 'silphcoservices@icloud.com' },
       ];
     } else if (adminGamerTag === 'RampageGamer') {
       return [
